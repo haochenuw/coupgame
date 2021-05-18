@@ -14,8 +14,11 @@ const main = async () => {
     app.use(cors({ origin: "*" }));
     app.use(express.json());  // for parsing requests. 
 
+    app.use(express.static(join(__dirname, '../public')));
+
+
     app.get('/', (_req, res) => {
-        res.send("hello");
+        res.sendFile(join(__dirname,"../public/index.html");
     });
 
     app.listen(3002, () => {

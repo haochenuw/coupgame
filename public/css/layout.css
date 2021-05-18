@@ -1,0 +1,25 @@
+a.btn {
+    display: block;
+    font-size: 1.8em;
+    padding: 0.35em;
+    margin: 10px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.btn-default {
+    color: #ffffff;
+    background-color: #464545;
+    border-color: #464545;
+}
+
+.base {
+    z-index: 10;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 0 40px 20px rgb(0 0 0 / 75%);
+    transition: box-shadow 0.2s;
+    background: #222;
+}
