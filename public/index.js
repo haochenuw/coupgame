@@ -10,13 +10,13 @@ const gameOverPanel = document.getElementById('gameOverPanel');
 
 joinGameButton.addEventListener('click', joinGame);
 
-// const socket = io("http://localhost:3002");
-
-
 function joinGame(){
-    const code = gameCodeInput.value;
+    const code = gameCodeInput.value.toUpperCase();
     // socket.emit('joinGame', code); 
     // init(); 
+    if (code) {
+      return window.location = 'rooms/' + code;
+    }
 }
 
 

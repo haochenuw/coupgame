@@ -45,8 +45,8 @@ const main = async () => {
         // create new game logic 
         res.sendFile(join(__dirname,"../public/room.html"));
     }); 
-    app.get('/join', (_, res) => {
-        // join game logic 
+    app.get('/rooms/:code', (req, res) => {
+        console.log(`code = ${req.params.code}`); 
         res.send('TODO'); 
     }); 
 
