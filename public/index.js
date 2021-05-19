@@ -11,7 +11,7 @@ const gameOverPanel = document.getElementById('gameOverPanel');
 joinGameButton.addEventListener('click', joinGame);
 
 function joinGame(){
-    const code = gameCodeInput.value.toUpperCase();
+    const code = gameCodeInput.value;
     // socket.emit('joinGame', code); 
     // init(); 
     if (code) {

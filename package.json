@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc -w",
-    "build": "rollup -c",
     "dev": "nodemon out/index.js"
   },
   "keywords": [],

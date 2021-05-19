@@ -10,7 +10,10 @@ import cors from "cors";
 import * as socketio from "socket.io";
 import {Socket} from "socket.io"; 
 
+import {makeid}  from "./utils"; 
 
+let clientToRoomMapping: Map<String, String>; 
+let allRooms: Array<String> = []; 
 
 const main = async () => {
     const svelteViewEngine = require("svelte-view-engine");
@@ -60,24 +63,36 @@ const main = async () => {
     app.get('/create', (_, res) => {
         // create new game logic 
         // res.sendFile(join(__dirname,"../public/room.html"));
+        let roomName = makeid(5); 
+        allRooms.push(roomName); 
+        // clientToRoomMapping[client.id] = roomName; 
+        // client.emit('gameCode', roomName); 
+        // state[roomName] = initGame();
         res.render("App", {
-            name: "Hao"
+            name: roomName
         });
     }); 
 
     app.get('/rooms/:code', (req, res) => {
-        console.log(`code = ${req.params.code}`); 
-        res.sendFile(join(__dirname,"../public/template.html"));
+        const roomName = req.params.code; 
+        console.log(`code = ${roomName}`);
+        
+        console.log(`allrooms = ${allRooms}`); 
 
+        if (allRooms.includes(roomName)){
+            res.render("App", {
+                name: roomName
+            });
+        }
+        else{
+            res.send("room does not exist"); 
+        }
+        // res.sendFile(join(__dirname,"../public/template.html"));
     }); 
 
 
     app.get('/', (_req, res) => {
         res.sendFile(join(__dirname,"../public/index.html"));
-    });
-
-    app.get('/room/:id', (_req, res) => {
-        res.sendFile(join(__dirname,"../public/room.html"));
     });
 
     server.listen(3002, () => {
