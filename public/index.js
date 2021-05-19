@@ -25,14 +25,14 @@ const BG_COLOUR = '#231f20';
 const SNAKE_COLOUR = '#c2c2c2';
 const FOOD_COLOUR = '#e66916';
 
-socket.on('init', handleInit);
-socket.on('gameState', handleGameState);
-socket.on('gameOver', handleGameOver);
-socket.on('gameCode', handleGameCode);
-socket.on('unknownGame', handleUnkownGame);
-socket.on('tooManyPlayers', handleTooManyPlayers);
-socket.on('rematch', handleRematch);
-socket.on('redirect', hanldeRedirect);
+// socket.on('init', handleInit);
+// socket.on('gameState', handleGameState);
+// socket.on('gameOver', handleGameOver);
+// socket.on('gameCode', handleGameCode);
+// socket.on('unknownGame', handleUnkownGame);
+// socket.on('tooManyPlayers', handleTooManyPlayers);
+// socket.on('rematch', handleRematch);
+// socket.on('redirect', hanldeRedirect);
 
 function hanldeRedirect(dest){
     console.log(`dest = ${dest}`); 

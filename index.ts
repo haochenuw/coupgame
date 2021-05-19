@@ -10,10 +10,26 @@ import cors from "cors";
 import * as socketio from "socket.io";
 import {Socket} from "socket.io"; 
 
+
+
 const main = async () => {
+    const svelteViewEngine = require("svelte-view-engine");
+
+    let engine = svelteViewEngine({
+        env: "dev",
+        template: "./public/svelte-template.html",
+        dir: "./src",
+        type: "svelte",
+        buildDir: "../artifacts/pages",
+    });
+
     const app = express();
     app.use(cors({ origin: "*" }));
     app.use(express.json());  // for parsing requests. 
+
+    app.engine(engine.type, engine.render);
+    app.set("view engine", engine.type);
+    app.set("views", engine.dir);
 
     let server = require("http").Server(app);
     let io = require("socket.io")(server, {cors: {
@@ -43,11 +59,16 @@ const main = async () => {
 
     app.get('/create', (_, res) => {
         // create new game logic 
-        res.sendFile(join(__dirname,"../public/room.html"));
+        // res.sendFile(join(__dirname,"../public/room.html"));
+        res.render("App", {
+            name: "Hao"
+        });
     }); 
+
     app.get('/rooms/:code', (req, res) => {
         console.log(`code = ${req.params.code}`); 
-        res.send('TODO'); 
+        res.sendFile(join(__dirname,"../public/template.html"));
+
     }); 
 
 
