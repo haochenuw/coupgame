@@ -8,20 +8,14 @@ const gameCodeDisplay = document.getElementById('gameCodeDisplay');
 const gameResultDisplay = document.getElementById('gameResultDisplay');
 const gameOverPanel = document.getElementById('gameOverPanel');
 
-newGameButton.addEventListener('click', newGame);
 joinGameButton.addEventListener('click', joinGame);
 
-const socket = io("http://localhost:3002");
+// const socket = io("http://localhost:3002");
 
-function newGame(){
-    socket.emit('newGame'); 
-    // should move to "Lobby" screen. 
-    // init(); 
-}
 
 function joinGame(){
     const code = gameCodeInput.value;
-    socket.emit('joinGame', code); 
+    // socket.emit('joinGame', code); 
     // init(); 
 }
 
@@ -38,6 +32,12 @@ socket.on('gameCode', handleGameCode);
 socket.on('unknownGame', handleUnkownGame);
 socket.on('tooManyPlayers', handleTooManyPlayers);
 socket.on('rematch', handleRematch);
+socket.on('redirect', hanldeRedirect);
+
+function hanldeRedirect(dest){
+    console.log(`dest = ${dest}`); 
+    window.location.href = dest;
+}
 
 
 let canvas, ctx;
