@@ -1,0 +1,44 @@
+<%- include("header"); -%>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<section class="jumbotron text-center">
+<div class="album py-5 bg-light">
+  <h1>Your room code is: <%= roomName %> </h1>
+
+  <ul>
+      <li> Player1: <span id="player1"><%= player1 %></span> </li>
+      <li> Player2: <%= player2 %>  </li>
+  </ul>
+</div>
+</section>
+
+<div>
+    <a href="#" onclick="connect()">Connect</a>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+<script type='text/javascript'>
+    let socket; 
+    let localRoomName = "<%= roomName %>"; 
+    console.log(localRoomName); 
+
+    function connect(){
+        socket = io( {query: {
+            room: localRoomName
+          }}); 
+
+        socket.on('clientId', id => {
+            console.log(`id = ${id}`); 
+            player1 = id;
+            document.getElementById('player1').innerText = id;
+        })
+    }
+</script>
+
+
+</body>
+
+</html>

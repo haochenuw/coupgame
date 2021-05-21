@@ -3,20 +3,27 @@ const initialScreen = document.getElementById('initialScreen');
 const newGameButton = document.getElementById('newGameButton');
 const joinGameButton = document.getElementById('joinGameButton');
 const rematchButton = document.getElementById('rematchButton');
-const gameCodeInput = document.getElementById('gameCodeInput');
 const gameCodeDisplay = document.getElementById('gameCodeDisplay');
+const gameCodeInput = document.getElementById('gameCodeInput');
+const playerNameInput = document.getElementById('playerNameInput');
 const gameResultDisplay = document.getElementById('gameResultDisplay');
 const gameOverPanel = document.getElementById('gameOverPanel');
 
 joinGameButton.addEventListener('click', joinGame);
+newGameButton.addEventListener('click', newGame);
+
 
 function joinGame(){
     const code = gameCodeInput.value;
-    // socket.emit('joinGame', code); 
-    // init(); 
+    const name = playerNameInput.value;
     if (code) {
       return window.location = 'rooms/' + code;
     }
+}
+
+function newGame(){
+    // socket.emit('newGame'); 
+    return window.location = "/newgame"; 
 }
 
 
@@ -128,7 +135,10 @@ function rematch() {
 
 
 function handleGameCode(gameCode){
-    gameCodeDisplay.innerText = gameCode; 
+    console.log(`got code = ${gameCode}`)
+    gameCode = JSON.parse(gameCode); 
+
+    return window.location = 'rooms/' + gameCode.room;
 }
 
 function handleUnkownGame() {

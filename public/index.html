@@ -23,10 +23,10 @@
       <div id="initialScreen" class="h-100">
         <div class="d-flex flex-column align-items-center justify-content-center h-100">
             <h1>Multiplayer Coup</h1>
+            <input type="text" placeholder="Enter your name" id="playerNameInput"/>
             <a
               class="btn btn-success"
               id="newGameButton"
-              href="/create"
             >
               Create New Game
             </a>
@@ -48,7 +48,7 @@
   </section>
 
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script> {% endcomment %}
   <script src="/index.js"></script>
 </body>
 </html>

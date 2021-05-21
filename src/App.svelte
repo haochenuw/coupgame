@@ -1,4 +1,8 @@
 <script>
+    import io from "socket.io-client";
+    // const socket = io();
+    export let player1Id = ""; 
+    export let player2Id = ""; 
     export let name;
     let gifs = [];
     let searchTerm = "";
@@ -11,17 +15,28 @@
         console.error(error);
       }
     }
-  </script>
+</script>
   
   <style>
   </style>
   
   <main>
-    <h1>Hello {name}!</h1>
+    <h1>Your room code is {name}</h1>
+
+    <ul>
+        <li>
+            Player1: {player1Id}
+        </li>
+        <li>
+            Player2: {player2Id}
+        </li>
+    </ul>
+
     <div class="search-block">
       <input type="text" placeholder="Search for gif" bind:value={searchTerm} />
       <button on:click={searchForGif}>Search</button>
     </div>
+
     <div class="gifs">
       {#if gifs.length > 0}
         <div class="gifs-grid">
