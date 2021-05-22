@@ -3,24 +3,41 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <section class="jumbotron text-center">
-<div class="album py-5 bg-light">
+<div class="album py-5 bg-light" id="roomPanel">
   <h1>Your room code is: <%= roomName %> </h1>
+  
+  <pre id="roomStatus"></pre>
 
-  <ul>
-      <li> Player1: <span id="player1"><%= player1 %></span> </li>
-      <li> Player2: <%= player2 %>  </li>
-  </ul>
+  <div id='roomActions'>
+    <a href="#" class="btn btn-success" onclick="connect()">Connect</a>
+    <a href="#" class="btn btn-success" onclick="start()">Start Game</a>
+  </div>
 </div>
+
+<div id='gamePanel'>
+    <pre id='gameState'>
+        
+    </pre>
+    
+    <div id='gameActions'>
+        <a href="#" class="btn btn-success" onclick="action1()">Action1</a>
+        <a href="#" class="btn btn-success" onclick="action2()">Action2</a>
+    </div>
+    </div>
 </section>
-
-<div>
-    <a href="#" onclick="connect()">Connect</a>
-</div>
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 
 <script type='text/javascript'>
+    function refreshGameActionVisibility(){
+        // logic for which actions are available.
+    }
+
+
+    let gameInProgress = false; 
+    let gamePanel = document.getElementById('gamePanel'); 
+    let roomActions = document.getElementById('roomActions'); 
+    gamePanel.style.display = 'none'; 
     let socket; 
     let localRoomName = "<%= roomName %>"; 
     console.log(localRoomName); 
@@ -34,7 +51,23 @@
             console.log(`id = ${id}`); 
             player1 = id;
             document.getElementById('player1').innerText = id;
-        })
+        });
+
+        socket.on('roomStatus', status =>{
+            document.getElementById('roomStatus').innerText = status; 
+        }); 
+
+        socket.on('gameState', gameState =>{
+            if (!gameInProgress) {
+                gameInProgress = true; 
+            }
+            gamePanel.style.display = 'block'; 
+            roomActions.style.display = 'none'; 
+            document.getElementById('gameState').innerText = gameState; 
+        });
+    }
+    function start(){
+        socket.emit('start'); 
     }
 </script>
 

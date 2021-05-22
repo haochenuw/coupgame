@@ -7,14 +7,17 @@ import { join } from "path";
 import cors from "cors";
 // import { Todo } from "./entities/Todo";
 // import { isAuth } from "./isAuth";
-import * as socketio from "socket.io";
 import {Socket} from "socket.io"; 
 
 import {makeid}  from "./utils"; 
+import { RoomStatus } from "./types";
+import {initGame} from "./game"; 
 
-let clientToRoomMapping: Map<String, String> = new Map(); 
-let allRooms: Array<String> = []; 
-let numPlayers: Map<string, Number> = new Map(); 
+
+let allRooms: Array<string> = []; 
+let roomNameToStatusMap = {}; 
+const clientToRoomMapping = {};  
+
 const MAX_PLAYERS: Number = 2; 
 
 const main = async () => {
@@ -50,30 +53,40 @@ const main = async () => {
 
 
     io.on("connection", function(client: Socket) {
+        console.log('a client has connected'); 
         // console.log(`a user has connected with query ${JSON.stringify(client.handshake.query)}`);
         let room = client.handshake.query.room as string;
+
+        // set the mapping. 
+        clientToRoomMapping[client.id] = room; 
+        // debug
         console.log(`roomname = ${client.handshake.query.room}`);
-        console.log(`numplayer = ${JSON.stringify(numPlayers)}`)
+        console.log(`status = ${JSON.stringify(roomNameToStatusMap)}`)
+        console.log(`allrooms = ${JSON.stringify(allRooms)}`)
 
 
-        if (!numPlayers.has(room)){
-            console.log('not here'); 
+        if (!roomNameToStatusMap[room]){
+            client.emit('noRoom'); 
             return; 
         }
-        if (numPlayers[room] > MAX_PLAYERS){
+        let roomStatus = roomNameToStatusMap[room]; 
+        if (roomStatus.numPlayers > MAX_PLAYERS){
+            client.emit('tooManyPlayers'); 
             return; 
         }
         client.join(room);
-        numPlayers[room] += 1; 
-
-        console.log('got here'); 
-
+        if (roomStatus.numPlayers == 0){
+            roomStatus.playerOneId = client.id; 
+        } else if (roomStatus.numPlayers == 1){
+            roomStatus.playerTwoId = client.id; 
+        }
+        roomStatus.numPlayers += 1; 
         // TODO: emit the id to all clients in the room. 
-        client.emit('clientId', client.id); 
+        io.sockets.in(room).emit('roomStatus', JSON.stringify(roomStatus)); 
 
         // client.on('newGame', handleNewGame); 
         // client.on('joinGame', handleJoinGame); 
-
+        client.on('start', handleStartGame); 
         // function handleNewGame() {
         //     console.log(`got new game request`); 
         //     let roomName = makeid(5); 
@@ -87,13 +100,30 @@ const main = async () => {
         // function handleJoinGame() {
         //     console.log(`got join game request`); 
         // }
+        function handleStartGame(){
+            console.log(`got start game request`); 
+            const roomName = clientToRoomMapping[client.id]; 
+            if (!roomName) return; 
+            let initialGameState = initGame(); 
+            // broadcast
+            io.sockets.in(roomName).emit('gameState', JSON.stringify({initialGameState})); 
+        }
     });
     app.use(express.static(join(__dirname, '../public')));
 
     app.get('/newgame', (_, res) => {
+        console.log('got new game request'); 
         let roomName = makeid(5); 
         allRooms.push(roomName); 
-        numPlayers.set(roomName, 0); 
+        let roomStatus: RoomStatus = {
+            name: roomName, 
+            playerOneId: null, 
+            playerTwoId: null, 
+            numPlayers: 0, 
+        }
+        roomNameToStatusMap[roomName] = roomStatus; 
+        console.log("status = " + JSON.stringify(roomNameToStatusMap));
+        // redirect to room page. 
         res.redirect('/rooms/' + roomName); 
     })
 
