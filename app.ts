@@ -10,15 +10,17 @@ import cors from "cors";
 import {Socket} from "socket.io"; 
 
 import {makeid}  from "./utils"; 
-import { RoomStatus } from "./types";
+import { RoomStatus,GameState, PlayerState, Card, Action} from "./types";
 import {initGame} from "./game"; 
+import { callbackify } from "util";
 
 
 let allRooms: Array<string> = []; 
 let roomNameToStatusMap = {}; 
 const clientToRoomMapping = {};  
+let states = {}; 
 
-const MAX_PLAYERS: Number = 2; 
+const MAX_PLAYERS: number = 2; 
 
 const main = async () => {
     // const svelteViewEngine = require("svelte-view-engine");
@@ -40,8 +42,8 @@ const main = async () => {
     // app.engine(engine.type, engine.render);
     // app.set("view engine", engine.type);
     // app.set("views", engine.dir);
-
-    let server = require("http").Server(app);
+    const http = require('http');
+    const server = http.createServer(app);
     let io = require("socket.io")(server, {cors: {
         origin: "http://localhost",
         methods: ["GET", "POST"],
@@ -84,31 +86,107 @@ const main = async () => {
         // TODO: emit the id to all clients in the room. 
         io.sockets.in(room).emit('roomStatus', JSON.stringify(roomStatus)); 
 
-        // client.on('newGame', handleNewGame); 
-        // client.on('joinGame', handleJoinGame); 
         client.on('start', handleStartGame); 
-        // function handleNewGame() {
-        //     console.log(`got new game request`); 
-        //     let roomName = makeid(5); 
-        //     allRooms.push(roomName); 
+        
+        client.on('action', handlePlayerAction); 
 
-        //     // joining the room per socket.io api. 
-        //     client.join(roomName); 
-        //     // send the roomName to client. 
-        //     client.emit('gameCode', JSON.stringify({"room": roomName, "client": client.id}));  
-        // }
-        // function handleJoinGame() {
-        //     console.log(`got join game request`); 
-        // }
+
         function handleStartGame(){
             console.log(`got start game request`); 
-            const roomName = clientToRoomMapping[client.id]; 
+            const roomName: string = clientToRoomMapping[client.id]; 
             if (!roomName) return; 
-            let initialGameState = initGame(); 
+            // TODO find all users 
+            console.log(io.sockets.adapter.rooms);
+            // console.log(`roomName = ${roomName}`);
+            // const room = io.sockets.adapter.rooms.get(roomName); 
+            // if (!room){
+            //     console.log('no room found'); 
+            //     return; 
+            // }
+            // console.log(`found room = ${room}`);
+            // let allUsers = room.sockets; 
+            let gameStatus = roomNameToStatusMap[roomName]
+
+            let initialGameState = initGame([gameStatus.playerOneId, gameStatus.playerTwoId]); 
+            states[roomName] = initialGameState; 
             // broadcast
             io.sockets.in(roomName).emit('gameState', JSON.stringify({initialGameState})); 
         }
+
+        function handlePlayerAction(action) {
+            console.log(action); 
+            let roomName = clientToRoomMapping[client.id]; 
+            if (!roomName){
+                return; 
+            }
+            
+
+            let gameState = states[roomName]; 
+            if (!isValidAction(action, client.id, gameState)){
+                console.log('invalid action'); 
+                return; 
+            }   
+            // action is valid. perform action by changing game state
+            
+            // resolve challenges and blocks. 
+            resolveReactions((ok: boolean)=>{
+                // save new game state
+                if (ok){
+                    let newGameState = changeState(gameState, action, client.id);
+                    states[roomName] = newGameState; 
+                    swapPlayers(newGameState); 
+                    // swap player turn? 
+
+                    // broadcast new game state 
+                    io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
+                }
+            }); 
+        }
+
+        async function resolveReactions(callback: (ok: boolean)=> void){
+            callback(true); 
+        }
+
+        function swapPlayers(gameState: GameState){
+            gameState.activePlayerIndex += 1;      
+            gameState.activePlayerIndex %= MAX_PLAYERS; 
+        }
+
+        function changeState(gameState: GameState, action): GameState{
+
+            // parse to enum. Based on enum. Change stuff. 
+            var parsedAction: Action = Action[action.name]; 
+            console.log(`parsed action = ${parsedAction}`); 
+            switch (parsedAction) {
+                case Action.Income:
+                    console.log("Income action");
+                    if (gameState.activePlayerIndex == 0){
+                        gameState.playerOneState.tokens += 1; 
+                    } else{
+                        gameState.playerTwoState.tokens += 1; 
+                    }
+                    break;
+                default:
+                    console.log("No such action exists!");
+                    break;
+            }
+
+            return gameState; 
+        }
+
+        function isValidAction(action, clientId: string, state: GameState){
+            if (clientId === state.playerIds[state.activePlayerIndex]){
+                console.log("valid action"); 
+                return true; 
+            } else{
+                console.log("not your turn"); 
+                return false; 
+            }
+        }
     });
+
+
+
     app.use(express.static(join(__dirname, '../public')));
 
     app.get('/newgame', (_, res) => {
@@ -148,8 +226,6 @@ const main = async () => {
         if (allRooms.includes(roomName)){
             res.render("room", {
                 roomName: roomName, 
-                player1: "Null", 
-                player2: "Null", 
             });
             // res.render("App", {
             //     name: roomName, 

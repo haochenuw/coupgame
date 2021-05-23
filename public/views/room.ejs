@@ -20,7 +20,7 @@
     </pre>
     
     <div id='gameActions'>
-        <a href="#" class="btn btn-success" onclick="action1()">Action1</a>
+        <a href="#" class="btn btn-success" onclick="action1()">Income</a>
         <a href="#" class="btn btn-success" onclick="action2()">Action2</a>
     </div>
     </div>
@@ -29,6 +29,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 
 <script type='text/javascript'>
+    
+    function action1(){
+        socket.emit('action', {"name":"Income", "target": null}); 
+    }
+
+    function action2(){
+        // let user select a target. 
+        let target = getUserSelectedTarget();
+        socket.emit('action', {"name":"action2", "target": target}); 
+    }
+
+    
+
+
     function refreshGameActionVisibility(){
         // logic for which actions are available.
     }
