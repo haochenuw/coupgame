@@ -28,10 +28,14 @@ export enum Action {
 export type GameState = {
     playerIds: Array<string>, 
     activePlayerIndex: number, 
-    playerOneState: PlayerState,
-    playerTwoState: PlayerState,
+    playerStates: Array<PlayerState>,
     deckState: Array<Card>, 
 }
+
+export type GameStatePlusPlayerIndex = GameState & {
+    thisPlayerIndex: number    // add a new property
+};
+
 
 export type PlayerState = {
     lifePoint: number, 

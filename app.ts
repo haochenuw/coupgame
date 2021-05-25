@@ -12,8 +12,7 @@ import {Socket} from "socket.io";
 import {makeid}  from "./utils"; 
 import { RoomStatus,GameState, PlayerState, Card, Action} from "./types";
 import {initGame} from "./game"; 
-import { callbackify } from "util";
-
+import {INCOME_RATE, COUP_COST} from "./constants"; 
 
 let allRooms: Array<string> = []; 
 let roomNameToStatusMap = {}; 
@@ -64,7 +63,6 @@ const main = async () => {
         // debug
         console.log(`roomname = ${client.handshake.query.room}`);
         console.log(`status = ${JSON.stringify(roomNameToStatusMap)}`)
-        console.log(`allrooms = ${JSON.stringify(allRooms)}`)
 
 
         if (!roomNameToStatusMap[room]){
@@ -82,8 +80,9 @@ const main = async () => {
         } else if (roomStatus.numPlayers == 1){
             roomStatus.playerTwoId = client.id; 
         }
+        client.emit('playerIndex', roomStatus.numPlayers); 
         roomStatus.numPlayers += 1; 
-        // TODO: emit the id to all clients in the room. 
+
         io.sockets.in(room).emit('roomStatus', JSON.stringify(roomStatus)); 
 
         client.on('start', handleStartGame); 
@@ -115,6 +114,7 @@ const main = async () => {
 
         function handlePlayerAction(action) {
             console.log(action); 
+            // found room 
             let roomName = clientToRoomMapping[client.id]; 
             if (!roomName){
                 return; 
@@ -126,21 +126,39 @@ const main = async () => {
                 console.log('invalid action'); 
                 return; 
             }   
-            // action is valid. perform action by changing game state
             
             // resolve challenges and blocks. 
             resolveReactions((ok: boolean)=>{
                 // save new game state
                 if (ok){
-                    let newGameState = changeState(gameState, action, client.id);
+                    let newGameState = changeState(gameState, action);
                     states[roomName] = newGameState; 
                     swapPlayers(newGameState); 
-                    // swap player turn? 
 
-                    // broadcast new game state 
-                    io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
+                    let winner = checkForWin(newGameState);
+                    if (winner === null){
+                        // broadcast new game state 
+                        io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
+                    } else{
+                        io.sockets.in(roomName).emit('gameOver', {"winner": winner}); 
+                    }
                 }
             }); 
+        }
+
+        function checkForWin(gameState: GameState): number | null{
+            let remainingPlayers = 0; 
+            let remainingPlayerIndex = -1; 
+            for (let i = 0; i <  gameState.playerStates.length; i++){
+                if (gameState.playerStates[i].lifePoint !=0){
+                    remainingPlayers++; 
+                    remainingPlayerIndex = i; 
+                }
+            }
+            if (remainingPlayers == 1){
+                return remainingPlayerIndex;
+            }
+            return null; 
         }
 
         async function resolveReactions(callback: (ok: boolean)=> void){
@@ -153,19 +171,21 @@ const main = async () => {
         }
 
         function changeState(gameState: GameState, action): GameState{
-
             // parse to enum. Based on enum. Change stuff. 
             var parsedAction: Action = Action[action.name]; 
             console.log(`parsed action = ${parsedAction}`); 
+            console.log(`state = ${JSON.stringify(gameState)}`); 
             switch (parsedAction) {
                 case Action.Income:
                     console.log("Income action");
-                    if (gameState.activePlayerIndex == 0){
-                        gameState.playerOneState.tokens += 1; 
-                    } else{
-                        gameState.playerTwoState.tokens += 1; 
-                    }
+                    gameState.playerStates[gameState.activePlayerIndex].tokens += INCOME_RATE; 
                     break;
+                case Action.Coup: 
+                    console.log("Coup action");
+                    // TODO validate 
+                    gameState.playerStates[action.target].lifePoint -= 1; 
+                    gameState.playerStates[gameState.activePlayerIndex].tokens -= COUP_COST; 
+                    break; 
                 default:
                     console.log("No such action exists!");
                     break;
@@ -176,10 +196,9 @@ const main = async () => {
 
         function isValidAction(action, clientId: string, state: GameState){
             if (clientId === state.playerIds[state.activePlayerIndex]){
-                console.log("valid action"); 
                 return true; 
             } else{
-                console.log("not your turn"); 
+                console.log("Invalid action: not your turn"); 
                 return false; 
             }
         }

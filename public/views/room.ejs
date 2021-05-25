@@ -5,6 +5,8 @@
 <section class="jumbotron text-center">
 <div class="album py-5 bg-light" id="roomPanel">
   <h1>Your room code is: <%= roomName %> </h1>
+
+  <h1>You are player: <span id = "playerIndexDisplay"></span></h1>
   
   <pre id="roomStatus"></pre>
 
@@ -20,8 +22,8 @@
     </pre>
     
     <div id='gameActions'>
-        <a href="#" class="btn btn-success" onclick="action1()">Income</a>
-        <a href="#" class="btn btn-success" onclick="action2()">Action2</a>
+        <a href="#" class="btn btn-success" onclick="incomeAction()">Income</a>
+        <a href="#" class="btn btn-success" onclick="coupAction()">Coup</a>
     </div>
     </div>
 </section>
@@ -29,15 +31,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 
 <script type='text/javascript'>
-    
-    function action1(){
+    let localGameState; 
+    let playerIndex; 
+
+    function incomeAction(){
         socket.emit('action', {"name":"Income", "target": null}); 
     }
 
-    function action2(){
+    function coupAction(){
         // let user select a target. 
-        let target = getUserSelectedTarget();
-        socket.emit('action', {"name":"action2", "target": target}); 
+        socket.emit('action', {"name":"Coup", "target": 1-playerIndex}); 
     }
 
     
@@ -61,10 +64,10 @@
             room: localRoomName
           }}); 
 
-        socket.on('clientId', id => {
-            console.log(`id = ${id}`); 
-            player1 = id;
-            document.getElementById('player1').innerText = id;
+        socket.on('playerIndex', index => {
+            console.log(`playerIndex = ${index}`); 
+            document.getElementById('playerIndexDisplay').innerText = index;
+            playerIndex = index; 
         });
 
         socket.on('roomStatus', status =>{
@@ -75,13 +78,19 @@
             if (!gameInProgress) {
                 gameInProgress = true; 
             }
+            localGameState = gameState;
             gamePanel.style.display = 'block'; 
             roomActions.style.display = 'none'; 
-            document.getElementById('gameState').innerText = gameState; 
+            paintGameState(gameState); 
         });
     }
     function start(){
         socket.emit('start'); 
+    }
+
+    function paintGameState(gameState){
+        document.getElementById('gameState').innerText = gameState; 
+        // TODO add ul corresponding to players
     }
 </script>
 
