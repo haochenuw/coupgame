@@ -8,8 +8,21 @@ Many randome failures
 
 TODO: 
 
-- Show player who is who 
+- ~~Show player who is who~~ Monday, May 24, 2021
 
 - Disable action when it's not their turn. 
 
-- Coup action and Game over logic 
+- ~~Coup action~~ Monday, May 24, 2021
+
+- ~~Game over logic~~ Wednesday, May 26, 2021
+
+- ~~Rematch~~ Wednesday, May 26, 2021
+
+- Random distribute initial cards to players. 
+
+- Challengable actions. 
+    - define a new action that's challengable
+    - handle challenge requests 
+    - handle challenge confirm
+    - handle reveal requests 
+    - send result of challenge. 

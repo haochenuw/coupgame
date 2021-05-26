@@ -25,7 +25,13 @@
         <a href="#" class="btn btn-success" onclick="incomeAction()">Income</a>
         <a href="#" class="btn btn-success" onclick="coupAction()">Coup</a>
     </div>
-    </div>
+</div>
+
+<div id="gameResultPanel">
+    <h1> Game Over, winner is <span id="winner"></span></h1>
+    <a href="#" class="btn btn-success" onclick="rematch()">Rematch</a>
+</div>
+
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
@@ -33,6 +39,8 @@
 <script type='text/javascript'>
     let localGameState; 
     let playerIndex; 
+
+    $("#gameResultPanel").hide(); 
 
     function incomeAction(){
         socket.emit('action', {"name":"Income", "target": null}); 
@@ -43,13 +51,9 @@
         socket.emit('action', {"name":"Coup", "target": 1-playerIndex}); 
     }
 
-    
-
-
-    function refreshGameActionVisibility(){
-        // logic for which actions are available.
+    function rematch(){
+        socket.emit('rematch'); 
     }
-
 
     let gameInProgress = false; 
     let gamePanel = document.getElementById('gamePanel'); 
@@ -83,9 +87,25 @@
             roomActions.style.display = 'none'; 
             paintGameState(gameState); 
         });
+
+        socket.on('gameOver', winner => {
+            console.log(`winner is ${winner}`); 
+            document.getElementById('winner').innerText = winner; 
+            gameInProgress = false; 
+            $("#gameResultPanel").show(); 
+            $("#gamePanel").hide(); 
+        });
+
+        socket.on('rematchConfirm', ()=>{
+            $("#gameResultPanel").hide(); 
+            // flush state
+            paintGameState({}); 
+            $("#gamePanel").show(); 
+        }); 
     }
     function start(){
         socket.emit('start'); 
+        gameInProgress = true; 
     }
 
     function paintGameState(gameState){

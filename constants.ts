@@ -7,5 +7,5 @@ export const Cards = [
     }
 ]; 
 
-export const COUP_COST = 5; 
+export const COUP_COST = 0; 
 export const INCOME_RATE = 10; 

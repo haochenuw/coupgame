@@ -1,12 +1,7 @@
 // require("dotenv-safe").config();
 import express from "express";
 import { join } from "path";
-// import "reflect-metadata";
-// import { User } from "./entities/User";
-// import { Strategy as GitHubStrategy } from "passport-github";
 import cors from "cors";
-// import { Todo } from "./entities/Todo";
-// import { isAuth } from "./isAuth";
 import {Socket} from "socket.io"; 
 
 import {makeid}  from "./utils"; 
@@ -14,8 +9,9 @@ import { RoomStatus,GameState, PlayerState, Card, Action} from "./types";
 import {initGame} from "./game"; 
 import {INCOME_RATE, COUP_COST} from "./constants"; 
 
-let allRooms: Array<string> = []; 
 let roomNameToStatusMap = {}; 
+let roomNameToRematchRequests = {}; 
+let allRooms: Array<string> = []; 
 const clientToRoomMapping = {};  
 let states = {}; 
 
@@ -89,6 +85,8 @@ const main = async () => {
         
         client.on('action', handlePlayerAction); 
 
+        client.on('rematch', handleRematch); 
+
 
         function handleStartGame(){
             console.log(`got start game request`); 
@@ -96,14 +94,7 @@ const main = async () => {
             if (!roomName) return; 
             // TODO find all users 
             console.log(io.sockets.adapter.rooms);
-            // console.log(`roomName = ${roomName}`);
-            // const room = io.sockets.adapter.rooms.get(roomName); 
-            // if (!room){
-            //     console.log('no room found'); 
-            //     return; 
-            // }
-            // console.log(`found room = ${room}`);
-            // let allUsers = room.sockets; 
+
             let gameStatus = roomNameToStatusMap[roomName]
 
             let initialGameState = initGame([gameStatus.playerOneId, gameStatus.playerTwoId]); 
@@ -114,13 +105,11 @@ const main = async () => {
 
         function handlePlayerAction(action) {
             console.log(action); 
-            // found room 
             let roomName = clientToRoomMapping[client.id]; 
             if (!roomName){
                 return; 
             }
             
-
             let gameState = states[roomName]; 
             if (!isValidAction(action, client.id, gameState)){
                 console.log('invalid action'); 
@@ -140,10 +129,32 @@ const main = async () => {
                         // broadcast new game state 
                         io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
                     } else{
-                        io.sockets.in(roomName).emit('gameOver', {"winner": winner}); 
+                        console.log(`game over, winner is ${winner}`); 
+                        io.sockets.in(roomName).emit('gameOver', JSON.stringify(winner)); 
                     }
                 }
             }); 
+        }
+
+        function handleRematch(){
+            console.log(`got rematch request`); 
+            const roomName: string = clientToRoomMapping[client.id]; 
+            if (!roomName) return;
+
+            if(!roomNameToRematchRequests[roomName]){
+                roomNameToRematchRequests[roomName] = [client.id]; 
+            } else if (!roomNameToRematchRequests[roomName].includes(client.id)){
+                roomNameToRematchRequests[roomName].push(client.id); 
+            }
+            console.log(`rematch requests = ${roomNameToRematchRequests[roomName]}`); 
+            if (roomNameToRematchRequests[roomName].length == MAX_PLAYERS){
+                console.log(`start rematch`);
+                // flush the rematch requests. 
+                roomNameToRematchRequests[roomName] = [];
+                io.sockets.in(roomName).emit('rematchConfirm'); 
+                // start game 
+                handleStartGame(); 
+            }
         }
 
         function checkForWin(gameState: GameState): number | null{
@@ -204,8 +215,6 @@ const main = async () => {
         }
     });
 
-
-
     app.use(express.static(join(__dirname, '../public')));
 
     app.get('/newgame', (_, res) => {
@@ -224,36 +233,16 @@ const main = async () => {
         res.redirect('/rooms/' + roomName); 
     })
 
-
-    app.post('/create', (_, res) => {
-        // create new game logic 
-        // res.sendFile(join(__dirname,"../public/room.html"));
-        console.log(`Got post request`); 
-        res.send('post response'); 
-        // let roomName = makeid(5); 
-        // allRooms.push(roomName); 
-        // // clientToRoomMapping[client.id] = roomName; 
-        // // client.emit('gameCode', roomName); 
-        // // state[roomName] = initGame();
-        // res.render("App", {
-        //     name: roomName
-        // });
-    }); 
-
     app.get('/rooms/:code', (req, res) => {
         const roomName = req.params.code; 
         if (allRooms.includes(roomName)){
             res.render("room", {
                 roomName: roomName, 
             });
-            // res.render("App", {
-            //     name: roomName, 
-            // });
         }
         else{
             res.send("room does not exist"); 
         }
-        // res.sendFile(join(__dirname,"../public/template.html"));
     }); 
 
 
