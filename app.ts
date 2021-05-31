@@ -5,7 +5,7 @@ import cors from "cors";
 import {Socket} from "socket.io"; 
 
 import {makeid}  from "./utils"; 
-import { RoomStatus,GameState, PlayerState, Card, Action} from "./types";
+import { RoomStatus,GameState, PlayerState, Card, Action, isChallengeable} from "./types";
 import {initGame} from "./game"; 
 import {INCOME_RATE, COUP_COST} from "./constants"; 
 
@@ -87,6 +87,22 @@ const main = async () => {
 
         client.on('rematch', handleRematch); 
 
+        client.on('challenge', handleChallenge); 
+
+        function handleChallenge(isChallenge: boolean){
+            // TODO: validate. 
+            // first, active player cannot challenge 
+
+            const roomName: string = clientToRoomMapping[client.id]; 
+            if (!roomName) return; 
+            // io.sockets.in(roomName).emit('activityLog', Object.assign({}, action, {source: client.id})); 
+            if (isChallenge){
+                io.to(roomName).emit('activityLog', {name: "challenge", source: client.id}); 
+            } else{
+                io.to(roomName).emit('activityLog', {name: "skip", source: client.id}); 
+            }
+        }
+
 
         function handleStartGame(){
             console.log(`got start game request`); 
@@ -115,25 +131,30 @@ const main = async () => {
                 console.log('invalid action'); 
                 return; 
             }   
-            
-            // resolve challenges and blocks. 
-            resolveReactions((ok: boolean)=>{
-                // save new game state
-                if (ok){
-                    let newGameState = changeState(gameState, action);
-                    states[roomName] = newGameState; 
-                    swapPlayers(newGameState); 
+            io.sockets.in(roomName).emit('activityLog', Object.assign({}, action, {source: client.id})); 
 
-                    let winner = checkForWin(newGameState);
-                    if (winner === null){
-                        // broadcast new game state 
-                        io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
-                    } else{
-                        console.log(`game over, winner is ${winner}`); 
-                        io.sockets.in(roomName).emit('gameOver', JSON.stringify(winner)); 
+            if (isChallengeable(action.name as Action)){
+                console.log('action is challengeable...waiting for challenges');                 
+            } else{
+                // resolve challenges and blocks. 
+                resolveReactions(action, (ok: boolean)=>{
+                    // save new game state
+                    if (ok){
+                        let newGameState = changeState(gameState, action);
+                        states[roomName] = newGameState; 
+                        swapPlayers(newGameState); 
+
+                        let winner = checkForWin(newGameState);
+                        if (winner === null){
+                            // broadcast new game state 
+                            io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
+                        } else{
+                            console.log(`game over, winner is ${winner}`); 
+                            io.sockets.in(roomName).emit('gameOver', JSON.stringify(winner)); 
+                        }
                     }
-                }
-            }); 
+                }); 
+            }
         }
 
         function handleRematch(){
@@ -172,7 +193,7 @@ const main = async () => {
             return null; 
         }
 
-        async function resolveReactions(callback: (ok: boolean)=> void){
+        async function resolveReactions(action, callback: (ok: boolean)=> void){
             callback(true); 
         }
 

@@ -18,11 +18,18 @@ TODO:
 
 - ~~Rematch~~ Wednesday, May 26, 2021
 
-- Random distribute initial cards to players. 
+- ~~distribute initial cards to players.~~ Thursday, May 27, 2021
+
+- ~~Randomize initial cards~~ Thursday, May 27, 2021
+
+- ~~Activity log~~ Sunday, May 30, 2021
+    - scrollable list 
 
 - Challengable actions. 
-    - define a new action that's challengable
-    - handle challenge requests 
-    - handle challenge confirm
-    - handle reveal requests 
-    - send result of challenge. 
+    - ~~allow defining a a new action that's challengable~~ Sunday, May 30, 2021  
+    - ~~handle other player's challenge, confirm and display it. ~~ Sunday, May 30, 2021
+    - handle reveals from the original player 
+    - compute and send result of challenge. 
+    - in challenge state, other actions should be disregarded. 
+
+- 

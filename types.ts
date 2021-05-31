@@ -22,7 +22,17 @@ export enum CardName {
 
 export enum Action {
     Income = "INCOME", 
-    Coup = "COUP"
+    Coup = "COUP", 
+    Tax = "Tax", 
+}
+
+export function isChallengeable(action: Action) {
+    switch (action) {
+        case Action.Tax:
+            return true;
+        default:
+            return false;
+    }
 }
 
 export type GameState = {

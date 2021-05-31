@@ -24,7 +24,21 @@
     <div id='gameActions'>
         <a href="#" class="btn btn-success" onclick="incomeAction()">Income</a>
         <a href="#" class="btn btn-success" onclick="coupAction()">Coup</a>
+        <a href="#" class="btn btn-success" onclick="taxAction()">Tax</a>
+        <br/>
+        <div id='challengeSection'>
+            <h1>Challenge?</h1> 
+            <a href="#" class="btn btn-danger" onclick="challenge(true)">Yes</a>
+            <a href="#" class="btn btn-danger" onclick="challenge(false)">No</a>
+        </div>
+        <div id='revealSection'>
+        </div>
     </div>
+</div>
+
+<div id="activityLogs">
+    <ul class="log">
+    </ul>
 </div>
 
 <div id="gameResultPanel">
@@ -39,6 +53,7 @@
 <script type='text/javascript'>
     let localGameState; 
     let playerIndex; 
+    const ul = document.querySelector(".log"); 
 
     $("#gameResultPanel").hide(); 
 
@@ -49,6 +64,14 @@
     function coupAction(){
         // let user select a target. 
         socket.emit('action', {"name":"Coup", "target": 1-playerIndex}); 
+    }
+
+    function taxAction(){
+        socket.emit('action', {"name":"Tax", "target": null}); 
+    }
+
+    function challenge(isChallenge){
+        socket.emit('challenge', isChallenge); 
     }
 
     function rematch(){
@@ -88,6 +111,11 @@
             paintGameState(gameState); 
         });
 
+        socket.on('activityLog', activity => {
+            console.log(activity); 
+            addItemToDOM(activity); 
+        });
+
         socket.on('gameOver', winner => {
             console.log(`winner is ${winner}`); 
             document.getElementById('winner').innerText = winner; 
@@ -112,6 +140,21 @@
         document.getElementById('gameState').innerText = gameState; 
         // TODO add ul corresponding to players
     }
+
+    function addItemToDOM(action) {    
+        // create an li
+        let activityString = "".concat(...['Player ',action.source, ' played ', action.name.toLowerCase()]);
+        if (action.target !== null){
+            activityString = "".concat(...[activityString, ' on player ', action.target]);
+        }
+        const li = document.createElement('li')
+        // li.setAttribute("data-id", itemId);
+        // add toDoItem text to li
+        li.innerText = activityString
+        // add li to the DOM
+        ul.appendChild(li);
+    }
+
 </script>
 
 
