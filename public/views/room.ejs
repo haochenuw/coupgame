@@ -17,21 +17,48 @@
 </div>
 
 <div id='gamePanel'>
-    <pre id='gameState'>
-        
-    </pre>
+    <div id='gameState' style="width: auto">
+        <div id='player1State'>
+            <h2>Token: <span id = "token"></span></h2>
+            <h2>Life: <span id = "life"></span></h2>
+            <h2>Cards:</h2>
+            <ul id = "cards"></ul>
+        </div>
+        <div id='player2State'>
+            <h2>Token: <span id = "token"></span></h2>
+            <h2>Life: <span id = "life"></span></h2>
+            <h2>Cards:</h2>
+            <ul id = "cards"></ul>
+        </div>
+    </div>
     
     <div id='gameActions'>
         <a href="#" class="btn btn-success" onclick="incomeAction()">Income</a>
         <a href="#" class="btn btn-success" onclick="coupAction()">Coup</a>
         <a href="#" class="btn btn-success" onclick="taxAction()">Tax</a>
+        <a href="#" class="btn btn-success" onclick="foreignAidAction()">Foreign Aid</a>
+        <a href="#" class="btn btn-success" onclick="assasinateAction()">Assasinate</a>
+        <a href="#" class="btn btn-success" onclick="stealAction()">Steal</a>
         <br/>
         <div id='challengeSection'>
-            <h1>Challenge?</h1> 
+            <h2>Challenge?</h2> 
             <a href="#" class="btn btn-danger" onclick="challenge(true)">Yes</a>
-            <a href="#" class="btn btn-danger" onclick="challenge(false)">No</a>
+            <a href="#" class="btn btn-back" onclick="challenge(false)">No</a>
+        </div>
+        <div id='blockSection'>
+            <h2>Block?</h2> 
+            <a href="#" class="btn btn-danger" onclick="block(true)">Yes</a>
+            <a href="#" class="btn btn-back" onclick="block(false)">No</a>
         </div>
         <div id='revealSection'>
+            <h2>Choose a card to reveal</h2> 
+            <a href="#" class="btn btn-danger" onclick="reveal(0)">Card 1</a>
+            <a href="#" class="btn btn-danger" onclick="reveal(1)">Card 2</a>
+        </div>
+        <div id='surrenderSection'>
+            <h2>Choose a card to surrender</h2> 
+            <a href="#" class="btn btn-danger" onclick="surrender(0)">Card 1</a>
+            <a href="#" class="btn btn-danger" onclick="surrender(1)">Card 2</a>
         </div>
     </div>
 </div>
@@ -70,8 +97,32 @@
         socket.emit('action', {"name":"Tax", "target": null}); 
     }
 
+    function foreignAidAction(){
+        socket.emit('action', {"name":"ForeignAid", "target": null}); 
+    }
+
+    function assasinateAction(){
+        socket.emit('action', {"name":"Assasinate", "target": 1-playerIndex}); 
+    }
+
+    function stealAction(){
+        socket.emit('action', {"name":"Steal", "target": 1-playerIndex}); 
+    }
+
     function challenge(isChallenge){
         socket.emit('challenge', isChallenge); 
+    }
+
+    function block(isBlock){
+        socket.emit('block', isBlock); 
+    }
+
+    function reveal(cardIndex){
+        socket.emit('reveal', cardIndex); 
+    }
+
+    function surrender(cardIndex){
+        socket.emit('surrender', cardIndex); 
     }
 
     function rematch(){
@@ -127,8 +178,8 @@
         socket.on('rematchConfirm', ()=>{
             $("#gameResultPanel").hide(); 
             // flush state
-            paintGameState({}); 
             $("#gamePanel").show(); 
+            removeAllChildNodes($(".log")); 
         }); 
     }
     function start(){
@@ -137,15 +188,45 @@
     }
 
     function paintGameState(gameState){
-        document.getElementById('gameState').innerText = gameState; 
-        // TODO add ul corresponding to players
+        console.log(`painting gamestate = ${gameState}`); 
+        let parsed = JSON.parse(gameState);
+        paintPlayerState(document.getElementById('player1State'), parsed.playerStates[0]); 
+        paintPlayerState(document.getElementById('player2State'), parsed.playerStates[1]); 
+        // innerHTML = JSON.stringify(gameState, null, "  ");
+    }
+
+    function paintPlayerState(playerNode, playerState){
+        let playerToken = playerNode.querySelector("#token"); 
+        let playerLife = playerNode.querySelector("#life"); 
+        let playerCards = playerNode.querySelector("#cards"); 
+        playerToken.innerHTML = playerState.tokens; 
+        playerLife.innerHTML = playerState.lifePoint; 
+        removeAllChildNodes(playerCards);
+        for(let i = 0; i < playerState.cards.length; i++){
+            const li = document.createElement('li'); 
+            li.innerHTML = JSON.stringify(playerState.cards[i]);  
+            if (playerState.cards[i].isRevealed){
+                li.classList.add('revealed');
+            }
+            playerCards.appendChild(li);
+        }
+    }
+
+    function removeAllChildNodes(parent) {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+        }
     }
 
     function addItemToDOM(action) {    
-        // create an li
-        let activityString = "".concat(...['Player ',action.source, ' played ', action.name.toLowerCase()]);
-        if (action.target !== null){
-            activityString = "".concat(...[activityString, ' on player ', action.target]);
+        let activityString = "".concat(...['Player ',action.source, ' played ', action.name]);
+        if (action.target !== null && action.target !== undefined){
+            if (action.name === "reveal" || action.name === "surrender"){
+                activityString = activityString.concat(...[' with card ', action.target]);
+            } 
+            else{
+                activityString = "".concat(...[activityString, ' on player ', action.target]);
+            }
         }
         const li = document.createElement('li')
         // li.setAttribute("data-id", itemId);

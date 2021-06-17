@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc -w",
-    "dev": "tsc; nodemon out/app.js"
+    "dev2": "tsc -w; cd client && yarn && yarn run build; cd .. && nodemon out/app.js",
+    "dev": "tsc && nodemon out/app.js"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +29,7 @@
     "cors": "^2.8.5",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
-    "socket.io": "^4.1.2",
-    "socket.io-client": "^4.1.2"
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0"
   }
 }

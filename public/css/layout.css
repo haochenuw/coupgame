@@ -1,21 +1,5 @@
-a.btn {
-    display: block;
-    font-size: 1.8em;
-    padding: 0.35em;
-    margin: 10px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.btn-default {
-    color: #ffffff;
-    background-color: #464545;
-    border-color: #464545;
-}
-
-.btn-is-disabled {
-    pointer-events: none; /* Disables the button completely. Better than just cursor: default; */
-    @include opacity(0.7);
+li.revealed{
+    color: red; 
 }
 
 .base {
@@ -27,4 +11,8 @@ a.btn {
     box-shadow: 0 0 40px 20px rgb(0 0 0 / 75%);
     transition: box-shadow 0.2s;
     background: #222;
+}
+
+pre{
+    white-space:pre-wrap;
 }

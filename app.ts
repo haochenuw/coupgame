@@ -4,35 +4,36 @@ import { join } from "path";
 import cors from "cors";
 import {Socket} from "socket.io"; 
 
-import {makeid}  from "./utils"; 
-import { RoomStatus,GameState, PlayerState, Card, Action, isChallengeable} from "./types";
-import {initGame} from "./game"; 
-import {INCOME_RATE, COUP_COST} from "./constants"; 
-
+import {makeid, logInfo, logError}  from "./utils"; 
+import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
+import {initGame, shuffle, commitAction} from "./game"; 
+import {INCOME_RATE, COUP_COST, ASSASINATE_COST, TAX_AMOUNT, FOREIGN_AID_AMOUNT, FgGreen, FgRed} from "./constants"; 
+import { parse } from "path/posix";
+let namespaces = {}; //AKA party rooms
 let roomNameToStatusMap = {}; 
 let roomNameToRematchRequests = {}; 
 let allRooms: Array<string> = []; 
 const clientToRoomMapping = {};  
-let states = {}; 
+let states: Record<string, GameState> = {}; 
 
 const MAX_PLAYERS: number = 2; 
 
 const main = async () => {
-    // const svelteViewEngine = require("svelte-view-engine");
-
-    // let engine = svelteViewEngine({
-    //     env: "dev",
-    //     template: "./public/svelte-template.html",
-    //     dir: "./src",
-    //     type: "svelte",
-    //     buildDir: "../artifacts/pages",
-    // });
-
     const app = express();
+    app.use(express.static("public"));
     app.use(cors({ origin: "*" }));
     app.use(express.json());  // for parsing requests. 
     app.set('views', join(__dirname, '/../public/views'));
     app.set('view engine', 'ejs');
+
+    app.use(cors());
+    app.use(
+        express.urlencoded({
+          extended: true
+        })
+      )
+      
+    app.use(express.json())
 
     // app.engine(engine.type, engine.render);
     // app.set("view engine", engine.type);
@@ -49,194 +50,372 @@ const main = async () => {
     });
 
 
-    io.on("connection", function(client: Socket) {
-        console.log('a client has connected'); 
-        // console.log(`a user has connected with query ${JSON.stringify(client.handshake.query)}`);
-        let room = client.handshake.query.room as string;
+    // io.on("connection", function(client: Socket) {
+    //     let room = client.handshake.query.room as string;
+    //     console.log('a client has connected through here'); 
 
-        // set the mapping. 
-        clientToRoomMapping[client.id] = room; 
-        // debug
-        console.log(`roomname = ${client.handshake.query.room}`);
-        console.log(`status = ${JSON.stringify(roomNameToStatusMap)}`)
+    //     // set the mapping. 
+    //     clientToRoomMapping[client.id] = room; 
+    //     // debug
+    //     console.log(`roomname = ${client.handshake.query.room}`);
+    //     console.log(`status = ${JSON.stringify(roomNameToStatusMap)}`)
 
 
-        if (!roomNameToStatusMap[room]){
-            client.emit('noRoom'); 
-            return; 
-        }
-        let roomStatus = roomNameToStatusMap[room]; 
-        if (roomStatus.numPlayers > MAX_PLAYERS){
-            client.emit('tooManyPlayers'); 
-            return; 
-        }
-        client.join(room);
-        if (roomStatus.numPlayers == 0){
-            roomStatus.playerOneId = client.id; 
-        } else if (roomStatus.numPlayers == 1){
-            roomStatus.playerTwoId = client.id; 
-        }
-        client.emit('playerIndex', roomStatus.numPlayers); 
-        roomStatus.numPlayers += 1; 
+    //     if (!roomNameToStatusMap[room]){
+    //         client.emit('noRoom'); 
+    //         return; 
+    //     }
+    //     let roomStatus = roomNameToStatusMap[room]; 
+    //     if (roomStatus.numPlayers > MAX_PLAYERS){
+    //         client.emit(FgRed, 'tooManyPlayers'); 
+    //         return; 
+    //     }
+    //     client.join(room);
+    //     if (roomStatus.numPlayers == 0){
+    //         roomStatus.playerOneId = client.id; 
+    //     } else if (roomStatus.numPlayers == 1){
+    //         roomStatus.playerTwoId = client.id; 
+    //     }
+    //     client.emit('playerIndex', roomStatus.numPlayers); 
+    //     roomStatus.numPlayers += 1; 
 
-        io.sockets.in(room).emit('roomStatus', JSON.stringify(roomStatus)); 
+    //     io.sockets.in(room).emit('roomStatus', JSON.stringify(roomStatus)); 
 
-        client.on('start', handleStartGame); 
+    //     client.on('start', handleStartGame); 
         
-        client.on('action', handlePlayerAction); 
+    //     client.on('action', handlePlayerAction); 
 
-        client.on('rematch', handleRematch); 
+    //     client.on('rematch', handleRematch); 
 
-        client.on('challenge', handleChallenge); 
+    //     client.on('challenge', handleChallenge);
+        
+    //     client.on('surrender', handleSurrender);
+        
+    //     client.on('reveal', handleReveal); 
 
-        function handleChallenge(isChallenge: boolean){
-            // TODO: validate. 
-            // first, active player cannot challenge 
+    //     client.on('block', handleBlock); 
 
-            const roomName: string = clientToRoomMapping[client.id]; 
-            if (!roomName) return; 
-            // io.sockets.in(roomName).emit('activityLog', Object.assign({}, action, {source: client.id})); 
-            if (isChallenge){
-                io.to(roomName).emit('activityLog', {name: "challenge", source: client.id}); 
-            } else{
-                io.to(roomName).emit('activityLog', {name: "skip", source: client.id}); 
-            }
-        }
+    //     function handleBlock(isBlock: boolean){
+    //         const roomName: string = clientToRoomMapping[client.id]; 
+    //         if (!roomName) return; 
+    //         let gameState = states.roomName; 
+    //         if (gameState.roundState !== RoundState.WaitForBlock){
+    //             console.log(FgRed, 'wrong round state'); 
+    //             return; 
+    //         }
+    //         console.log(FgGreen,'got block confirmation'); 
+
+    //         if (isBlock){
+    //             console.log(FgGreen,'player block'); 
+    //             io.to(roomName).emit('activityLog', {name: "block", source: client.id}); 
+    //             gameState.roundState = RoundState.WaitForChallenge; 
+    //             // push a blocking action into the pending stack. 
+    //             const blockAction = {source: gameState.playerIds.indexOf(client.id), name: Action.Block, target: null}; 
+    //             gameState.pendingActions.splice(0, 0, blockAction);
+    //         } else{
+    //             // block is skipped
+    //             io.to(roomName).emit('activityLog', {name: "skip block", source: client.id}); 
+    //             console.log(FgGreen,'skipped block'); 
+    //             let newGameState = commitAction(gameState);
+    //             endOrContinueGame(newGameState, roomName); 
+    //             swapPlayers(newGameState); 
+    //             states.roomName = newGameState; 
+    //         }
+    //         io.to(roomName).emit('gameState', JSON.stringify(gameState)); 
+    //     }
+
+    //     function handleSurrender(cardIndex:number) {
+    //         const roomName: string = clientToRoomMapping[client.id]; 
+    //         if (!roomName) return; 
+    //         let gameState = states.roomName; 
+    //         if (gameState.roundState !== RoundState.WaitForSurrender){
+    //             console.log(FgRed, `wrong round state, looking for surrender`); 
+    //             return; 
+    //         }
+    //         // validate
+    //         const playerIndex = gameState.playerIds.indexOf(client.id); 
+    //         if (playerIndex !== gameState.playerToSurrender){
+    //             logError("wrong player to surrender"); 
+    //             return; 
+    //         }
 
 
-        function handleStartGame(){
-            console.log(`got start game request`); 
-            const roomName: string = clientToRoomMapping[client.id]; 
-            if (!roomName) return; 
-            // TODO find all users 
-            console.log(io.sockets.adapter.rooms);
+    //         let playerCards = gameState.playerStates[playerIndex].cards; 
+    //         if (playerCards[cardIndex].isRevealed === true){
+    //             console.log(FgRed, 'player already lost this card'); 
+    //         }
+    //         else{
+    //             // set the card to be revealed 
+    //             playerCards[cardIndex].isRevealed = true; 
+    //         } 
+    //         const index = gameState.playerIds.indexOf(client.id); 
+    //         io.to(roomName).emit('activityLog', {name: "surrender", source: index, target: cardIndex}); 
+    //         endOrContinueGame(gameState, roomName); 
+    //         io.to(roomName).emit('gameState', JSON.stringify(gameState)); 
 
-            let gameStatus = roomNameToStatusMap[roomName]
+    //         // Multiple cases of reaching here. Maybe we can pass in a callback
+    //         // Case 1: coup / assasinate 
+    //         // Case 2: challenge -> true reveal 
+    //         // Case 3: action -> block -> challenge -> true reveal
+    //         // False reveal is not a case since that is already surrendered. 
 
-            let initialGameState = initGame([gameStatus.playerOneId, gameStatus.playerTwoId]); 
-            states[roomName] = initialGameState; 
-            // broadcast
-            io.sockets.in(roomName).emit('gameState', JSON.stringify({initialGameState})); 
-        }
+    //         // TODO: consider multiple paths of reaching here. 
+    //         const actions = gameState.pendingActions; 
+    //         if (actions.length === 0){
+    //             // no pending actions, case 1 and 3. 
+    //             swapPlayers(gameState); 
+    //         } else if (actions.length === 1){
+    //             // case 2. 
+    //             // need to wait for block
+    //             const action = actions[0]; 
+    //             if (isBlockable(action.name)){
+    //                 gameState.roundState = RoundState.WaitForBlock;
+    //             } else{
+    //                 // TODO commit action. 
+    //                 gameState = commitAction(gameState);
+    //                 endOrContinueGame(gameState, roomName); 
+    //                 states.roomName = gameState; 
+    //                 swapPlayers(gameState); 
+    //             }
+    //         } else{
+    //             logError("shouldn't reach here");
+    //         }
+    //     }
 
-        function handlePlayerAction(action) {
-            console.log(action); 
-            let roomName = clientToRoomMapping[client.id]; 
-            if (!roomName){
-                return; 
-            }
+    //     function handleReveal(cardIndex: number) {
+    //         // validate 
+    //         const roomName: string = clientToRoomMapping[client.id]; 
+    //         if (!roomName) return; 
+    //         let gameState = states.roomName; 
+    //         if (gameState.roundState !== RoundState.WaitForReveal){
+    //             console.log(FgRed, 'wrong round state'); 
+    //             return; 
+    //         }
+    //         console.log(FgGreen,'got reveal request'); 
+    //         console.log(FgGreen, `pending actions = ${JSON.stringify(gameState.pendingActions)}`); 
             
-            let gameState = states[roomName]; 
-            if (!isValidAction(action, client.id, gameState)){
-                console.log('invalid action'); 
-                return; 
-            }   
-            io.sockets.in(roomName).emit('activityLog', Object.assign({}, action, {source: client.id})); 
+    //         let player = gameState.pendingActions[0].source; 
 
-            if (isChallengeable(action.name as Action)){
-                console.log('action is challengeable...waiting for challenges');                 
-            } else{
-                // resolve challenges and blocks. 
-                resolveReactions(action, (ok: boolean)=>{
-                    // save new game state
-                    if (ok){
-                        let newGameState = changeState(gameState, action);
-                        states[roomName] = newGameState; 
-                        swapPlayers(newGameState); 
+    //         let playerState = gameState.playerStates[player];
+    //         let card = tryGetRevealCard(playerState, cardIndex); 
+    //         let pendingAction = gameState.pendingActions[0].name as Action; 
+    //         if (card === undefined){
+    //             console.log(FgRed, 'reveal is invalid');
+    //             return; 
+    //         }
+    //         io.in(roomName).emit('activityLog',  {name: "reveal", source: client.id, target: card.name});
+    //         // Check if reveal resolves the challenge 
+    //         if (isRevealLegit(card, pendingAction)){
+    //             // legit reveal 
+    //             console.log(FgGreen, 'revealing a legit card'); 
+    //             let deck = gameState.deckState; 
+    //             deck.push(card); 
+    //             deck = shuffle(deck); 
+    //             let newCard = deck.pop(); 
+    //             playerState.cards[cardIndex] = newCard; 
+    //             gameState.deckState = deck; 
+    //             const challengingPlayerIndex = gameState.playerIds.indexOf(gameState.challengingPlayerId); 
+    //             console.log(FgGreen, 'waiting for challenger to choose a card to surrender...'); 
+    //             gameState.playerStates[challengingPlayerIndex].lifePoint -=1; 
+    //             endOrContinueGame(gameState, roomName); 
+    //             gameState.roundState = RoundState.WaitForSurrender; 
+    //             gameState.playerToSurrender = challengingPlayerIndex; 
+    //         } else{
+    //             console.log(FgGreen, 'reveal a illegit card'); 
+    //             // false reveal. deduct lifepoint from player. reveal card 
+    //             card.isRevealed = true; 
+    //             playerState.lifePoint -= 1; 
+    //             io.to(roomName).emit('activityLog', {name: "lost one life", source: gameState.playerIds[gameState.activePlayerIndex]}); 
+    //             // discard the pending action (can be actual action or block)
+    //             gameState.pendingActions.shift(); 
 
-                        let winner = checkForWin(newGameState);
-                        if (winner === null){
-                            // broadcast new game state 
-                            io.sockets.in(roomName).emit('gameState', JSON.stringify(newGameState)); 
-                        } else{
-                            console.log(`game over, winner is ${winner}`); 
-                            io.sockets.in(roomName).emit('gameOver', JSON.stringify(winner)); 
-                        }
-                    }
-                }); 
-            }
-        }
+    //             if (gameState.pendingActions.length > 0){
+    //                 // Case 1: there's a pending action (block is challenged)
+    //                 gameState = commitAction(gameState);
+    //             } else{
+    //                 // Case 2: no pending action (do nothing)
+    //             }
+    //             endOrContinueGame(gameState, roomName); 
+    //             if (gameState.roundState !== RoundState.WaitForSurrender){
+    //                 gameState.roundState = RoundState.WaitForAction; 
+    //                 swapPlayers(gameState); 
+    //             }
+    //         }
+    //         io.sockets.in(roomName).emit('gameState', JSON.stringify(gameState)); 
+    //     }
 
-        function handleRematch(){
-            console.log(`got rematch request`); 
-            const roomName: string = clientToRoomMapping[client.id]; 
-            if (!roomName) return;
+    //     function isRevealLegit(card: Card, pendingAction: Action): boolean{
+    //         return card.action === pendingAction && card.isRevealed === false; 
+    //     }
 
-            if(!roomNameToRematchRequests[roomName]){
-                roomNameToRematchRequests[roomName] = [client.id]; 
-            } else if (!roomNameToRematchRequests[roomName].includes(client.id)){
-                roomNameToRematchRequests[roomName].push(client.id); 
-            }
-            console.log(`rematch requests = ${roomNameToRematchRequests[roomName]}`); 
-            if (roomNameToRematchRequests[roomName].length == MAX_PLAYERS){
-                console.log(`start rematch`);
-                // flush the rematch requests. 
-                roomNameToRematchRequests[roomName] = [];
-                io.sockets.in(roomName).emit('rematchConfirm'); 
-                // start game 
-                handleStartGame(); 
-            }
-        }
+    //     function tryGetRevealCard(playerState: PlayerState, cardIndex:number): Card | undefined {
+    //         if (cardIndex < 0 || cardIndex >= playerState.cards.length){
+    //             logError('card index out of bounds'); 
+    //             return undefined; 
+    //         } 
+    //         let card = playerState.cards[cardIndex]; 
+    //         logInfo(`revealed card = ${JSON.stringify(card)}`)
+    //         if (card.isRevealed === true) { 
+    //             logError("card is already revealed");
+    //             return undefined; 
+    //         }
+    //         return card; 
+    //     }
 
-        function checkForWin(gameState: GameState): number | null{
-            let remainingPlayers = 0; 
-            let remainingPlayerIndex = -1; 
-            for (let i = 0; i <  gameState.playerStates.length; i++){
-                if (gameState.playerStates[i].lifePoint !=0){
-                    remainingPlayers++; 
-                    remainingPlayerIndex = i; 
-                }
-            }
-            if (remainingPlayers == 1){
-                return remainingPlayerIndex;
-            }
-            return null; 
-        }
+    //     function handleChallenge(isChallenge: boolean){
+    //         const roomName: string = clientToRoomMapping[client.id]; 
+    //         if (!roomName) return; 
+    //         let gameState = states.roomName; 
+    //         if (gameState.roundState !== RoundState.WaitForChallenge){
+    //             logError('not in a wait for challenge state'); 
+    //             return; 
+    //         }
+    //         const pendingAction = gameState.pendingActions[0]; 
+    //         logInfo(`got challenge/skip request for pending action ${JSON.stringify(gameState.pendingActions[0])}`); 
 
-        async function resolveReactions(action, callback: (ok: boolean)=> void){
-            callback(true); 
-        }
+    //         if (isChallenge){
+    //             io.to(roomName).emit('activityLog', {name: "challenge", source: client.id}); 
+    //             gameState.roundState = RoundState.WaitForReveal; 
+    //             gameState.challengingPlayerId = client.id; 
+    //         } else{
+    //             io.to(roomName).emit('activityLog', {name: "skip challenge", source: client.id}); 
+    //             if (isBlockable(pendingAction.name)){
+    //                 gameState.roundState = RoundState.WaitForBlock; 
+    //             } else{
+    //                 gameState = commitAction(gameState);
+    //                 endOrContinueGame(gameState, roomName);  
+    //                 if (gameState.roundState !== RoundState.WaitForSurrender){
+    //                     gameState.roundState = RoundState.WaitForAction; 
+    //                     swapPlayers(gameState); 
+    //                 }
+    //                 states.roomName = gameState; 
+    //             }
+    //             io.sockets.in(roomName).emit('gameState', JSON.stringify(states.roomName)); 
+    //         }
+            
+    //     }
 
-        function swapPlayers(gameState: GameState){
-            gameState.activePlayerIndex += 1;      
-            gameState.activePlayerIndex %= MAX_PLAYERS; 
-        }
 
-        function changeState(gameState: GameState, action): GameState{
-            // parse to enum. Based on enum. Change stuff. 
-            var parsedAction: Action = Action[action.name]; 
-            console.log(`parsed action = ${parsedAction}`); 
-            console.log(`state = ${JSON.stringify(gameState)}`); 
-            switch (parsedAction) {
-                case Action.Income:
-                    console.log("Income action");
-                    gameState.playerStates[gameState.activePlayerIndex].tokens += INCOME_RATE; 
-                    break;
-                case Action.Coup: 
-                    console.log("Coup action");
-                    // TODO validate 
-                    gameState.playerStates[action.target].lifePoint -= 1; 
-                    gameState.playerStates[gameState.activePlayerIndex].tokens -= COUP_COST; 
-                    break; 
-                default:
-                    console.log("No such action exists!");
-                    break;
-            }
+    //     function handleStartGame(){
+    //         logInfo('got start game request'); 
+    //         const roomName: string = clientToRoomMapping[client.id]; 
+    //         if (!roomName) return; 
+    //         let gameStatus = roomNameToStatusMap[roomName]
 
-            return gameState; 
-        }
+    //         let initialGameState = initGame([gameStatus.playerOneId, gameStatus.playerTwoId]); 
+    //         states.roomName = initialGameState; 
+    //         io.sockets.in(roomName).emit('gameState', JSON.stringify(initialGameState)); 
+    //     }
 
-        function isValidAction(action, clientId: string, state: GameState){
-            if (clientId === state.playerIds[state.activePlayerIndex]){
-                return true; 
-            } else{
-                console.log("Invalid action: not your turn"); 
-                return false; 
-            }
-        }
-    });
+    //     function handlePlayerAction(action) {
+    //         console.log(FgGreen, `Player action = ${JSON.stringify(action)}`); 
+    //         let roomName = clientToRoomMapping[client.id]; 
+    //         if (!roomName){
+    //             return; 
+    //         }
+    //         let gameState = states.roomName; 
+    //         console.log(FgGreen, `Roundstate = ${gameState.roundState}`); 
 
-    app.use(express.static(join(__dirname, '../public')));
+    //         if (!isValidAction(action, client.id, gameState)){
+    //             console.log(FgRed, 'invalid action'); 
+    //             return; 
+    //         }   
+    //         const enhancedAction = Object.assign({}, action, {source: gameState.playerIds.indexOf(client.id)});
+    //         io.sockets.in(roomName).emit('activityLog', enhancedAction); 
+    //         gameState.pendingActions.splice(0, 0, enhancedAction); 
+
+    //         if (isChallengeable(action.name as Action)){
+    //             console.log('action is challengeable...waiting for challenges');      
+    //             gameState.roundState = RoundState.WaitForChallenge;     
+    //         } else if (isBlockable(action.name as Action)){
+    //             console.log(FgGreen, 'waiting for blocks');      
+    //             gameState.roundState = RoundState.WaitForBlock;     
+    //         }else{
+    //             console.log(FgGreen, 'unquestionable action');      
+    //             // not challengeable nor blockable action.
+    //             resolveReactions(action, (ok: boolean)=>{
+    //                 // save new game state
+    //                 if (ok){
+    //                     gameState = commitAction(gameState);
+    //                     endOrContinueGame(gameState, roomName); 
+    //                     if(gameState.roundState !== RoundState.WaitForSurrender){
+    //                         swapPlayers(gameState); 
+    //                     }
+    //                     states.roomName = gameState; 
+    //                     io.sockets.in(roomName).emit('gameState', JSON.stringify(gameState)); 
+    //                 }
+    //             }); 
+    //         }
+    //     }
+
+    //     function endOrContinueGame(state:GameState, roomName: string) {
+    //         let winner = checkForWin(state);
+    //         if (winner === null){
+    //         } else{
+    //             console.log(`game over, winner is ${winner}`); 
+    //             io.sockets.in(roomName).emit('gameOver', JSON.stringify(winner)); 
+    //         }
+    //     }
+
+    //     function handleRematch(){
+    //         console.log(`got rematch request`); 
+    //         const roomName: string = clientToRoomMapping[client.id]; 
+    //         if (!roomName) return;
+
+    //         if(!roomNameToRematchRequests[roomName]){
+    //             roomNameToRematchRequests[roomName] = [client.id]; 
+    //         } else if (!roomNameToRematchRequests[roomName].includes(client.id)){
+    //             roomNameToRematchRequests[roomName].push(client.id); 
+    //         }
+    //         console.log(`rematch requests = ${roomNameToRematchRequests[roomName]}`); 
+    //         if (roomNameToRematchRequests[roomName].length == MAX_PLAYERS){
+    //             console.log(`start rematch`);
+    //             // flush the rematch requests. 
+    //             roomNameToRematchRequests[roomName] = [];
+    //             io.sockets.in(roomName).emit('rematchConfirm'); 
+    //             // start game 
+    //             handleStartGame(); 
+    //         }
+    //     }
+
+    //     function checkForWin(gameState: GameState): number | null{
+    //         let remainingPlayers = 0; 
+    //         let remainingPlayerIndex = -1; 
+    //         for (let i = 0; i <  gameState.playerStates.length; i++){
+    //             if (gameState.playerStates[i].lifePoint !=0){
+    //                 remainingPlayers++; 
+    //                 remainingPlayerIndex = i; 
+    //             }
+    //         }
+    //         if (remainingPlayers == 1){
+    //             return remainingPlayerIndex;
+    //         }
+    //         return null; 
+    //     }
+
+    //     async function resolveReactions(action, callback: (ok: boolean)=> void){
+    //         callback(true); 
+    //     }
+
+    //     function swapPlayers(gameState: GameState){
+    //         gameState.activePlayerIndex += 1;      
+    //         gameState.activePlayerIndex %= MAX_PLAYERS; 
+    //         gameState.roundState = RoundState.WaitForAction; 
+    //     }
+
+    //     function isValidAction(action, clientId: string, state: GameState){
+    //         if (clientId !== state.playerIds[state.activePlayerIndex]){
+    //             logError("Invalid action: not your turn"); 
+    //             return false; 
+    //         } else if (state.roundState !== RoundState.WaitForAction){
+    //             logError("Invalid action: round state is not 'waiting for action'"); 
+    //             return false; 
+    //         }
+    //         return true; 
+    //     }
+    // });
+
+    app.use(express.static(join(__dirname, '../client/build')));
 
     app.get('/newgame', (_, res) => {
         console.log('got new game request'); 
@@ -254,6 +433,54 @@ const main = async () => {
         res.redirect('/rooms/' + roomName); 
     })
 
+    app.get('/createRoom', function (req, res) { 
+        let newRoom = '';
+        while(newRoom === '' || (newRoom in namespaces)) {
+            newRoom = makeid(5); 
+        }
+        const newSocket = io.of(`/${newRoom}`);
+        openSocket(newSocket, `/${newRoom}`);
+        namespaces[newRoom] = null;
+        console.log(newRoom + " CREATED")
+        res.json({room: newRoom});
+    })
+
+    // Check if room exists
+    app.get('/checkRoom', function (req, res) { 
+        console.log(`checkRoom is hit with ${req.query}`)
+        res.json({doesRoomExist: (req.query.roomName as string) in namespaces})
+    })
+
+    // React: handle socket
+    function openSocket(socket, namespace) {
+        let players = []; 
+        socket.on('connection', client => {
+            console.log('id: ' + client.id);
+            players.push({
+                "client_id": `${client.id}`,
+                "isReady": false
+            })
+            client.join(namespace);
+            socket.emit('playersUpdate', players);
+
+
+            client.on('playerReady', () => {
+                console.log(`${client.id} is ready`)
+                players.forEach(player => {
+                    if (player.client_id === client.id){
+                        player.isReady = true; 
+                    }
+                })
+                socket.emit('playersUpdate', players) ;
+            })
+        })
+
+
+    }
+
+
+
+
     app.get('/rooms/:code', (req, res) => {
         const roomName = req.params.code; 
         if (allRooms.includes(roomName)){
@@ -265,6 +492,10 @@ const main = async () => {
             res.send("room does not exist"); 
         }
     }); 
+
+    app.get('/react', (req, res) => {
+        res.sendFile(join(__dirname+'/../client/build/index.html'));
+    });
 
 
     app.get('/', (_req, res) => {
