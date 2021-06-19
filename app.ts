@@ -6,7 +6,7 @@ import {Socket} from "socket.io";
 
 import {makeid, logInfo, logError}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
-import {initGame, shuffle, commitAction} from "./game"; 
+import {initGame, shuffle, commitAction, isValidAction} from "./game"; 
 import {INCOME_RATE, COUP_COST, ASSASINATE_COST, TAX_AMOUNT, FOREIGN_AID_AMOUNT, FgGreen, FgRed} from "./constants"; 
 import { parse } from "path/posix";
 let namespaces = {}; //AKA party rooms
@@ -402,17 +402,6 @@ const main = async () => {
     //         gameState.activePlayerIndex %= MAX_PLAYERS; 
     //         gameState.roundState = RoundState.WaitForAction; 
     //     }
-
-    //     function isValidAction(action, clientId: string, state: GameState){
-    //         if (clientId !== state.playerIds[state.activePlayerIndex]){
-    //             logError("Invalid action: not your turn"); 
-    //             return false; 
-    //         } else if (state.roundState !== RoundState.WaitForAction){
-    //             logError("Invalid action: round state is not 'waiting for action'"); 
-    //             return false; 
-    //         }
-    //         return true; 
-    //     }
     // });
 
     app.use(express.static(join(__dirname, '../client/build')));
@@ -454,6 +443,7 @@ const main = async () => {
     // React: handle socket
     function openSocket(socket, namespace) {
         let players = []; 
+        let gameState = null; 
         socket.on('connection', client => {
             console.log('id: ' + client.id);
             players.push({
@@ -462,7 +452,6 @@ const main = async () => {
             })
             client.join(namespace);
             socket.emit('playersUpdate', players);
-
 
             client.on('playerReady', () => {
                 console.log(`${client.id} is ready`)
@@ -473,8 +462,27 @@ const main = async () => {
                 })
                 socket.emit('playersUpdate', players) ;
             })
-        })
 
+            client.on('startGame', () => {
+                console.log(`${client.id} starts game for room ${namespace}`)
+                gameState = initGame(players.map(player => player.client_id)); 
+                socket.emit('startGameResponse');
+                socket.emit('gameState', gameState);
+            })
+
+            client.on('action', (action) => {
+                logInfo(`Got action = ${JSON.stringify(action)} from player ${client.id}`); 
+                if (!isValidAction(action, client.id, gameState)){
+                    logError('invalid action'); 
+                    return; 
+                } 
+                // handle action 
+                gameState.pendingActions.push(action as PlayerAction); 
+                gameState = commitAction(gameState);
+                socket.emit('gameState', gameState); 
+            }); 
+
+        })
 
     }
 

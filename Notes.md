@@ -125,9 +125,11 @@ Player 0 played surrender with card 1
 
 - ~~Room with players panel~~ Wednesday, June 16, 2021
 - ~~Player set ready~~ Wednesday, June 16, 2021 
-- Set startable game when all players are ready
-- Display active player when game is started
-- Handle player action
+- ~~Set startable game when all players are ready~~ Thursday, June 17, 2021
+- Display player state when game is in progress
+- Action section
+- status section (wait for action from ...)
+- Event logs 
 
 
 

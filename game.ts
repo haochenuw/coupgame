@@ -1,7 +1,7 @@
 
-import { GameState, RoundState, Card, Action} from "./types";
+import { GameState, RoundState, Card, Action, PlayerAction} from "./types";
 import * as constants from "./constants"; 
-import {logDebug} from "./utils"; 
+import {logError, logInfo} from "./utils"; 
 
 export function initGame(playerIds): GameState {
     // logDebug(`initial deck = ${JSON.stringify(constants.INITIAL_DECK)}`); 
@@ -97,11 +97,14 @@ export function commitAction(gameState: GameState): GameState{
     return gameState; 
 }
 
-// export function commitActionAndContinue(gameState: GameState, roomName:string): GameState{
-//     let newGameState = commitAction(gameState);
-//     endOrContinueGame(newGameState, roomName);  
-//     swapPlayers(newGameState); 
-//     newGameState.roundState = RoundState.WaitForAction;
-//     return newGameState; 
-// }
-
+export function isValidAction(action: PlayerAction, clientId: string, state: GameState){
+    if (clientId !== state.playerIds[state.activePlayerIndex]){
+        logError("Invalid action: not your turn"); 
+        return false; 
+    } else if (state.roundState !== RoundState.WaitForAction){
+        logError("Invalid action: not expecting a player action"); 
+        return false; 
+    }
+    // TODO: custom validation 
+    return true; 
+}

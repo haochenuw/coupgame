@@ -13,12 +13,12 @@ export const Create = withRouter(({history}) => {
     const [disabled, setDisabled] = useState(false)
 
     function createParty(){
-        console.log('create button clicked'); 
+        // console.log('create button clicked'); 
         setDisabled(true)
         // TODO: add api call to backend for game creation
         axios.get(`${baseUrl}/createRoom`)
         .then(function (res) {
-            console.log(res.data.room);
+            // console.log(res.data.room);
             history.push({pathname:`/room/${res.data.room}`, state:{data: true}});
         })
         .catch(function (err) {

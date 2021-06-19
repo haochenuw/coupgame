@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import io from "socket.io-client";
 import { withRouter} from "react-router-dom";
-import Room from "./Room"; 
 
 const axios = require('axios');
 const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"

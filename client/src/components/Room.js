@@ -1,33 +1,44 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import MainGame from "./game/MainGame"
+
 import io from "socket.io-client";
 
+export const SocketContext = React.createContext()
+
 const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
-let socket; 
+
+let socket = null; 
+
 export default function Room({match, location}) {
     // Connect through socket. 
+    if (socket === null){
+        socket = io(`${baseUrl}/${match.params.name}`);
+    }
 
     const [players, setPlayers] = useState(null); 
     const [me, setMe] = useState(''); 
+    const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     
-    React.useEffect(() =>{
-        socket = io(`${baseUrl}/${match.params.name}`);
-
+    useEffect(() => {
         socket.on("connect", () => {
             setMe(socket.id); 
         });
 
         socket.on("playersUpdate", (players) => {
-            console.log('players', players);
+            console.log('got players update', players);
             setPlayers(players); 
         }); 
+
+        socket.on('startGameResponse', ()=>{
+            console.log('got start game response');
+
+            setRoomStatus("STARTED");
+        });
+
+        socket.on("initialState", state=>{
+            console.log('state', JSON.stringify(state));
+        });
     }, []); 
-
-
-
-    console.log("location", location);
-
-    const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
 
     function setReady(){
         setPlayers(
@@ -48,7 +59,7 @@ export default function Room({match, location}) {
     }
 
     function startGame() {
-        setRoomStatus("STARTED")
+        socket.emit('startGame')
     }
 
     function isCreator() {
@@ -57,9 +68,7 @@ export default function Room({match, location}) {
 
     return(
             <div>
-                <h1> ROOM {match.params.name} </h1>
-                <h1> IsCreator: {isCreator()}</h1>
-
+                <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
                 {
                     roomStatus === 'NOT_READY_TO_START' &&
                     <button onClick={setReady}>Ready</button>
@@ -70,10 +79,13 @@ export default function Room({match, location}) {
                 }
                 {
                     roomStatus === 'STARTED' &&
-                    <MainGame />
+                    <SocketContext.Provider value={socket}>
+                    <MainGame me = {me} />
+                    </SocketContext.Provider>
                 }
-                <PlayersPanel players={players} me = {me}/>
-
+                { 
+                    roomStatus !== 'STARTED' && <PlayersPanel players= {players} me = {me} />
+                }   
             </div>
 
             
@@ -82,7 +94,7 @@ export default function Room({match, location}) {
 
 
 function PlayersPanel(props){
-    console.log(props); 
+    // console.log(props); 
     if(props.players === null){
         return (<div>No players have connected</div>)
     } else{
