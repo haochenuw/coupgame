@@ -4,7 +4,7 @@ import { join } from "path";
 import cors from "cors";
 import {Socket} from "socket.io"; 
 
-import {makeid, logInfo, logError}  from "./utils"; 
+import {makeid, logInfo, logError, logDebug}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
 import {initGame, shuffle, commitAction, isValidAction} from "./game"; 
 import {INCOME_RATE, COUP_COST, ASSASINATE_COST, TAX_AMOUNT, FOREIGN_AID_AMOUNT, FgGreen, FgRed} from "./constants"; 
@@ -396,12 +396,6 @@ const main = async () => {
     //     async function resolveReactions(action, callback: (ok: boolean)=> void){
     //         callback(true); 
     //     }
-
-    //     function swapPlayers(gameState: GameState){
-    //         gameState.activePlayerIndex += 1;      
-    //         gameState.activePlayerIndex %= MAX_PLAYERS; 
-    //         gameState.roundState = RoundState.WaitForAction; 
-    //     }
     // });
 
     app.use(express.static(join(__dirname, '../client/build')));
@@ -473,14 +467,18 @@ const main = async () => {
             client.on('action', (action) => {
                 logInfo(`Got action = ${JSON.stringify(action)} from player ${client.id}`); 
                 if (!isValidAction(action, client.id, gameState)){
-                    logError('invalid action'); 
                     return; 
                 } 
-                // handle action 
-                gameState.pendingActions.push(action as PlayerAction); 
+                let actionWithSource = {...action, source: client.id}; 
+
+                gameState.pendingActions.push(actionWithSource as PlayerAction); 
                 gameState = commitAction(gameState);
+                logDebug(`round state = ${JSON.stringify(gameState.roundState)}`)
+                logDebug(`active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
                 socket.emit('gameState', gameState); 
             }); 
+
+
 
         })
 

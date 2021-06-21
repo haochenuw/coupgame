@@ -29,12 +29,13 @@ export enum Action {
     Steal = "Steal", 
     Exchange = "Exchange", 
     Block = "Block", 
+    Surrender = "Surrender", 
 }
 
 export type PlayerAction =  {
     name: Action, 
-    target: number | null | undefined
-    source?: number | null | undefined, 
+    target: string | null | undefined
+    source?: string | null | undefined, 
 }
 
 export enum RoundState{
@@ -79,10 +80,9 @@ export function isBlockable(action: Action) {
 
 
 export type GameState = {
-    playerIds: Array<string>, 
-    activePlayerIndex: number, 
-    challengingPlayerId: string | null, 
-    playerToSurrender: number | null, 
+    activePlayerIndex: number,  // the player(s) responsible for making the next action
+    challengingPlayerIndex: number | null | undefined, 
+    surrenderingPlayerIndex: number | null | undefined,  // TODO: utilize this
     playerStates: Array<PlayerState>,
     deckState: Array<Card>, 
     roundState: RoundState, 
@@ -97,5 +97,6 @@ export type GameStatePlusPlayerIndex = GameState & {
 export type PlayerState = {
     lifePoint: number, 
     cards: Array<Card>,
-    tokens: number 
+    tokens: number, 
+    socket_id: string 
 }

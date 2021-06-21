@@ -31,7 +31,6 @@ export default function Room({match, location}) {
 
         socket.on('startGameResponse', ()=>{
             console.log('got start game response');
-
             setRoomStatus("STARTED");
         });
 
