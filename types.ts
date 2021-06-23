@@ -30,12 +30,14 @@ export enum Action {
     Exchange = "Exchange", 
     Block = "Block", 
     Surrender = "Surrender", 
+    ExchangeResponse = "ExchangeResponse", 
 }
 
 export type PlayerAction =  {
     name: Action, 
     target: string | null | undefined
     source?: string | null | undefined, 
+    additionalData?: Array<string> | undefined 
 }
 
 export enum RoundState{
@@ -44,6 +46,7 @@ export enum RoundState{
     WaitForReveal = "WAIT_FOR_REVEAL",
     WaitForBlock = "WAIT_FOR_BLOCK",  
     WaitForSurrender = "WAIT_FOR_SURRENDER",  
+    WaitForExchange = "WAIT_FOR_EXCHANGE",  
 }
 
 export function isChallengeable(action: Action) {
@@ -82,11 +85,12 @@ export function isBlockable(action: Action) {
 export type GameState = {
     activePlayerIndex: number,  // the player(s) responsible for making the next action
     challengingPlayerIndex: number | null | undefined, 
-    surrenderingPlayerIndex: number | null | undefined,  // TODO: utilize this
+    surrenderingPlayerIndex: number | null | undefined, 
     playerStates: Array<PlayerState>,
     deckState: Array<Card>, 
     roundState: RoundState, 
     pendingActions: Array<PlayerAction>, 
+    pendingExchangeCards: Array<Card> | null, 
 }
 
 export type GameStatePlusPlayerIndex = GameState & {

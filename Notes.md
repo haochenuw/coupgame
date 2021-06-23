@@ -131,14 +131,19 @@ Player 0 played surrender with card 1
     - ~~Income~~ Saturday, June 19, 2021
     - ~~Coup~~ Saturday, June 19, 2021 
     - ~~Coup selection~~ Saturday, June 19, 2021
-    - Tax 
+    - ~~Coup surrender selection~~ Sunday, June 20, 2021
+    - ~~Tax~~ Monday, June 21, 2021 
     - Challenge 
-    - Ass
+    - ~~Ass~~ Monday, June 21, 2021
     - Blocking
-    - Steal
-    - Exchange 
+    - ~~Steal~~ Tuesday, June 22, 2021
+    - ~~Exchange~~ Tuesday, June 22, 2021 
+
 - Player name selection 
-- status section (wait for action from ...)
+- More than 2 player mode 
+- ~~End game section~~ Tuesday, June 22, 2021 
+   - ~~who won~~ Tuesday, June 22, 2021 
+   - ~~rematch~~ Tuesday, June 22, 2021 
 
 ### nice-to-haves 
 - Event logs 

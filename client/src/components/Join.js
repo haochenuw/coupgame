@@ -19,7 +19,6 @@ export const Join = withRouter(({history}) => {
     }
 
     function join(event) {
-        // TODO: then redirect to room. 
         // Otherwise, show error log. 
         let data = {
             roomName: code
@@ -69,15 +68,6 @@ export default Join;
 
 //     handleChange = (event) => {
 //         this.setState({ roomCode: event.target.value });
-//     }
-
-
-//     join = () => {
-//         // TODO: 
-//         // window.location.href = baseUrl + "/rooms/" + this.state.roomCode; 
-//         // return null;
-//         console.log("join clicked"); 
-//         return  (<Room roomCode={this.state.roomCode}></Room>)
 //     }
 
 //     render() {

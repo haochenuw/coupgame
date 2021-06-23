@@ -6,7 +6,7 @@ import {Socket} from "socket.io";
 
 import {makeid, logInfo, logError, logDebug}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
-import {initGame, shuffle, commitAction, isValidAction} from "./game"; 
+import {initGame, shuffle, commitAction, isValidAction, checkForWinner} from "./game"; 
 import {INCOME_RATE, COUP_COST, ASSASINATE_COST, TAX_AMOUNT, FOREIGN_AID_AMOUNT, FgGreen, FgRed} from "./constants"; 
 import { parse } from "path/posix";
 let namespaces = {}; //AKA party rooms
@@ -159,7 +159,6 @@ const main = async () => {
     //         // Case 3: action -> block -> challenge -> true reveal
     //         // False reveal is not a case since that is already surrendered. 
 
-    //         // TODO: consider multiple paths of reaching here. 
     //         const actions = gameState.pendingActions; 
     //         if (actions.length === 0){
     //             // no pending actions, case 1 and 3. 
@@ -171,7 +170,6 @@ const main = async () => {
     //             if (isBlockable(action.name)){
     //                 gameState.roundState = RoundState.WaitForBlock;
     //             } else{
-    //                 // TODO commit action. 
     //                 gameState = commitAction(gameState);
     //                 endOrContinueGame(gameState, roomName); 
     //                 states.roomName = gameState; 
@@ -348,15 +346,6 @@ const main = async () => {
     //         }
     //     }
 
-    //     function endOrContinueGame(state:GameState, roomName: string) {
-    //         let winner = checkForWin(state);
-    //         if (winner === null){
-    //         } else{
-    //             console.log(`game over, winner is ${winner}`); 
-    //             io.sockets.in(roomName).emit('gameOver', JSON.stringify(winner)); 
-    //         }
-    //     }
-
     //     function handleRematch(){
     //         console.log(`got rematch request`); 
     //         const roomName: string = clientToRoomMapping[client.id]; 
@@ -378,20 +367,7 @@ const main = async () => {
     //         }
     //     }
 
-    //     function checkForWin(gameState: GameState): number | null{
-    //         let remainingPlayers = 0; 
-    //         let remainingPlayerIndex = -1; 
-    //         for (let i = 0; i <  gameState.playerStates.length; i++){
-    //             if (gameState.playerStates[i].lifePoint !=0){
-    //                 remainingPlayers++; 
-    //                 remainingPlayerIndex = i; 
-    //             }
-    //         }
-    //         if (remainingPlayers == 1){
-    //             return remainingPlayerIndex;
-    //         }
-    //         return null; 
-    //     }
+
 
     //     async function resolveReactions(action, callback: (ok: boolean)=> void){
     //         callback(true); 
@@ -472,7 +448,12 @@ const main = async () => {
                 let actionWithSource = {...action, source: client.id}; 
 
                 gameState.pendingActions.push(actionWithSource as PlayerAction); 
+                // TODO handle challenge and blocks 
                 gameState = commitAction(gameState);
+                let winner = checkForWinner(gameState);
+                if (winner !== null){
+                    socket.emit('gameOver', winner); 
+                }
                 logDebug(`round state = ${JSON.stringify(gameState.roundState)}`)
                 logDebug(`active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
                 socket.emit('gameState', gameState); 
@@ -480,8 +461,15 @@ const main = async () => {
 
 
 
+
         })
 
+    }
+
+    function handleChallenge(roomSocket, callback){
+        roomSocket.on('challenge', () =>{
+            console.log('challenge received'); 
+        }); 
     }
 
 

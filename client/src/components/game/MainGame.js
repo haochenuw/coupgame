@@ -28,6 +28,10 @@ export default function MainGame (props){
                         console.log('wait for action...'); 
                         setRoundState("WAIT_FOR_ACTION"); 
                         break;
+                    case "WAIT_FOR_EXCHANGE":
+                        console.log('wait for exchange...'); 
+                        setRoundState("WAIT_FOR_EXCHANGE"); 
+                        break;
                     default: 
                         break; 
                 }
@@ -39,17 +43,18 @@ export default function MainGame (props){
         return( 
             <>
             <h1> Please choose an action</h1>
-            <button onClick={() => selectAction('Income')}>Income</button>
-            <button onClick={() => selectAction('Coup')}>Coup</button>
-            {/* <a onclick="taxAction()">Tax</a>
-            <a onclick="foreignAidAction()">Foreign Aid</a>
-            <a onclick="assasinateAction()">Assasinate</a>
-            <a onclick="stealAction()">Steal</a> */}
+            <button onClick={() => onActionSelected('Income')}>Income</button>
+            <button onClick={() => onActionSelected('Coup')}>Coup</button>
+            <button onClick={() => onActionSelected('Tax')}>Tax</button>
+            <button onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
+            <button onClick={() => onActionSelected('Exchange')}>Exchange</button>
+            <button onClick={() => onActionSelected('Steal')}>Steal</button>
+            <button onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
             </>
         )
     }
 
-    function selectAction(action) {
+    function onActionSelected(action) {
         console.log('select action called')
         setCurrentAction(action)
         if (requiresTarget(action)){
@@ -65,6 +70,12 @@ export default function MainGame (props){
                 return false
             case 'Coup': 
                 return true
+            case 'Assasinate': 
+                return true
+            case 'Steal': 
+                return true
+            case 'Tax': 
+                return false
             default:
                 return false 
         }
@@ -72,7 +83,7 @@ export default function MainGame (props){
 
     function isMe(gameState){
         if (gameState.playerStates[gameState.activePlayerIndex].socket_id === props.me
-            && gameState.roundState === "WAIT_FOR_ACTION"){
+            && (gameState.roundState === "WAIT_FOR_ACTION" || gameState.roundState === "WAIT_FOR_EXCHANGE") ){
                 return true; 
         } else if (gameState.surrenderingPlayerIndex !== null 
             && gameState.playerStates[gameState.surrenderingPlayerIndex].socket_id === props.me
@@ -154,12 +165,47 @@ export default function MainGame (props){
         )
     }
 
-    function selectCoup(){
+    function selectTarget(action){
         let options = gameState.playerStates.filter(state => state.socket_id !== props.me).map(state => state.socket_id);
         return (
-            selectTargetPanel('Coup', options)
+            selectTargetPanel(action, options)
         )
     }
+
+    function selectExchangeTarget(){
+        let cards = gameState.pendingExchangeCards.map(card => card.name);
+        let numToKeep = gameState.pendingExchangeCards.length - 2; 
+
+        let cardsToKeep = []; 
+
+        return (
+            <div>
+            <h2>Please select {numToKeep} cards to keep </h2>
+            {cards.map((item) => {
+                // if(playerState.lifePoint > 0){
+                return(<span>
+                    <button onClick={() => onKeepSelected(item)}>{item}</button>
+                </span>
+                )
+                }
+            )}
+            </div>
+        )
+
+        function onKeepSelected(item){
+            
+            // ?? cardsToKeep = cards.splice(); 
+            console.log(`selected ${item} to keep`)
+            cardsToKeep.push(item); 
+
+            if (cardsToKeep.length === numToKeep){
+                // already selected everything
+                socket.emit('action', {name: "ExchangeResponse", target: null, additionalData: cardsToKeep}); 
+                setRoundState("WAITING_FOR_OTHERS")
+            }
+        }
+    }
+
 
     function isWaiting(){
         if (gameState === null){
@@ -197,7 +243,8 @@ export default function MainGame (props){
         {
             roundState === "WAIT_FOR_SURRENDER" && waitForSurrender()
         }
-        {roundState === "SELECT_TARGET" && selectCoup()}
+        {roundState === "SELECT_TARGET" && selectTarget(currentAction)}
+        {roundState === "WAIT_FOR_EXCHANGE" && selectExchangeTarget()}
         </div>
     )
 }

@@ -17,6 +17,7 @@ export default function Room({match, location}) {
 
     const [players, setPlayers] = useState(null); 
     const [me, setMe] = useState(''); 
+    const [winner, setWinner] = useState(null); 
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     
     useEffect(() => {
@@ -36,6 +37,12 @@ export default function Room({match, location}) {
 
         socket.on("initialState", state=>{
             console.log('state', JSON.stringify(state));
+        });
+
+        socket.on("gameOver", winner => {
+            console.log('game over: winner is', winner);
+            setWinner(winner); 
+            setRoomStatus("GAMEOVER"); 
         });
     }, []); 
 
@@ -65,6 +72,16 @@ export default function Room({match, location}) {
         return location.state.data
     }
 
+    function gameOverPanel() {
+        return (
+            <div>
+                <h2>Game over: winner is {winner}</h2> 
+                {winner === me && (<h2>You won!</h2>)}
+                {winner !== me && (<h2>You lost!</h2>)}
+            </div>
+        )
+    }
+
     return(
             <div>
                 <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
@@ -84,6 +101,9 @@ export default function Room({match, location}) {
                 }
                 { 
                     roomStatus !== 'STARTED' && <PlayersPanel players= {players} me = {me} />
+                }   
+                { 
+                    roomStatus === 'GAMEOVER' && gameOverPanel()
                 }   
             </div>
 
