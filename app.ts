@@ -7,16 +7,16 @@ import {Socket} from "socket.io";
 import {makeid, logInfo, logError, logDebug}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
 import {initGame, shuffle, commitAction, isValidAction, checkForWinner} from "./game"; 
-import {INCOME_RATE, COUP_COST, ASSASINATE_COST, TAX_AMOUNT, FOREIGN_AID_AMOUNT, FgGreen, FgRed} from "./constants"; 
 import { parse } from "path/posix";
+import * as constants from "./constants"; 
+
+
 let namespaces = {}; //AKA party rooms
 let roomNameToStatusMap = {}; 
 let roomNameToRematchRequests = {}; 
 let allRooms: Array<string> = []; 
 const clientToRoomMapping = {};  
 let states: Record<string, GameState> = {}; 
-
-const MAX_PLAYERS: number = 2; 
 
 const main = async () => {
     const app = express();
@@ -434,6 +434,11 @@ const main = async () => {
             })
 
             client.on('startGame', () => {
+                if(players.length < constants.MIN_PLAYERS || players.length > constants.MAX_PLAYERS){
+                    logError('number of players too small or too large'); 
+                    socket.emit('error', 'number of players too small or too large'); 
+                    return; 
+                } 
                 console.log(`${client.id} starts game for room ${namespace}`)
                 gameState = initGame(players.map(player => player.client_id)); 
                 socket.emit('startGameResponse');
@@ -449,6 +454,12 @@ const main = async () => {
 
                 gameState.pendingActions.push(actionWithSource as PlayerAction); 
                 // TODO handle challenge and blocks 
+                if (isBlockable(action.name as Action)){
+                    logInfo('waiting for block...'); 
+                    gameState.roundState = RoundState.WaitForBlock; 
+                    socket.emit('gameState', gameState); 
+                    return; 
+                }
                 gameState = commitAction(gameState);
                 let winner = checkForWinner(gameState);
                 if (winner !== null){
@@ -459,7 +470,10 @@ const main = async () => {
                 socket.emit('gameState', gameState); 
             }); 
 
+            function handleBlocks(callback){
 
+                callback(); 
+            }
 
 
         })

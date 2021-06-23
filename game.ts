@@ -25,23 +25,22 @@ export function initGame(playerIds): GameState {
     .map((a) => ({sort: Math.random(), value: a}))
     .sort((a, b) => a.sort - b.sort)
     .map((a) => a.value);
+
+    let initialPlayerStates = playerIds.map(id => {
+        return {
+            lifePoint: 2,
+            cards: [shuffled_deck.pop(), shuffled_deck.pop()],
+            tokens: constants.INITIAL_TOKENS,
+            socket_id: id
+        }
+    }); 
+
     return {
         activePlayerIndex: 0, // for debug
         // TODO activePlayerIndex: Math.floor(Math.random() * 2), 
         challengingPlayerIndex: null, 
         surrenderingPlayerIndex:  null,
-        playerStates: [{
-            lifePoint: 2,
-            cards: [shuffled_deck.pop(), shuffled_deck.pop()],
-            tokens: constants.INITIAL_TOKENS,
-            socket_id: playerIds[0]
-        },
-        {
-            lifePoint: 2,
-            cards: [shuffled_deck.pop(), shuffled_deck.pop()],
-            tokens: constants.INITIAL_TOKENS,
-            socket_id: playerIds[1]
-        }],
+        playerStates: initialPlayerStates,
         deckState: shuffled_deck,
         roundState: RoundState.WaitForAction, 
         pendingActions: [],

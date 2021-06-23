@@ -144,6 +144,7 @@ Player 0 played surrender with card 1
 - ~~End game section~~ Tuesday, June 22, 2021 
    - ~~who won~~ Tuesday, June 22, 2021 
    - ~~rematch~~ Tuesday, June 22, 2021 
+- disconnection
 
 ### nice-to-haves 
 - Event logs 

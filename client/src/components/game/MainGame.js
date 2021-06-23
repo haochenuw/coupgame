@@ -8,14 +8,14 @@ export default function MainGame (props){
 
     const [roundState, setRoundState] = useState("WAIT_FOR_ACTION")
 
-    const [gameState, setGameState] = useState(null);
+    const [localGameState, setLocalGameState] = useState(null);
 
     const [currentAction, setCurrentAction] = useState(null);
 
     useEffect(() =>{
         socket.on('gameState', gameState => {
             console.log(`got game state, ${JSON.stringify(gameState)}`)
-            setGameState(gameState)
+            setLocalGameState(gameState)
             if (!isMe(gameState)){
                 setRoundState("WAITING_FOR_OTHERS"); 
             } else{
@@ -31,6 +31,10 @@ export default function MainGame (props){
                     case "WAIT_FOR_EXCHANGE":
                         console.log('wait for exchange...'); 
                         setRoundState("WAIT_FOR_EXCHANGE"); 
+                        break;
+                    case "WAIT_FOR_BLOCK":
+                        console.log('wait for block...'); 
+                        setRoundState("WAIT_FOR_BLOCK"); 
                         break;
                     default: 
                         break; 
@@ -90,15 +94,18 @@ export default function MainGame (props){
             && gameState.roundState === "WAIT_FOR_SURRENDER") {
             return true; 
         }
+        else if (gameState.roundState === "WAIT_FOR_BLOCK") {
+            return true; 
+        }
         return false; 
     }
 
     function playerStatePanel(){
-        if (gameState === null){
+        if (localGameState === null){
             return null 
         }
         return(
-            gameState.playerStates.map((playerState) => {
+            localGameState.playerStates.map((playerState) => {
                 let className = ""; 
                 // if me, use special color. 
                 if (playerState.socket_id === props.me){
@@ -128,18 +135,13 @@ export default function MainGame (props){
             </div>
         )
     }
-    
-    function coup() {
-        console.log('coup clicked')
-        setRoundState('SELECT_TARGET')
-    }
 
     // Display an array of buttons, given by the "options" arra,y. 
     function selectTargetPanel(action, options){
         return (
         <div>
             <h2>Please select a target to {action} </h2>
-            {options.map((item, index) => {
+            {options.map((item) => {
                 // if(playerState.lifePoint > 0){
                 return(<span>
                     <button onClick={() => onTargetSelected(action, item)}>{item}</button>
@@ -158,7 +160,7 @@ export default function MainGame (props){
     }
 
     function waitForSurrender() {
-        let cards = gameState.playerStates.filter(state => state.socket_id === props.me)[0].cards; 
+        let cards = localGameState.playerStates.filter(state => state.socket_id === props.me)[0].cards; 
         console.log(`cards = ${JSON.stringify(cards)}`);
         return (
             selectTargetPanel('Surrender', cards.filter(card => card.isRevealed === false).map(card => card.name))
@@ -166,15 +168,15 @@ export default function MainGame (props){
     }
 
     function selectTarget(action){
-        let options = gameState.playerStates.filter(state => state.socket_id !== props.me).map(state => state.socket_id);
+        let options = localGameState.playerStates.filter(state => state.socket_id !== props.me).map(state => state.socket_id);
         return (
             selectTargetPanel(action, options)
         )
     }
 
     function selectExchangeTarget(){
-        let cards = gameState.pendingExchangeCards.map(card => card.name);
-        let numToKeep = gameState.pendingExchangeCards.length - 2; 
+        let cards = localGameState.pendingExchangeCards.map(card => card.name);
+        let numToKeep = localGameState.pendingExchangeCards.length - 2; 
 
         let cardsToKeep = []; 
 
@@ -208,10 +210,10 @@ export default function MainGame (props){
 
 
     function isWaiting(){
-        if (gameState === null){
+        if (localGameState === null){
             return true; 
         } 
-        if (gameState.playerStates[gameState.activePlayerIndex].socket_id !== props.me){
+        if (localGameState.playerStates[localGameState.activePlayerIndex].socket_id !== props.me){
             console.log(`not active player`)
             return true; 
         }  
