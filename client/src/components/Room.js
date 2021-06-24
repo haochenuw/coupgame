@@ -9,18 +9,23 @@ const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 
 let socket = null; 
 
-export default function Room({match, location}) {
+export default function Room({history, match, location}) {
     // Connect through socket. 
     if (socket === null){
         socket = io(`${baseUrl}/${match.params.name}`);
     }
-
+    
     const [players, setPlayers] = useState(null); 
+    const [name, setName] = useState(null); 
     const [me, setMe] = useState(''); 
     const [winner, setWinner] = useState(null); 
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     
     useEffect(() => {
+        console.log(`Got player name = ${JSON.stringify(location.state.playerName)}`); 
+        setName(location.state.playerName); 
+        socket.emit('setName', location.state.playerName); 
+
         socket.on("connect", () => {
             setMe(socket.id); 
         });
@@ -131,8 +136,8 @@ function PlayersPanel(props){
                     ready = <b>Not Ready</b>
                 }
                 return(
-                    <div style={{backgroundColor: item.client_id === props.me ? meColor : otherColor}} key={index}>
-                            <p >{index+1}. {item.client_id} {ready}</p>
+                    <div style={{backgroundColor: item.name === props.name ? meColor : otherColor}} key={index}>
+                            <p >{index+1}. {item.name} {ready}</p>
                     </div>
                 )
                 })

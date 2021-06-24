@@ -421,7 +421,14 @@ const main = async () => {
                 "isReady": false
             })
             client.join(namespace);
-            socket.emit('playersUpdate', players);
+            
+            client.on('setName', playerName => {
+                logDebug(`players = ${JSON.stringify(players)}`); 
+                let player = players.find(player => player.client_id === client.id)
+                logDebug(`player ${player.client_id} set name to be ${playerName}`); 
+                player.name = playerName; 
+                socket.emit('playersUpdate', players);
+            });
 
             client.on('playerReady', () => {
                 console.log(`${client.id} is ready`)

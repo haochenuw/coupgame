@@ -140,7 +140,7 @@ Player 0 played surrender with card 1
     - ~~Exchange~~ Tuesday, June 22, 2021 
 
 - Player name selection 
-- More than 2 player mode 
+- ~~More than 2 player mode~~ Tuesday, June 22, 2021 
 - ~~End game section~~ Tuesday, June 22, 2021 
    - ~~who won~~ Tuesday, June 22, 2021 
    - ~~rematch~~ Tuesday, June 22, 2021 
@@ -149,6 +149,7 @@ Player 0 played surrender with card 1
 ### nice-to-haves 
 - Event logs 
 - Room code copying
+- Join through link 
 
 
 

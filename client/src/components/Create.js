@@ -12,13 +12,19 @@ export const Create = withRouter(({history}) => {
 
     const [disabled, setDisabled] = useState(false)
 
+    const [name, setName] = useState(null)
+
+    const handleChange = (e) => setName(e.target.value);
+
     function createParty(){
         // console.log('create button clicked'); 
         setDisabled(true)
         axios.get(`${baseUrl}/createRoom`)
         .then(function (res) {
             // console.log(res.data.room);
-            history.push({pathname:`/room/${res.data.room}`, state:{data: true}});
+
+
+            history.push({pathname:`/room/${res.data.room}`, state:{data: true, playerName: name}});
         })
         .catch(function (err) {
             console.log("error in getting new room", err);
@@ -27,6 +33,7 @@ export const Create = withRouter(({history}) => {
 
     return (
         <div>
+            <input type="text" value={name} onChange={handleChange} placeholder="Your name" />
             <button className="createButton" onClick={createParty} disabled={disabled}>Create</button>
         </div>
     )

@@ -7,10 +7,9 @@ const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 export const Join = withRouter(({history}) => {
 
     const [code, setCode] = useState(""); 
-
     const [error, setError] = useState(false); 
     const [roomDNE, setRoomDNE] = useState(false); 
-    const [roomFound, setRoomFound] = useState(false); 
+    const [name, setName] = useState(null); 
 
     function handleChange(event)
     {
@@ -29,6 +28,7 @@ export const Join = withRouter(({history}) => {
             console.log(res)
             setRoomDNE(!res.data.doesRoomExist)
             if(res.data.doesRoomExist){
+                // happy path
                 history.push({pathname:`/room/${code}`, state:{data: false}});
             }
         })
@@ -40,19 +40,31 @@ export const Join = withRouter(({history}) => {
         document.querySelector('#input').value = ''
     }
 
-    return (
-        <div>
-        {roomDNE &&
-            <h1>Error: Room {code} does not exist</h1> 
-        }
-        {roomFound &&
-            <h1>Room {code} Found!</h1>
-        }
-        <button onClick={join}>Join</button>
-        <input id='input' onChange={handleChange} type="text" placeholder="Game code"/>
-        </div>
-    )
+    function setNamePanel(){
+        return(
+            <>
+            <input id='inputName' value={name} type="text" placeholder="Your Name"/>
+            <button onClick={() => setName(document.getElementById('inputName').value)}>Save</button>
+            </>
+        )
+    }
+
+    if (name === null){
+        return setNamePanel() // TODO 
+    } else{
+        return (
+            <div>
+            {roomDNE &&
+                <h1>Error: Room {code} does not exist</h1> 
+            }
+            <button onClick={join}>Join</button>
+            <input id='input' onChange={handleChange} type="text" placeholder="Game code"/>
+            </div>
+        )
+    }
 }); 
+
+
 
 export default Join; 
 
