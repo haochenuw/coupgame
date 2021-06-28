@@ -24,22 +24,38 @@ export const CARD_TYPES = [
         action:  null,
         blocksAction: Action.Assasinate, 
         isRevealed: false // if card is already revealed. 
+    },
+    {
+        name: "Ambassador", 
+        action:  Action.Exchange,
+        blocksAction: Action.Steal, 
+        isRevealed: false // if card is already revealed. 
     }
 ]; 
+
+export const MaskedCard = {
+    name: "???", 
+    action:  null, 
+    blocksAction: null, 
+    isRevealed: false // if card is already revealed. 
+}
 
 export const INITIAL_DECK = [
     Object.assign({}, CARD_TYPES[0], {index: 0}), 
     Object.assign({}, CARD_TYPES[1], {index: 1}), 
     Object.assign({}, CARD_TYPES[2], {index: 2}), 
     Object.assign({}, CARD_TYPES[3], {index: 3}), 
+    Object.assign({}, CARD_TYPES[4], {index: 3}), 
     Object.assign({}, CARD_TYPES[0], {index: 0}), 
     Object.assign({}, CARD_TYPES[1], {index: 1}), 
     Object.assign({}, CARD_TYPES[2], {index: 2}), 
     Object.assign({}, CARD_TYPES[3], {index: 3}), 
+    Object.assign({}, CARD_TYPES[4], {index: 3}), 
     Object.assign({}, CARD_TYPES[0], {index: 0}), 
     Object.assign({}, CARD_TYPES[1], {index: 1}), 
     Object.assign({}, CARD_TYPES[2], {index: 2}), 
     Object.assign({}, CARD_TYPES[3], {index: 3}), 
+    Object.assign({}, CARD_TYPES[4], {index: 3}), 
 ];
 
 export const NUM_OF_EACH_CARD = 3; 

@@ -81,8 +81,8 @@ export default function Room({history, match, location}) {
         return (
             <div>
                 <h2>Game over: winner is {winner}</h2> 
-                {winner === me && (<h2>You won!</h2>)}
-                {winner !== me && (<h2>You lost!</h2>)}
+                {winner === name && (<h2>You won!</h2>)}
+                {winner !== name && (<h2>You lost!</h2>)}
             </div>
         )
     }
@@ -105,7 +105,7 @@ export default function Room({history, match, location}) {
                     </SocketContext.Provider>
                 }
                 { 
-                    roomStatus !== 'STARTED' && <PlayersPanel players= {players} me = {me} />
+                    roomStatus !== 'STARTED' && <PlayersPanel players= {players} me = {me} name = {name} />
                 }   
                 { 
                     roomStatus === 'GAMEOVER' && gameOverPanel()

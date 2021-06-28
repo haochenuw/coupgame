@@ -2,11 +2,10 @@
 import express from "express";
 import { join } from "path";
 import cors from "cors";
-import {Socket} from "socket.io"; 
-
-import {makeid, logInfo, logError, logDebug}  from "./utils"; 
+import {Socket, Namespace} from "socket.io"; 
+import {makeid, logInfo, logError, logDebug, renderLog}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
-import {initGame, shuffle, commitAction, isValidAction, checkForWinner} from "./game"; 
+import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState} from "./game"; 
 import { parse } from "path/posix";
 import * as constants from "./constants"; 
 
@@ -242,10 +241,6 @@ const main = async () => {
     //         io.sockets.in(roomName).emit('gameState', JSON.stringify(gameState)); 
     //     }
 
-    //     function isRevealLegit(card: Card, pendingAction: Action): boolean{
-    //         return card.action === pendingAction && card.isRevealed === false; 
-    //     }
-
     //     function tryGetRevealCard(playerState: PlayerState, cardIndex:number): Card | undefined {
     //         if (cardIndex < 0 || cardIndex >= playerState.cards.length){
     //             logError('card index out of bounds'); 
@@ -367,13 +362,6 @@ const main = async () => {
     //         }
     //     }
 
-
-
-    //     async function resolveReactions(action, callback: (ok: boolean)=> void){
-    //         callback(true); 
-    //     }
-    // });
-
     app.use(express.static(join(__dirname, '../client/build')));
 
     app.get('/newgame', (_, res) => {
@@ -397,7 +385,7 @@ const main = async () => {
         while(newRoom === '' || (newRoom in namespaces)) {
             newRoom = makeid(5); 
         }
-        const newSocket = io.of(`/${newRoom}`);
+        const newSocket: Namespace = io.of(`/${newRoom}`);
         openSocket(newSocket, `/${newRoom}`);
         namespaces[newRoom] = null;
         console.log(newRoom + " CREATED")
@@ -447,20 +435,41 @@ const main = async () => {
                     return; 
                 } 
                 console.log(`${client.id} starts game for room ${namespace}`)
-                gameState = initGame(players.map(player => player.client_id)); 
+                  
+                gameState = initGame(players); 
                 socket.emit('startGameResponse');
-                socket.emit('gameState', gameState);
+                // socket.emit('gameState', gameState);
+                sendMaskedGameStates(socket, gameState); 
             })
 
             client.on('action', (action) => {
                 logInfo(`Got action = ${JSON.stringify(action)} from player ${client.id}`); 
+
+
                 if (!isValidAction(action, client.id, gameState)){
                     return; 
                 } 
+                let sourceName = gameState.playerStates.find(state => state.socket_id === client.id).friendlyName; 
+                // Add event to the log
+                
                 let actionWithSource = {...action, source: client.id}; 
+                if (actionWithSource.target === null && action.name as Action === Action.Challenge){
+                    let source = gameState.pendingActions[0].source;
+                    let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
+                    actionWithSource.target = name; 
+                }    
 
-                gameState.pendingActions.push(actionWithSource as PlayerAction); 
-                // TODO handle challenge and blocks 
+                gameState.logs.splice(0, 0, renderLog(sourceName, action.name, actionWithSource.target)); 
+                
+                gameState.pendingActions.splice(0,0,actionWithSource as PlayerAction); 
+                //  handle challenge and blocks 
+                if (isChallengeable(action.name as Action)){
+                    logInfo('waiting for challenge...'); 
+                    gameState.roundState = RoundState.WaitForChallenge; 
+                    socket.emit('gameState', gameState); 
+                    return; 
+                }
+
                 if (isBlockable(action.name as Action)){
                     logInfo('waiting for block...'); 
                     gameState.roundState = RoundState.WaitForBlock; 
@@ -477,24 +486,9 @@ const main = async () => {
                 socket.emit('gameState', gameState); 
             }); 
 
-            function handleBlocks(callback){
-
-                callback(); 
-            }
-
-
         })
 
     }
-
-    function handleChallenge(roomSocket, callback){
-        roomSocket.on('challenge', () =>{
-            console.log('challenge received'); 
-        }); 
-    }
-
-
-
 
     app.get('/rooms/:code', (req, res) => {
         const roomName = req.params.code; 
@@ -520,6 +514,13 @@ const main = async () => {
     server.listen(3002, () => {
         console.log("listening on localhost:3002");
     });
+
+    function sendMaskedGameStates(namespace: Namespace, gameState: GameState) {
+        for (let [clientId, clientSocket] of Object.entries(namespace.sockets)) {
+            logDebug(`AAAAAABBBBBB client id = ${clientId}`); 
+            (clientSocket as Socket).emit('gameState', maskState(gameState, clientId)); 
+        }
+    }
 };
 
 main();

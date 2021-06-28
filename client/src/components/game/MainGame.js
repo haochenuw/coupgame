@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react'
 import '../styles/styles.css';
 import { SocketContext } from "./../Room";
+import EventLog from "./EventLog"
 
 export default function MainGame (props){
     console.log('I am ', props.me)
@@ -24,6 +25,10 @@ export default function MainGame (props){
                         console.log('wait for surrender...'); 
                         setRoundState("WAIT_FOR_SURRENDER");
                         break; 
+                    case "WAIT_FOR_CHALLENGE": 
+                        console.log('waiting for challenge...'); 
+                        setRoundState("WAIT_FOR_CHALLENGE");
+                        break; 
                     case "WAIT_FOR_ACTION":
                         console.log('wait for action...'); 
                         setRoundState("WAIT_FOR_ACTION"); 
@@ -33,8 +38,12 @@ export default function MainGame (props){
                         setRoundState("WAIT_FOR_EXCHANGE"); 
                         break;
                     case "WAIT_FOR_BLOCK":
-                        console.log('wait for block...'); 
+                        console.log("\x1b[31m", 'Changing State to wait for block...'); 
                         setRoundState("WAIT_FOR_BLOCK"); 
+                        break;
+                    case "WAIT_FOR_REVEAL":
+                        console.log("\x1b[31m", 'Changing State to wait for reveal...'); 
+                        setRoundState("WAIT_FOR_REVEAL"); 
                         break;
                     default: 
                         break; 
@@ -93,8 +102,17 @@ export default function MainGame (props){
             && gameState.playerStates[gameState.surrenderingPlayerIndex].socket_id === props.me
             && gameState.roundState === "WAIT_FOR_SURRENDER") {
             return true; 
-        }
-        else if (gameState.roundState === "WAIT_FOR_BLOCK") {
+        } else if (gameState.pendingActions.length > 0 
+            && gameState.pendingActions[0].source !== props.me 
+            && gameState.roundState === "WAIT_FOR_BLOCK") {
+            return true; 
+        } else if (gameState.pendingActions.length > 0 
+            && gameState.pendingActions[0].source !== props.me 
+            && gameState.roundState === "WAIT_FOR_CHALLENGE") {
+            return true; 
+        } else if (gameState.pendingActions.length > 0 
+            && gameState.pendingActions[0].source === props.me 
+            && gameState.roundState === "WAIT_FOR_REVEAL") {
             return true; 
         }
         return false; 
@@ -112,7 +130,8 @@ export default function MainGame (props){
                     className = "me"; 
                 } 
                 return <div className = {className}>
-                            <h2>Life {playerState.lifePoint}</h2>
+                            <h2>{playerState.friendlyName}</h2>
+                            <h2>Life: {playerState.lifePoint}</h2>
                             <h2>Tokens: {playerState.tokens}</h2>
                             {playerState.cards.map((card) => {
                                 return (
@@ -159,16 +178,16 @@ export default function MainGame (props){
         setRoundState('PENDING_SERVER')
     }
 
-    function waitForSurrender() {
+    function selectAliveCardsPanel(name) {
         let cards = localGameState.playerStates.filter(state => state.socket_id === props.me)[0].cards; 
         console.log(`cards = ${JSON.stringify(cards)}`);
         return (
-            selectTargetPanel('Surrender', cards.filter(card => card.isRevealed === false).map(card => card.name))
+            selectTargetPanel(name, cards.filter(card => card.isRevealed === false).map(card => card.name))
         )
     }
 
     function selectTarget(action){
-        let options = localGameState.playerStates.filter(state => state.socket_id !== props.me).map(state => state.socket_id);
+        let options = localGameState.playerStates.filter(state => state.socket_id !== props.me).map(state => state.friendlyName);
         return (
             selectTargetPanel(action, options)
         )
@@ -209,25 +228,37 @@ export default function MainGame (props){
     }
 
 
-    function isWaiting(){
-        if (localGameState === null){
-            return true; 
-        } 
-        if (localGameState.playerStates[localGameState.activePlayerIndex].socket_id !== props.me){
-            console.log(`not active player`)
-            return true; 
-        }  
-        if (roundState !== "WAIT_FOR_ACTION"){
-            return true; 
-        }
-        return false; 
+    // function isWaiting(){
+    //     if (localGameState === null){
+    //         return true; 
+    //     } 
+    //     if (localGameState.playerStates[localGameState.activePlayerIndex].socket_id !== props.me){
+    //         console.log(`not active player`)
+    //         return true; 
+    //     }  
+    //     if (roundState !== "WAIT_FOR_ACTION"){
+    //         return true; 
+    //     }
+    //     return false; 
+    // }
+
+    // let waiting = null; 
+    // if (isWaiting()){
+    //     waiting = <div>Waiting for others to act...</div>
+    // } 
+
+    function doXOrSkipPanel(name) {
+        return(
+            <div>
+                <button onClick={() => onBlockOrChallengeDecision(name)}>{name}</button>
+                <button onClick={() => onBlockOrChallengeDecision('Skip'+name)}>Skip</button>
+            </div>
+        )
     }
 
-    let waiting = null; 
-    if (isWaiting()){
-        waiting = <div>Waiting for others to act...</div>
-    } else{
-        waiting = <div>Not waiting</div>
+    function onBlockOrChallengeDecision(action){
+        console.log('Block or Challenge action chosen'); 
+        socket.emit('action', {name: action, target: null})
     }
 
     return(
@@ -243,10 +274,14 @@ export default function MainGame (props){
             roundState === "PENDING_SERVER" && <h2>Pending server response...</h2>
         }
         {
-            roundState === "WAIT_FOR_SURRENDER" && waitForSurrender()
+            roundState === "WAIT_FOR_SURRENDER" && selectAliveCardsPanel('Surrender')
         }
         {roundState === "SELECT_TARGET" && selectTarget(currentAction)}
         {roundState === "WAIT_FOR_EXCHANGE" && selectExchangeTarget()}
+        {roundState === "WAIT_FOR_BLOCK" && doXOrSkipPanel('Block')}
+        {roundState === "WAIT_FOR_CHALLENGE" && doXOrSkipPanel('Challenge')}
+        {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
+        {localGameState !== null && <EventLog logs={localGameState.logs}/>}
         </div>
     )
 }

@@ -94,6 +94,7 @@ Using React and router to refactor the frontend...currently working great and le
 
 
 - ~~Issue with life being -1~~ Thursday, June 10, 2021
+```
 Player 0 played Coup on player 1
 Player 1 played surrender with 0
 Player 1 played Income
@@ -110,16 +111,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 ```
 
 - ~~Issue with legit reveal but life point not deducted from challenger~~ Wednesday, June 9, 2021
-```
-Player 0 played Tax
-Player 32qKo3PVxm1EFzucAAAI played challenge
-Player 0-27_0uGRC98AAujAAAH played reveal with card Contessa
-Player 0-27_0uGRC98AAujAAAH played lost one life
-Player 1 played Tax
-Player 0-27_0uGRC98AAujAAAH played challenge
-Player 32qKo3PVxm1EFzucAAAI played reveal with card Duke
-Player 0 played surrender with card 1
-```
+
 
 ## React 
 
@@ -134,22 +126,50 @@ Player 0 played surrender with card 1
     - ~~Coup surrender selection~~ Sunday, June 20, 2021
     - ~~Tax~~ Monday, June 21, 2021 
     - Challenge 
+        - ~~Challenge an action~~ Saturday, June 26, 2021 
+        - ~~Challenge a block~~ Saturday, June 26, 2021 
+        - ~~Block after failed challenge~~ Saturday, June 26, 2021 
+        - ~~Block after skip challenge~~ Saturday, June 26, 2021 
     - ~~Ass~~ Monday, June 21, 2021
-    - Blocking
+    - ~~Blocking~~ Thursday, June 24, 2021
     - ~~Steal~~ Tuesday, June 22, 2021
     - ~~Exchange~~ Tuesday, June 22, 2021 
 
-- Player name selection 
+- ~~Who can block~~ Friday, June 25, 2021
+
+- Hide other player states 
+
+- ~~Who can challenge~~ Saturday, June 26, 2021
+
+- Player name selection
+    - ~~display friendly names~~ Thursday, June 24, 2021 
+    - ~~make server recognize names during game~~ Thursday, June 24, 2021 
 - ~~More than 2 player mode~~ Tuesday, June 22, 2021 
 - ~~End game section~~ Tuesday, June 22, 2021 
    - ~~who won~~ Tuesday, June 22, 2021 
    - ~~rematch~~ Tuesday, June 22, 2021 
-- disconnection
+   
+- Player disconnection
+
+- Remember socket connection when Refresh page
+
+- ~~Mask other player state~~ Sunday, June 27, 2021
+
+- ~~Event logs~~ Sunday, June 27, 2021 
+
+- Deploy (heroku or digital ocean)
 
 ### nice-to-haves 
-- Event logs 
-- Room code copying
+- Room code copying button 
 - Join through link 
+- Auto reveal if has the right card during challenge. 
 
 
 
+## Bugs 
+
+- ~~Challenging a "block" incorrect result, e.g. challenging duke's block foreign aid. ~~ Sunday, June 27, 2021
+
+- 3 players: 
+ - Shouldn't be able to block a steal for not me. 
+ - Players already dead cannot be targets.  

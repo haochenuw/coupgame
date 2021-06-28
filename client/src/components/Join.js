@@ -29,7 +29,7 @@ export const Join = withRouter(({history}) => {
             setRoomDNE(!res.data.doesRoomExist)
             if(res.data.doesRoomExist){
                 // happy path
-                history.push({pathname:`/room/${code}`, state:{data: false}});
+                history.push({pathname:`/room/${code}`, state:{data: false, playerName: name}});
             }
         })
         .catch(function (err) {

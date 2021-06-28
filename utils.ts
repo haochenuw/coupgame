@@ -23,6 +23,16 @@ export function makeid(length) {
      console.log(constants.FgCyan, msg); 
  }
 
-//  export function emitGameState(io: any, roomName: string){
-//     io.to(roomName).emit('gameState', JSON.stringify(gameState)); 
-//  }
+ export function renderLog(sourceName: string, action: string, target: string | null){
+    // translate to past tense 
+    let actionPastTense = transformToPastTense(action.toLowerCase()); 
+    if (target === "null"){
+        return [sourceName, actionPastTense].join(" "); 
+    } else{
+        return [sourceName, actionPastTense, target].join(" "); 
+    }
+ }
+
+ function transformToPastTense(action: string) {
+    return action + "ed"; 
+ }
