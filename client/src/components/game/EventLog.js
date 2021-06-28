@@ -4,7 +4,6 @@ import '../styles/styles.css';
 export default function EventLog (props){
     return(
         <div>
-            <h2>Event Log</h2>
             {
                 props.logs.map((logEntry, index) => {
                     if (index == 0){

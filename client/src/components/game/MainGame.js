@@ -13,9 +13,16 @@ export default function MainGame (props){
 
     const [currentAction, setCurrentAction] = useState(null);
 
+    const [hasError, setHasError] = useState(false); 
+
     useEffect(() =>{
+        socket.on('clientError', ()=>{
+            setHasError(true); 
+            setRoundState("WAIT_FOR_ACTION"); 
+        }); 
         socket.on('gameState', gameState => {
             console.log(`got game state, ${JSON.stringify(gameState)}`)
+            setHasError(false); 
             setLocalGameState(gameState)
             if (!isMe(gameState)){
                 setRoundState("WAITING_FOR_OTHERS"); 
@@ -175,7 +182,6 @@ export default function MainGame (props){
     function onTargetSelected(action, item) {
         console.log(`target ${item} selected`); 
         socket.emit('action', {name: action, target: item}); 
-        setRoundState('PENDING_SERVER')
     }
 
     function selectAliveCardsPanel(name) {
@@ -281,6 +287,7 @@ export default function MainGame (props){
         {roundState === "WAIT_FOR_BLOCK" && doXOrSkipPanel('Block')}
         {roundState === "WAIT_FOR_CHALLENGE" && doXOrSkipPanel('Challenge')}
         {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
+        {hasError && <h3 color="red">Not enough Tokens</h3>}
         {localGameState !== null && <EventLog logs={localGameState.logs}/>}
         </div>
     )

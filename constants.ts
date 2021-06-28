@@ -1,4 +1,4 @@
-import { RoomStatus,GameState, PlayerState, Card, Action} from "./types";
+import {Action} from "./types";
 
 export const CARD_TYPES = [
     {
@@ -58,14 +58,13 @@ export const INITIAL_DECK = [
     Object.assign({}, CARD_TYPES[4], {index: 3}), 
 ];
 
-export const NUM_OF_EACH_CARD = 3; 
-export const COUP_COST = 0; 
-export const ASSASINATE_COST = 1; 
-export const INCOME_RATE = 10; 
-export const FOREIGN_AID_AMOUNT = 100;  
-export const TAX_AMOUNT = 1000;  
-export const STEAL_AMOUNT = 500;  
-export const INITIAL_TOKENS = 500;  
+export const COUP_COST = 7; 
+export const ASSASINATE_COST = 3; 
+export const INCOME_RATE = 1; 
+export const FOREIGN_AID_AMOUNT = 2;  
+export const TAX_AMOUNT = 3;  
+export const STEAL_AMOUNT = 2;  
+export const INITIAL_TOKENS = 2;  
 
 export const FgRed = "\x1b[31m"
 export const FgGreen = "\x1b[32m"

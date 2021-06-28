@@ -447,8 +447,16 @@ const main = async () => {
 
 
                 if (!isValidAction(action, client.id, gameState)){
+                    logError("Action is Invalid"); 
+                    client.emit("clientError"); 
                     return; 
                 } 
+                // Handle special case. If it is assasinate, then deduct tokens right away 
+                if(action.name as Action === Action.Assasinate){
+                    logInfo(`Deducting assasinate costs`); 
+                    gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
+                }
+
                 let sourceName = gameState.playerStates.find(state => state.socket_id === client.id).friendlyName; 
                 // Add event to the log
                 

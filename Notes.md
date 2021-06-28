@@ -137,8 +137,6 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Who can block~~ Friday, June 25, 2021
 
-- Hide other player states 
-
 - ~~Who can challenge~~ Saturday, June 26, 2021
 
 - Player name selection
@@ -149,20 +147,28 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
    - ~~who won~~ Tuesday, June 22, 2021 
    - ~~rematch~~ Tuesday, June 22, 2021 
    
-- Player disconnection
-
-- Remember socket connection when Refresh page
-
 - ~~Mask other player state~~ Sunday, June 27, 2021
 
 - ~~Event logs~~ Sunday, June 27, 2021 
 
+- ~~Constants change~~ Sunday, June 27, 2021 
+
+- ~~Client action cost validation~~ Sunday, June 27, 2021
+
+- Debug some weird issues (sometimes reveal will freeze the server)
+
 - Deploy (heroku or digital ocean)
 
+- Consistent masking 
+
 ### nice-to-haves 
+- Make exchange selection look better (disable already selected )
+- Player disconnection
 - Room code copying button 
 - Join through link 
 - Auto reveal if has the right card during challenge. 
+- Remember socket connection when Refresh page
+- Artistic feel  
 
 
 

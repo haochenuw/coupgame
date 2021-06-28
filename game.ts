@@ -234,8 +234,7 @@ export function commitAction(gameState: GameState): GameState{
             }
             gameState.playerStates[targetIndex].lifePoint -= 1; 
             gameState.logs.splice(0, 0, action.target + " lost a life"); 
-
-            gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
+            // gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
             gameState.roundState = RoundState.WaitForSurrender;
             gameState.surrenderReason = Action.Assasinate; 
             gameState.surrenderingPlayerIndex = targetIndex; 
@@ -285,7 +284,8 @@ export function commitAction(gameState: GameState): GameState{
             // unwanted cards are put back to the dek
             gameState.deckState = gameState.deckState.concat(gameState.pendingExchangeCards); 
             // flush the pending area. 
-            gameState.pendingExchangeCards = [];    
+            gameState.pendingExchangeCards = [];   
+            break;  
         default:
             logError("No such action exists!");
             break;
@@ -332,12 +332,27 @@ function computeIndexFromName(gameState:GameState, target: string) {
     return gameState.playerStates.map(state => state.friendlyName).indexOf(target); 
 }
 
+function isValidCost(action: PlayerAction, clientId: string, state: GameState): boolean{
+    let tokens = state.playerStates.find(player => player.socket_id === clientId).tokens; 
+    logDebug(`tokens = ${tokens}`); 
+    if (action.name as Action === Action.Assasinate){
+        return tokens >= constants.ASSASINATE_COST; 
+    } 
+    if (action.name as Action === Action.Coup){
+        return tokens >= constants.COUP_COST; 
+    } 
+    return true; 
+}
+
 export function isValidAction(action: PlayerAction, clientId: string, state: GameState){
     if (
         state.roundState === RoundState.WaitForAction 
         && 
         clientId === state.playerStates[state.activePlayerIndex].socket_id){
-        return true; 
+        // Check the cost 
+        let validCost = isValidCost(action, clientId, state);
+        logDebug(`isValid cost? ${validCost}`); 
+        return validCost; 
     } else if (
         state.roundState === RoundState.WaitForSurrender 
         && 
