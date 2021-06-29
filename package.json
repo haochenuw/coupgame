@@ -7,11 +7,11 @@
     "node": "14.x"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc -w",
+    "build-ts": "tsc",
+    "postinstall": "npm run build-ts",
     "dev2": "tsc && cd client && npm install && npm run build; cd .. && nodemon out/app.js",
     "dev": "tsc && nodemon out/app.js", 
-    "start": "tsc; node out/app.js",
+    "start": "node out/app.js",
     "heroku-postbuild": "cd client && npm install && npm run build;"
   },
   "keywords": [],
