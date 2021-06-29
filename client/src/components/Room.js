@@ -5,14 +5,14 @@ import io from "socket.io-client";
 
 export const SocketContext = React.createContext()
 
-const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
+// const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 
 let socket = null; 
 
 export default function Room({history, match, location}) {
     // Connect through socket. 
     if (socket === null){
-        socket = io(`${baseUrl}/${match.params.name}`);
+        socket = io(`/${match.params.name}`);
     }
     
     const [players, setPlayers] = useState(null); 

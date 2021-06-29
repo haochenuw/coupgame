@@ -3,7 +3,7 @@ import { Redirect, BrowserRouter as Router, Route, Link, withRouter} from "react
 import Room from "./Room"; 
 
 const axios = require('axios');
-const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
+// const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 
 export const Create = withRouter(({history}) => {
     // console.log("history", history); 
@@ -16,10 +16,11 @@ export const Create = withRouter(({history}) => {
 
     const handleChange = (e) => setName(e.target.value);
 
-    function createParty(){
+    function createParty(event){
         // console.log('create button clicked'); 
+        event.preventDefault();
         setDisabled(true)
-        axios.get(`${baseUrl}/createRoom`)
+        axios.get(`/createRoom`)
         .then(function (res) {
             // console.log(res.data.room);
 

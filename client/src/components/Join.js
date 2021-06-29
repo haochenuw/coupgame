@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { withRouter} from "react-router-dom";
 
 const axios = require('axios');
-const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
+// const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 
 export const Join = withRouter(({history}) => {
 
@@ -23,7 +23,7 @@ export const Join = withRouter(({history}) => {
             roomName: code
         }
 
-        axios.get(`${baseUrl}/checkRoom`, {params: data})   
+        axios.get(`/checkRoom`, {params: data})   
         .then(function (res) {
             console.log(res)
             setRoomDNE(!res.data.doesRoomExist)
