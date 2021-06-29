@@ -157,7 +157,7 @@ export default function MainGame (props){
     function renderCard(card){
         return(
             <div style={{color: card.isRevealed? revealedColor : availableColor}}>
-                <h3>{card.name}</h3>
+                <h3>{card.name} <span>{card.index}</span></h3>
             </div>
         )
     }

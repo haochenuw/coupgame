@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc -w",
     "dev2": "tsc -w; cd client && yarn && yarn run build; cd .. && nodemon out/app.js",
-    "dev": "tsc && nodemon out/app.js"
+    "dev": "tsc && nodemon out/app.js", 
+    "start": "tsc; node out/app.js",
+    "heroku-postbuild": "cd client && yarn && yarn run build"
   },
   "keywords": [],
   "author": "",

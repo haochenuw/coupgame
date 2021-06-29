@@ -159,7 +159,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - Deploy (heroku or digital ocean)
 
-- Consistent masking 
+- ~~Consistent masking~~ Monday, June 28, 2021
 
 ### nice-to-haves 
 - Make exchange selection look better (disable already selected )
@@ -175,6 +175,8 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 ## Bugs 
 
 - ~~Challenging a "block" incorrect result, e.g. challenging duke's block foreign aid. ~~ Sunday, June 27, 2021
+
+- ~~Card not shuffled after revealing duke~~ Monday, June 28, 2021
 
 - 3 players: 
  - Shouldn't be able to block a steal for not me. 

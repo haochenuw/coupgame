@@ -34,5 +34,8 @@ export function makeid(length) {
  }
 
  function transformToPastTense(action: string) {
+    if (action.endsWith('e')){
+        return action + 'd'; 
+    }
     return action + "ed"; 
  }

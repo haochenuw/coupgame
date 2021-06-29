@@ -7,19 +7,16 @@ import { parse } from "path/posix";
 export function initGame(players): GameState {
     // logDebug(`initial deck = ${JSON.stringify(constants.INITIAL_DECK)}`); 
     let initial_deck = [
-        Object.assign({}, constants.CARD_TYPES[0], {index: 0}), 
-        Object.assign({}, constants.CARD_TYPES[1], {index: 1}), 
-        Object.assign({}, constants.CARD_TYPES[2], {index: 2}), 
-        Object.assign({}, constants.CARD_TYPES[3], {index: 3}), 
-        Object.assign({}, constants.CARD_TYPES[0], {index: 0}), 
-        Object.assign({}, constants.CARD_TYPES[1], {index: 1}), 
-        Object.assign({}, constants.CARD_TYPES[2], {index: 2}), 
-        Object.assign({}, constants.CARD_TYPES[3], {index: 3}), 
-        Object.assign({}, constants.CARD_TYPES[0], {index: 0}), 
-        Object.assign({}, constants.CARD_TYPES[1], {index: 1}), 
-        Object.assign({}, constants.CARD_TYPES[2], {index: 2}), 
-        Object.assign({}, constants.CARD_TYPES[3], {index: 3}), 
     ];
+
+    let ind = 0; 
+    for(let i = 0; i < constants.NUM_EACH_CARD; i++){
+        for(let j = 0; j < constants.CARD_TYPES.length; j++){
+            initial_deck.push(Object.assign({}, constants.CARD_TYPES[j], {index: ind})); 
+            ind++; 
+        }
+    }
+
 
     let shuffled_deck = initial_deck
     .map((a) => ({sort: Math.random(), value: a}))
@@ -101,11 +98,14 @@ export function commitAction(gameState: GameState): GameState{
             let card = source.cards[cardIndex]; 
             if (isRevealLegit(card, gameState)){
                 // legit reveal 
-                logInfo('revealing a legit card'); 
+                logInfo('reveal is legit'); 
                 // 1. get new card to revealing player
                 let deck = gameState.deckState; 
                 deck.push(card); 
+                logDebug(`before shuffle = ${JSON.stringify(deck)}`); 
                 deck = shuffle(deck); 
+                logDebug(`after shuffle = ${JSON.stringify(deck)}`); 
+
                 let newCard = deck.pop(); 
                 source.cards[cardIndex] = newCard; 
                 gameState.deckState = deck; 
@@ -413,18 +413,10 @@ export function checkForWinner(gameState: GameState): string | null {
 export function maskState(gameState: GameState, playerId: string): GameState{
     let copyState = JSON.parse(JSON.stringify(gameState))
 
-
-    // arr.forEach(function(part, index, theArray) {
-    //     theArray[index] = "hello world";
-    //   });
     copyState.playerStates.forEach(function(state, index, arr)  {
         state = state as PlayerState; 
 
-        console.log(`CCCCDDDDDDDDDDDDDD ${state.socket_id}, ${playerId}`); 
-
-        if (state.socket_id === playerId){
-            console.log('CCCCDDDDDDDDDDDDDD'); 
-        } else{
+        if (state.socket_id !== playerId){
             // mask all cards that are not revealed. 
             state.cards = state.cards.map(card => {
                 if (card.isRevealed === true){

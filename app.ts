@@ -364,6 +364,10 @@ const main = async () => {
 
     app.use(express.static(join(__dirname, '../client/build')));
 
+    app.get('/', (req, res) => {
+        res.sendFile(join(__dirname+'../client/build/index.html'));
+    });
+
     app.get('/newgame', (_, res) => {
         console.log('got new game request'); 
         let roomName = makeid(5); 
@@ -474,14 +478,18 @@ const main = async () => {
                 if (isChallengeable(action.name as Action)){
                     logInfo('waiting for challenge...'); 
                     gameState.roundState = RoundState.WaitForChallenge; 
-                    socket.emit('gameState', gameState); 
+                    // socket.emit('gameState', gameState); 
+                    sendMaskedGameStates(socket, gameState); 
+
                     return; 
                 }
 
                 if (isBlockable(action.name as Action)){
                     logInfo('waiting for block...'); 
                     gameState.roundState = RoundState.WaitForBlock; 
-                    socket.emit('gameState', gameState); 
+                    // socket.emit('gameState', gameState); 
+                    sendMaskedGameStates(socket, gameState); 
+
                     return; 
                 }
                 gameState = commitAction(gameState);
@@ -491,7 +499,8 @@ const main = async () => {
                 }
                 logDebug(`round state = ${JSON.stringify(gameState.roundState)}`)
                 logDebug(`active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
-                socket.emit('gameState', gameState); 
+                // socket.emit('gameState', gameState); 
+                sendMaskedGameStates(socket, gameState); 
             }); 
 
         })
@@ -510,22 +519,14 @@ const main = async () => {
         }
     }); 
 
-    app.get('/react', (req, res) => {
-        res.sendFile(join(__dirname+'/../client/build/index.html'));
-    });
+    const port = process.env.PORT || 3002;
 
-
-    app.get('/', (_req, res) => {
-        res.sendFile(join(__dirname,"../public/index.html"));
-    });
-
-    server.listen(3002, () => {
-        console.log("listening on localhost:3002");
+    server.listen(port, () => {
+        console.log(`listening on port ${port}`);
     });
 
     function sendMaskedGameStates(namespace: Namespace, gameState: GameState) {
         for (let [clientId, clientSocket] of Object.entries(namespace.sockets)) {
-            logDebug(`AAAAAABBBBBB client id = ${clientId}`); 
             (clientSocket as Socket).emit('gameState', maskState(gameState, clientId)); 
         }
     }

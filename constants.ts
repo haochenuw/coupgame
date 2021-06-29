@@ -40,24 +40,7 @@ export const MaskedCard = {
     isRevealed: false // if card is already revealed. 
 }
 
-export const INITIAL_DECK = [
-    Object.assign({}, CARD_TYPES[0], {index: 0}), 
-    Object.assign({}, CARD_TYPES[1], {index: 1}), 
-    Object.assign({}, CARD_TYPES[2], {index: 2}), 
-    Object.assign({}, CARD_TYPES[3], {index: 3}), 
-    Object.assign({}, CARD_TYPES[4], {index: 3}), 
-    Object.assign({}, CARD_TYPES[0], {index: 0}), 
-    Object.assign({}, CARD_TYPES[1], {index: 1}), 
-    Object.assign({}, CARD_TYPES[2], {index: 2}), 
-    Object.assign({}, CARD_TYPES[3], {index: 3}), 
-    Object.assign({}, CARD_TYPES[4], {index: 3}), 
-    Object.assign({}, CARD_TYPES[0], {index: 0}), 
-    Object.assign({}, CARD_TYPES[1], {index: 1}), 
-    Object.assign({}, CARD_TYPES[2], {index: 2}), 
-    Object.assign({}, CARD_TYPES[3], {index: 3}), 
-    Object.assign({}, CARD_TYPES[4], {index: 3}), 
-];
-
+export const NUM_EACH_CARD = 3; 
 export const COUP_COST = 7; 
 export const ASSASINATE_COST = 3; 
 export const INCOME_RATE = 1; 
