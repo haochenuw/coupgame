@@ -19,11 +19,8 @@ let states: Record<string, GameState> = {};
 
 const main = async () => {
     const app = express();
-    app.use(express.static("public"));
     app.use(cors({ origin: "*" }));
     app.use(express.json());  // for parsing requests. 
-    app.set('views', join(__dirname, '/../public/views'));
-    app.set('view engine', 'ejs');
 
     app.use(cors());
     app.use(
