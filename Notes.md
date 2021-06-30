@@ -157,18 +157,21 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - Debug some weird issues (sometimes reveal will freeze the server)
 
-- Deploy (heroku or digital ocean)
 
 - ~~Consistent masking~~ Monday, June 28, 2021
 
+### ~~Deploy (heroku or digital ocean)~~ Tuesday, June 29, 2021 !!!
+
 ### nice-to-haves 
-- Make exchange selection look better (disable already selected )
-- Player disconnection
+- ~~Make exchange selection look better (disable already selected )~~ Wednesday, June 30, 2021
+- ~~Randomize starting player~~ Wednesday, June 30, 2021
+- ~~Allow Joining through link~~  
 - Room code copying button 
-- Join through link 
+- Remember socket connection after Refresh
+- Remember socket connection after Closing browser tab (Check netgames.io see how it saves state)
+- Better UI   
+- Handle Player disconnection
 - Auto reveal if has the right card during challenge. 
-- Remember socket connection when Refresh page
-- Artistic feel  
 
 
 

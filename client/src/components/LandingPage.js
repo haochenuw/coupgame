@@ -11,23 +11,24 @@ import Join from "./Join";
 import MainGame from "./game/MainGame"; 
 import Room from "./Room"; 
 
+const linkStyle = {
+    margin: "1rem",
+    textDecoration: "none",
+    color: "green"
+  };
+
 function Heading(){
     return <h1>Multiplayer Coup</h1>; 
 }
 
 function Home(){
     return(
-        <>
+        <div className="Home">
         <Heading />
-        <ul>
-        <li>
-            <Link to="/create">Create</Link>
-        </li>
-        <li>
-            <Link to="/join">join</Link>
-        </li>
-        </ul>
-        </>
+        
+        <Link style={linkStyle} to="/create">Create</Link>
+        <Link style={linkStyle} to="/join">Join</Link>
+        </div>
     )
 }
 

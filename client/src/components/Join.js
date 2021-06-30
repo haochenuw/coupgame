@@ -42,18 +42,18 @@ export const Join = withRouter(({history}) => {
 
     function setNamePanel(){
         return(
-            <>
+            <div className="joinHome">
             <input id='inputName' value={name} type="text" placeholder="Your Name"/>
             <button onClick={() => setName(document.getElementById('inputName').value)}>Save</button>
-            </>
+            </div>
         )
     }
 
-    if (name === null){
-        return setNamePanel() // TODO 
-    } else{
+    // if (name === null){
+    //     return setNamePanel() 
+    // } else{
         return (
-            <div>
+            <div className="joinHome">
             {roomDNE &&
                 <h1>Error: Room {code} does not exist</h1> 
             }
@@ -61,7 +61,7 @@ export const Join = withRouter(({history}) => {
             <input id='input' onChange={handleChange} type="text" placeholder="Game code"/>
             </div>
         )
-    }
+    // }
 }); 
 
 

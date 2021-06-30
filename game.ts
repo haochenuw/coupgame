@@ -34,8 +34,8 @@ export function initGame(players): GameState {
     }); 
 
     return {
-        activePlayerIndex: 0, // for debug
-        // TODO activePlayerIndex: Math.floor(Math.random() * 2), 
+        // activePlayerIndex: 0, // for debug
+        activePlayerIndex: Math.floor(Math.random() * 2), 
         challengingPlayerIndex: null, 
         surrenderingPlayerIndex:  null,
         playerStates: initialPlayerStates,
@@ -273,13 +273,19 @@ export function commitAction(gameState: GameState): GameState{
             // 
             let cardsToKeep = action.additionalData; 
             logInfo(`Got cards to keep = ${JSON.stringify(cardsToKeep)}`); 
+            logInfo(`Pending exchange cards = ${JSON.stringify(gameState.pendingExchangeCards)}`); 
 
             // clear exchange cards. 
             cardsToKeep.forEach((cardName) => {
                 let index = gameState.pendingExchangeCards.map(card => card.name).indexOf(cardName); 
+                if (index < 0){
+                    logError(`exchange card does not exist`);   
+                    return; 
+                }
                 let card = gameState.pendingExchangeCards.splice(index, 1)[0]; 
                 gameState.playerStates[gameState.activePlayerIndex].cards.push(card);
             }); 
+            logInfo(`Pending exchange cards after = ${JSON.stringify(gameState.pendingExchangeCards)}`); 
 
             // unwanted cards are put back to the dek
             gameState.deckState = gameState.deckState.concat(gameState.pendingExchangeCards); 

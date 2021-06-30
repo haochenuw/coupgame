@@ -11,3 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.Home {
+    position: absolute;
+    width: 90VW; 
+    text-align: center;
+    top: 10VH; 
+}
+
+.createHome {
+    text-align: center;
+}
+
+.joinHome {
+    text-align: center;
+}
+
+.roomHome {
+    text-align: center;
+}

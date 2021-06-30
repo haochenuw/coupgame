@@ -211,7 +211,7 @@ export default function MainGame (props){
             {cards.map((item) => {
                 // if(playerState.lifePoint > 0){
                 return(<span>
-                    <button onClick={() => onKeepSelected(item)}>{item}</button>
+                    <button onClick={(event) => onKeepSelected(event, item)}>{item}</button>
                 </span>
                 )
                 }
@@ -219,9 +219,8 @@ export default function MainGame (props){
             </div>
         )
 
-        function onKeepSelected(item){
-            
-            // ?? cardsToKeep = cards.splice(); 
+        function onKeepSelected(event, item){
+            event.target.disabled = true; 
             console.log(`selected ${item} to keep`)
             cardsToKeep.push(item); 
 

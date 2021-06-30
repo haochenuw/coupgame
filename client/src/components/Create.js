@@ -1,6 +1,5 @@
 import React, {useState } from 'react'
-import { Redirect, BrowserRouter as Router, Route, Link, withRouter} from "react-router-dom";
-import Room from "./Room"; 
+import {withRouter} from "react-router-dom";
 
 const axios = require('axios');
 // const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
@@ -23,8 +22,6 @@ export const Create = withRouter(({history}) => {
         axios.get(`/createRoom`)
         .then(function (res) {
             // console.log(res.data.room);
-
-
             history.push({pathname:`/room/${res.data.room}`, state:{data: true, playerName: name}});
         })
         .catch(function (err) {
@@ -33,8 +30,8 @@ export const Create = withRouter(({history}) => {
     }
 
     return (
-        <div>
-            <input type="text" value={name} onChange={handleChange} placeholder="Your name" />
+        <div className="createHome">
+            {/* <input type="text" value={name} onChange={handleChange} placeholder="Your name" /> */}
             <button className="createButton" onClick={createParty} disabled={disabled}>Create</button>
         </div>
     )

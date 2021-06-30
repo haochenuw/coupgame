@@ -11,10 +11,14 @@ let socket = null;
 
 export default function Room({history, match, location}) {
     // Connect through socket. 
+    console.log(`got room name = ${match.params.name}`); 
     if (socket === null){
         socket = io(`/${match.params.name}`);
     }
-    
+    // if (location.state === undefined || location.state.playerName === undefined){
+    //     history.push({pathname:`/join`});
+    // }
+
     const [players, setPlayers] = useState(null); 
     const [name, setName] = useState(null); 
     const [me, setMe] = useState(''); 
@@ -22,9 +26,11 @@ export default function Room({history, match, location}) {
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     
     useEffect(() => {
-        console.log(`Got player name = ${JSON.stringify(location.state.playerName)}`); 
-        setName(location.state.playerName); 
-        socket.emit('setName', location.state.playerName); 
+        // if (location.state !== undefined && location.state.playerName !== undefined){
+        //     console.log(`Got player name = ${JSON.stringify(location.state.playerName)}`); 
+        //     setName(location.state.playerName); 
+        //     socket.emit('setName', location.state.playerName); 
+        // }
 
         socket.on("connect", () => {
             setMe(socket.id); 
@@ -74,7 +80,10 @@ export default function Room({history, match, location}) {
     }
 
     function isCreator() {
-        return location.state.data
+        if (location.state !== undefined && location.state.data !== undefined){
+            return location.state.data
+        } 
+        return false; 
     }
 
     function gameOverPanel() {
@@ -87,8 +96,27 @@ export default function Room({history, match, location}) {
         )
     }
 
+    function onSetName(value){
+        setName(value)
+        console.log(`Got player name = ${value}`); 
+        socket.emit('setName', value); 
+    }
+
+    function setNamePanel(){
+        return(
+            <div className="joinHome">
+            <input id='inputName' value={name} type="text" placeholder="Your Name"/>
+            <button onClick={() => onSetName(document.getElementById('inputName').value)}>Save</button>
+            </div>
+        )
+    }
+
+    if (name === null){
+        return setNamePanel() // TODO 
+    } 
+
     return(
-            <div>
+            <div className="roomHome">
                 <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
                 {
                     roomStatus === 'NOT_READY_TO_START' &&
