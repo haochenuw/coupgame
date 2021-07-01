@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react'
 import '../styles/styles.css';
 import { SocketContext } from "./../Room";
 import EventLog from "./EventLog"
+import '../styles/buttons.css';
 
 export default function MainGame (props){
     console.log('I am ', props.me)
@@ -170,7 +171,7 @@ export default function MainGame (props){
             {options.map((item) => {
                 // if(playerState.lifePoint > 0){
                 return(<span>
-                    <button onClick={() => onTargetSelected(action, item)}>{item}</button>
+                    <button class="btn" onClick={() => onTargetSelected(action, item)}>{item}</button>
                 </span>
                 )
                 }

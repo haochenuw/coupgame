@@ -184,3 +184,11 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - 3 players: 
  - Shouldn't be able to block a steal for not me. 
  - Players already dead cannot be targets.  
+
+## Feedbacks 
+
+- Put skip and challenge in one screen 
+
+- add "space between skip and challenge" in event log
+
+- 
