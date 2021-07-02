@@ -53,6 +53,10 @@ export default function MainGame (props){
                         console.log("\x1b[31m", 'Changing State to wait for reveal...'); 
                         setRoundState("WAIT_FOR_REVEAL"); 
                         break;
+                    case "WAIT_FOR_CHALLENGE_OR_BLOCK":
+                        console.log("\x1b[31m", 'Changing State to wait for c or b...'); 
+                        setRoundState("WAIT_FOR_CHALLENGE_OR_BLOCK"); 
+                        break;
                     default: 
                         break; 
                 }
@@ -64,13 +68,13 @@ export default function MainGame (props){
         return( 
             <>
             <h1> Please choose an action</h1>
-            <button onClick={() => onActionSelected('Income')}>Income</button>
-            <button onClick={() => onActionSelected('Coup')}>Coup</button>
-            <button onClick={() => onActionSelected('Tax')}>Tax</button>
-            <button onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
-            <button onClick={() => onActionSelected('Exchange')}>Exchange</button>
-            <button onClick={() => onActionSelected('Steal')}>Steal</button>
-            <button onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
+            <button className="btn" onClick={() => onActionSelected('Income')}>Income</button>
+            <button className="btn" onClick={() => onActionSelected('Coup')}>Coup</button>
+            <button className="btn" onClick={() => onActionSelected('Tax')}>Tax</button>
+            <button className="btn" onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
+            <button className="btn" onClick={() => onActionSelected('Exchange')}>Exchange</button>
+            <button className="btn" onClick={() => onActionSelected('Steal')}>Steal</button>
+            <button className="btn" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
             </>
         )
     }
@@ -119,6 +123,11 @@ export default function MainGame (props){
             && gameState.roundState === "WAIT_FOR_CHALLENGE") {
             return true; 
         } else if (gameState.pendingActions.length > 0 
+            && gameState.pendingActions[0].source !== props.me 
+            && gameState.roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK") {
+            return true; 
+        } 
+        else if (gameState.pendingActions.length > 0 
             && gameState.pendingActions[0].source === props.me 
             && gameState.roundState === "WAIT_FOR_REVEAL") {
             return true; 
@@ -212,7 +221,7 @@ export default function MainGame (props){
             {cards.map((item) => {
                 // if(playerState.lifePoint > 0){
                 return(<span>
-                    <button onClick={(event) => onKeepSelected(event, item)}>{item}</button>
+                    <button class="btn" onClick={(event) => onKeepSelected(event, item)}>{item}</button>
                 </span>
                 )
                 }
@@ -253,11 +262,13 @@ export default function MainGame (props){
     //     waiting = <div>Waiting for others to act...</div>
     // } 
 
-    function doXOrSkipPanel(name) {
+    function doXOrSkipPanel(actions) {
         return(
             <div>
-                <button onClick={() => onBlockOrChallengeDecision(name)}>{name}</button>
-                <button onClick={() => onBlockOrChallengeDecision('Skip'+name)}>Skip</button>
+                {actions.map(action => {
+                    return <button class="btn" onClick={() => onBlockOrChallengeDecision(action)}>{action}</button>
+                })}
+                <button class="btn" onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
             </div>
         )
     }
@@ -284,8 +295,9 @@ export default function MainGame (props){
         }
         {roundState === "SELECT_TARGET" && selectTarget(currentAction)}
         {roundState === "WAIT_FOR_EXCHANGE" && selectExchangeTarget()}
-        {roundState === "WAIT_FOR_BLOCK" && doXOrSkipPanel('Block')}
-        {roundState === "WAIT_FOR_CHALLENGE" && doXOrSkipPanel('Challenge')}
+        {roundState === "WAIT_FOR_BLOCK" && doXOrSkipPanel(['Block'])}
+        {roundState === "WAIT_FOR_CHALLENGE" && doXOrSkipPanel(['Challenge'])}
+        {roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK" && doXOrSkipPanel(['Challenge', 'Block'])}
         {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
         {hasError && <h3 color="red">Not enough Tokens</h3>}
         {localGameState !== null && <EventLog logs={localGameState.logs}/>}

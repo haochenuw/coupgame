@@ -472,21 +472,26 @@ const main = async () => {
                 
                 gameState.pendingActions.splice(0,0,actionWithSource as PlayerAction); 
                 //  handle challenge and blocks 
-                if (isChallengeable(action.name as Action)){
+                // Case 1: challengeable and bloackable 
+                let isActionChallengeable = isChallengeable(action.name as Action); 
+                let isActionBlockable = isBlockable(action.name as Action); 
+                if (isActionBlockable && isActionChallengeable){
+                    // TODO: logic go here. 
+                    logInfo('blockable + challengeable action'); 
+                    gameState.roundState = RoundState.WaitForChallengeOrBlock; 
+                    sendMaskedGameStates(socket, gameState); 
+                    return; 
+                } else if (isActionChallengeable){
                     logInfo('waiting for challenge...'); 
                     gameState.roundState = RoundState.WaitForChallenge; 
                     // socket.emit('gameState', gameState); 
                     sendMaskedGameStates(socket, gameState); 
-
                     return; 
-                }
-
-                if (isBlockable(action.name as Action)){
+                } else if (isActionBlockable){
                     logInfo('waiting for block...'); 
                     gameState.roundState = RoundState.WaitForBlock; 
                     // socket.emit('gameState', gameState); 
                     sendMaskedGameStates(socket, gameState); 
-
                     return; 
                 }
                 gameState = commitAction(gameState);

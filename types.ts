@@ -35,6 +35,7 @@ export enum Action {
     Challenge = "Challenge", 
     SkipChallenge = "SkipChallenge", 
     Reveal = "Reveal", 
+    Skip = "Skip", 
 }
 
 export type PlayerAction =  {
@@ -51,6 +52,8 @@ export enum RoundState{
     WaitForBlock = "WAIT_FOR_BLOCK",  
     WaitForSurrender = "WAIT_FOR_SURRENDER",  
     WaitForExchange = "WAIT_FOR_EXCHANGE",  
+    WaitForChallengeOrBlock = "WAIT_FOR_CHALLENGE_OR_BLOCK", 
+
 }
 
 export function isChallengeable(action: Action) {
@@ -72,6 +75,8 @@ export function isChallengeable(action: Action) {
         case Action.Challenge:
             return false;
         case Action.SkipChallenge:
+            return false;
+        case Action.Skip:
             return false;
         default:
             return false;
@@ -105,6 +110,7 @@ export type GameState = {
     pendingExchangeCards: Array<Card> | null, 
     playersWhoSkippedBlock: Array<String> 
     playersWhoSkippedChallenge: Array<String>, 
+    playersWhoSkippedChallengeAndBlock: Array<String>, 
     surrenderReason: Action | undefined | null, 
     logs: Array<String>, 
 }

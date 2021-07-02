@@ -7,9 +7,9 @@ export default function EventLog (props){
             {
                 props.logs.map((logEntry, index) => {
                     if (index === 0){
-                        return <p class="log" id="newest">{logEntry}</p>
+                        return <p className="log" id="newest">{logEntry}</p>
                     }
-                    return (<p class="log">{logEntry}</p>)
+                    return (<p className="log">{logEntry}</p>)
                 })
             } 
         </div>

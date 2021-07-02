@@ -173,6 +173,9 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - Handle Player disconnection
 - Auto reveal if has the right card during challenge. 
 
+### More Fancy features 
+
+- ~~Custom domain~~ Thursday, July 1, 2021 (got coupgames.xyz)
 
 
 ## Bugs 
@@ -184,11 +187,12 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - 3 players: 
  - Shouldn't be able to block a steal for not me. 
  - Players already dead cannot be targets.  
+ - Second reveal does not get processed properly? 
 
 ## Feedbacks 
 
-- Put skip and challenge in one screen 
+- ~~Put skip and challenge in one screen~~ Thursday, July 1, 2021
 
-- add "space between skip and challenge" in event log
+- ~~add "space between skip and challenge" in event log~~ Thursday, July 1, 2021
 
 - 

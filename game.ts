@@ -45,6 +45,7 @@ export function initGame(players): GameState {
         pendingExchangeCards: null, 
         playersWhoSkippedBlock: [], 
         playersWhoSkippedChallenge: [], 
+        playersWhoSkippedChallengeAndBlock: [], 
         surrenderReason: null, 
         logs: [], 
     }
@@ -70,11 +71,14 @@ function computeNextPlayer(gameState){
 
 function isRevealLegit(card: Card, gameState: GameState): boolean{
     if (gameState.pendingActions.length === 0){
-        logError("invalid"); 
+        logError("invalid pending action length "); 
     }
     let action = gameState.pendingActions[0]
     if (action.name as Action === Action.Block){
         // revealing a challenge a block
+        if (gameState.pendingActions.length < 2){
+            logError("invalid pending action length "); 
+        }
         return card.blocksAction === gameState.pendingActions[1].name as Action; 
     } else{
         return card.action === action.name; 
@@ -95,6 +99,7 @@ export function commitAction(gameState: GameState): GameState{
     switch (parsedAction) {
         case Action.Reveal: 
             let cardIndex = source.cards.findIndex(card => card.name === action.target && !card.isRevealed);
+            logDebug(`revealing card index ${cardIndex}`); 
             let card = source.cards[cardIndex]; 
             if (isRevealLegit(card, gameState)){
                 // legit reveal 
@@ -129,6 +134,34 @@ export function commitAction(gameState: GameState): GameState{
             }
             break; 
 
+        case Action.Skip: 
+            // What is user skipping? 
+            switch (gameState.roundState){
+            case RoundState.WaitForChallenge: 
+                // Transform and call skip challenge.
+                gameState.pendingActions.splice(0,0, {name: Action.SkipBlock, source: action.source, target: action.target }); 
+                return commitAction(gameState); 
+
+            case RoundState.WaitForBlock: 
+                // Transform and call skipblock.
+                gameState.pendingActions.splice(0,0, {name: Action.SkipBlock, source: action.source, target: action.target }); 
+                return commitAction(gameState); 
+
+            case RoundState.WaitForChallengeOrBlock: 
+                if (!gameState.playersWhoSkippedChallengeAndBlock.includes(sourceName)){
+                    gameState.playersWhoSkippedChallengeAndBlock.push(sourceName); 
+                }
+                if (gameState.playersWhoSkippedChallengeAndBlock.length == alivePlayers - 1){
+                    logInfo("all relevant players skipped challenge and block");
+                    gameState.playersWhoSkippedChallengeAndBlock = []; 
+                    return commitAction(gameState); 
+                }
+                break; 
+            default: 
+                // shouldn't get here
+                logError('invalid round state for skipping action'); 
+                return; 
+        }
         
         case Action.SkipChallenge: 
             logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
@@ -372,14 +405,20 @@ export function isValidAction(action: PlayerAction, clientId: string, state: Gam
     } else if (
         state.roundState === RoundState.WaitForBlock 
         && 
-        (action.name === "SkipBlock" || action.name === "Block")) {
+        (action.name === "SkipBlock" || action.name === "Block" || action.name === "Skip")) {
         return true; 
     } else if (
         state.roundState === RoundState.WaitForChallenge 
         && 
-        (action.name === "SkipChallenge" || action.name === "Challenge")) {
+        (action.name === "SkipChallenge" || action.name === "Challenge" || action.name === "Skip")) {
         return true; 
     } else if (
+        state.roundState === RoundState.WaitForChallengeOrBlock 
+        && 
+        (action.name === "Skip" || action.name === "Challenge" || action.name === "Block")) {
+        return true; 
+    }  
+    else if (
         state.roundState === RoundState.WaitForReveal 
         && 
         action.name === "Reveal"){
