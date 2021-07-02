@@ -139,22 +139,24 @@ export default function MainGame (props){
         if (localGameState === null){
             return null 
         }
-        return(
+        return(            
             localGameState.playerStates.map((playerState) => {
-                let className = ""; 
+                let me = ""; 
                 // if me, use special color. 
                 if (playerState.socket_id === props.me){
-                    className = "me"; 
+                    me = "me"; 
                 } 
-                return <div className = {className}>
+
+                return <div className = {me}>
                             <h2>{playerState.friendlyName}</h2>
-                            <h2>Life: {playerState.lifePoint}</h2>
-                            <h2>Tokens: {playerState.tokens}</h2>
+                            <h3>Life: {playerState.lifePoint} Tokens: {playerState.tokens}</h3>
+                            <div className="card-deck">
                             {playerState.cards.map((card) => {
                                 return (
                                     renderCard(card)
                                 )
                             })} 
+                            </div>
 
                         </div>
             })
@@ -166,8 +168,10 @@ export default function MainGame (props){
 
     function renderCard(card){
         return(
-            <div style={{color: card.isRevealed? revealedColor : availableColor}}>
-                <h3>{card.name} <span>{card.index}</span></h3>
+            <div className="card col-lg-6" style={{color: card.isRevealed? revealedColor : availableColor}}>
+                <div class="card-header">
+                    <h3>{card.name}</h3>
+                </div>
             </div>
         )
     }

@@ -32,7 +32,7 @@ export const Create = withRouter(({history}) => {
     return (
         <div className="createHome">
             {/* <input type="text" value={name} onChange={handleChange} placeholder="Your name" /> */}
-            <button className="createButton" onClick={createParty} disabled={disabled}>Create</button>
+            <button className="createButton btn-primary" onClick={createParty} disabled={disabled}>Create</button>
         </div>
     )
 }); 
