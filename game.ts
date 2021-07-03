@@ -432,7 +432,10 @@ export function isValidAction(action: PlayerAction, clientId: string, state: Gam
         action.name === "Reveal"){
         return true; 
     }
-    logError("Invalid action: not the right action"); 
+    logError(`Invalid action: not the right action`); 
+    logDebug(`state = ${JSON.stringify(state)}`); 
+    logDebug(`client id = ${clientId}`); 
+    logDebug(`action = ${JSON.stringify(action)}`); 
     return false; 
 }
 
