@@ -171,16 +171,18 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - Remember socket connection after Closing browser tab (Check netgames.io see how it saves state)
 - Better UI   
 - Handle Player disconnection
-- Auto reveal if has the right card during challenge. 
+- Auto reveal if has the right card during challenge. ? 
 
 ### More Fancy features 
 
 - ~~Custom domain~~ Thursday, July 1, 2021 (got coupgames.xyz)
-
+- Players leave 
 
 ## Bugs 
 
 - ~~Challenging a "block" incorrect result, e.g. challenging duke's block foreign aid. ~~ Sunday, June 27, 2021
+
+- ~~Challenging a block no response~~ Friday, July 2, 2021 (do not use while loop!)
 
 - ~~Card not shuffled after revealing duke~~ Monday, June 28, 2021
 

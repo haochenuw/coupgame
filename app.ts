@@ -395,7 +395,7 @@ const main = async () => {
 
     // Check if room exists
     app.get('/checkRoom', function (req, res) { 
-        console.log(`checkRoom is hit with ${req.query}`)
+        console.log(`checkRoom is hit with ${JSON.stringify(req.query)}`)
         res.json({doesRoomExist: (req.query.roomName as string) in namespaces})
     })
 

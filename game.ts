@@ -60,29 +60,36 @@ export function shuffle(deck:Array<Card>): Array<Card> {
 
 function computeNextPlayer(gameState){
     let a = gameState.activePlayerIndex; 
-    let b = a;
     let max = gameState.playerStates.length; 
-    while(b == a|| gameState.playerStates[b].lifePoint == 0){
-        b+=1;
+    let b = a;
+    for(let i = 0 ; i < max; i++){
+        b += 1; 
         b %= max; 
+        if (gameState.playerStates[b].lifePoint != 0){
+            return b; 
+        }
     }
     return b; 
 }
 
-function isRevealLegit(card: Card, gameState: GameState): boolean{
-    if (gameState.pendingActions.length === 0){
+function isRevealLegit(card: Card, pendingActions: Array<PlayerAction>): boolean{
+    logInfo("Checking if reveal is legit..."); 
+    logInfo(`card = ${JSON.stringify(card)}`); 
+    logInfo(`pendingActions = ${JSON.stringify(pendingActions)}`); 
+
+    if (pendingActions.length === 0){
         logError("invalid pending action length "); 
     }
-    let action = gameState.pendingActions[0]
-    if (action.name as Action === Action.Block){
+    let action = pendingActions[0]
+    if (action.name === Action.Block){
         // revealing a challenge a block
-        if (gameState.pendingActions.length < 2){
+        if (pendingActions.length < 2){
             logError("invalid pending action length "); 
+            return false; 
         }
-        return card.blocksAction === gameState.pendingActions[1].name as Action; 
-    } else{
-        return card.action === action.name; 
-    }
+        return card.blocksAction === pendingActions[1].name; 
+    } 
+    return card.action === action.name; 
 }
 
 export function commitAction(gameState: GameState): GameState{
@@ -101,7 +108,7 @@ export function commitAction(gameState: GameState): GameState{
             let cardIndex = source.cards.findIndex(card => card.name === action.target && !card.isRevealed);
             logDebug(`revealing card index ${cardIndex}`); 
             let card = source.cards[cardIndex]; 
-            if (isRevealLegit(card, gameState)){
+            if (isRevealLegit(card, gameState.pendingActions)){
                 // legit reveal 
                 logInfo('reveal is legit'); 
                 // 1. get new card to revealing player
@@ -123,6 +130,7 @@ export function commitAction(gameState: GameState): GameState{
                 gameState.roundState = RoundState.WaitForSurrender; 
                 gameState.surrenderReason = Action.Challenge; 
             } else{
+                logInfo('False Reveal...'); 
                 card.isRevealed = true; 
                 gameState.playerStates[sourceIndex].lifePoint -= 1; 
                 gameState.logs.splice(0, 0, sourceName + " lost a life"); 

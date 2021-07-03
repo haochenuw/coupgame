@@ -68,13 +68,13 @@ export default function MainGame (props){
         return( 
             <>
             <h1> Please choose an action</h1>
-            <button className="btn" onClick={() => onActionSelected('Income')}>Income</button>
-            <button className="btn" onClick={() => onActionSelected('Coup')}>Coup</button>
-            <button className="btn" onClick={() => onActionSelected('Tax')}>Tax</button>
-            <button className="btn" onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
-            <button className="btn" onClick={() => onActionSelected('Exchange')}>Exchange</button>
-            <button className="btn" onClick={() => onActionSelected('Steal')}>Steal</button>
-            <button className="btn" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
+            <button className="btn-info" onClick={() => onActionSelected('Income')}>Income</button>
+            <button className="btn-info" onClick={() => onActionSelected('Coup')}>Coup</button>
+            <button className="btn-info" onClick={() => onActionSelected('Tax')}>Tax</button>
+            <button className="btn-info" onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
+            <button className="btn-info" onClick={() => onActionSelected('Exchange')}>Exchange</button>
+            <button className="btn-info" onClick={() => onActionSelected('Steal')}>Steal</button>
+            <button className="btn-info" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
             </>
         )
     }
@@ -149,8 +149,8 @@ export default function MainGame (props){
 
                 return <div className = {me}>
                             <h2>{playerState.friendlyName}</h2>
-                            <h3>Life: {playerState.lifePoint} Tokens: {playerState.tokens}</h3>
-                            <div className="card-deck">
+                            <h3>Life: {playerState.lifePoint} <i class="fas fa-coins"></i>Tokens: {playerState.tokens}</h3>
+                            <div className="card-deck centered">
                             {playerState.cards.map((card) => {
                                 return (
                                     renderCard(card)
@@ -168,7 +168,7 @@ export default function MainGame (props){
 
     function renderCard(card){
         return(
-            <div className="card col-lg-6" style={{color: card.isRevealed? revealedColor : availableColor}}>
+            <div className="card col-lg-2 mx-auto" style={{color: card.isRevealed? revealedColor : availableColor}}>
                 <div class="card-header">
                     <h3>{card.name}</h3>
                 </div>
