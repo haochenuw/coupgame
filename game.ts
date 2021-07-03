@@ -35,7 +35,7 @@ export function initGame(players): GameState {
 
     return {
         // activePlayerIndex: 0, // for debug
-        activePlayerIndex: Math.floor(Math.random() * 2), 
+        activePlayerIndex: Math.floor(Math.random() * players.length), 
         challengingPlayerIndex: null, 
         surrenderingPlayerIndex:  null,
         playerStates: initialPlayerStates,

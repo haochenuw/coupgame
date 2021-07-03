@@ -5,7 +5,6 @@ import EventLog from "./EventLog"
 import '../styles/buttons.css';
 
 export default function MainGame (props){
-    console.log('I am ', props.me)
     const socket = useContext(SocketContext);
 
     const [roundState, setRoundState] = useState("WAIT_FOR_ACTION")
@@ -17,6 +16,8 @@ export default function MainGame (props){
     const [hasError, setHasError] = useState(false); 
 
     useEffect(() =>{
+        console.log('I am ', props.me)
+
         socket.on('clientError', ()=>{
             setHasError(true); 
             setRoundState("WAIT_FOR_ACTION"); 
@@ -261,10 +262,17 @@ export default function MainGame (props){
     //     return false; 
     // }
 
-    // let waiting = null; 
-    // if (isWaiting()){
-    //     waiting = <div>Waiting for others to act...</div>
-    // } 
+    function gameStateDebugPanel(){
+        // TODO  
+        return(
+            <div>
+                <p> I am {props.me} </p>
+            <pre>
+                {JSON.stringify(localGameState, null, 2)}
+            </pre>
+            </div>
+        )      
+    }
 
     function doXOrSkipPanel(actions) {
         return(
@@ -303,8 +311,9 @@ export default function MainGame (props){
         {roundState === "WAIT_FOR_CHALLENGE" && doXOrSkipPanel(['Challenge'])}
         {roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK" && doXOrSkipPanel(['Challenge', 'Block'])}
         {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
-        {hasError && <h3 color="red">Not enough Tokens</h3>}
+        {hasError && <h3 className="error">Not enough Tokens</h3>}
         {localGameState !== null && <EventLog logs={localGameState.logs}/>}
+        {localGameState !== null && gameStateDebugPanel()}
         </div>
     )
 }
