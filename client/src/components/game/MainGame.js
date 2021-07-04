@@ -85,7 +85,7 @@ export default function MainGame (props){
     function actionPanel(){
         return( 
             <>
-            <h1> Please choose an action</h1>
+            <h2> Choose an action</h2>
             <button className="btn btn-info" onClick={() => onActionSelected('Income')}>Income</button>
             <button className="btn btn-info" disabled={coupDisable} onClick={() => onActionSelected('Coup')}>Coup</button>
             <button className="btn btn-info" onClick={() => onActionSelected('Tax')}>Tax</button>
@@ -202,7 +202,7 @@ export default function MainGame (props){
             {options.map((item) => {
                 // if(playerState.lifePoint > 0){
                 return(<span>
-                    <button class="btn" onClick={() => onTargetSelected(action, item)}>{item}</button>
+                    <button class="btn btn-warning" onClick={() => onTargetSelected(action, item)}>{item}</button>
                 </span>
                 )
                 }
@@ -224,8 +224,8 @@ export default function MainGame (props){
         )
     }
 
-    function selectTarget(action){
-        let options = localGameState.playerStates.filter(state => state.socket_id !== props.me).map(state => state.friendlyName);
+    function selectPlayerTarget(action){
+        let options = localGameState.playerStates.filter(state => state.socket_id !== props.me && state.lifePoint > 0).map(state => state.friendlyName);
         return (
             selectTargetPanel(action, options)
         )
@@ -295,9 +295,9 @@ export default function MainGame (props){
         return(
             <div>
                 {actions.map(action => {
-                    return <button class="btn" onClick={() => onBlockOrChallengeDecision(action)}>{action}</button>
+                    return <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision(action)}>{action}</button>
                 })}
-                <button class="btn" onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
+                <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
             </div>
         )
     }
@@ -323,7 +323,7 @@ export default function MainGame (props){
         {
             roundState === "WAIT_FOR_SURRENDER" && selectAliveCardsPanel('Surrender')
         }
-        {roundState === "SELECT_TARGET" && selectTarget(currentAction)}
+        {roundState === "SELECT_TARGET" && selectPlayerTarget(currentAction)}
         {roundState === "WAIT_FOR_EXCHANGE" && selectExchangeTarget()}
         {roundState === "WAIT_FOR_BLOCK" && doXOrSkipPanel(['Block'])}
         {roundState === "WAIT_FOR_CHALLENGE" && doXOrSkipPanel(['Challenge'])}

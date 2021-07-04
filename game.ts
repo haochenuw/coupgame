@@ -45,7 +45,6 @@ export function initGame(players): GameState {
         pendingExchangeCards: null, 
         playersWhoSkippedBlock: [], 
         playersWhoSkippedChallenge: [], 
-        playersWhoSkippedChallengeAndBlock: [], 
         surrenderReason: null, 
         logs: [], 
     }
@@ -117,7 +116,6 @@ export function commitAction(gameState: GameState): GameState{
                 logDebug(`before shuffle = ${JSON.stringify(deck)}`); 
                 deck = shuffle(deck); 
                 logDebug(`after shuffle = ${JSON.stringify(deck)}`); 
-
                 let newCard = deck.pop(); 
                 source.cards[cardIndex] = newCard; 
                 gameState.deckState = deck; 
@@ -155,15 +153,33 @@ export function commitAction(gameState: GameState): GameState{
                 gameState.pendingActions.splice(0,0, {name: Action.SkipBlock, source: action.source, target: action.target }); 
                 return commitAction(gameState); 
 
+            // Separate skip challenge, skip block, or skip both.  
             case RoundState.WaitForChallengeOrBlock: 
-                if (!gameState.playersWhoSkippedChallengeAndBlock.includes(sourceName)){
-                    gameState.playersWhoSkippedChallengeAndBlock.push(sourceName); 
+                let numPlayersWhoCanBlock = gameState.pendingActions[0].target === null ? (alivePlayers -1): 1; 
+                if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
+                    gameState.playersWhoSkippedChallenge.push(sourceName); 
                 }
-                if (gameState.playersWhoSkippedChallengeAndBlock.length == alivePlayers - 1){
-                    logInfo("all relevant players skipped challenge and block");
-                    gameState.playersWhoSkippedChallengeAndBlock = []; 
-                    return commitAction(gameState); 
+                if (!gameState.playersWhoSkippedBlock.includes(sourceName)){
+                    // validate 
+                    let target = gameState.pendingActions[0].target;
+                    if (target !== null && target !== sourceName){
+                        logError(`ERR you should not be able to block this action. target = ${target}`)
+                    } else{
+                        gameState.playersWhoSkippedBlock.push(sourceName); 
+                    }
                 }
+                if (gameState.playersWhoSkippedChallenge.length == alivePlayers - 1){
+                    logInfo("all relevant players skipped challenge");
+                }
+                // target = null means everyone can skip
+                // target != null means only the target can skip
+                if (gameState.playersWhoSkippedBlock.length == numPlayersWhoCanBlock){
+                    logInfo("all relevant players skipped block");
+                    gameState.playersWhoSkippedChallenge = []; 
+                    gameState.playersWhoSkippedBlock = []; 
+                    return commitAction(gameState);
+                }
+
                 break; 
             default: 
                 // shouldn't get here

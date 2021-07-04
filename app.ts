@@ -404,7 +404,14 @@ const main = async () => {
         let players = []; 
         let gameState = null; 
         socket.on('connection', client => {
-            console.log('id: ' + client.id);
+            console.log('id: ' + client.id + ' connected');
+
+            if (players.length > constants.MAX_PLAYERS){
+                logError("too many players")
+                socket.emit('error', 'too many players'); 
+                return; 
+            }
+
             players.push({
                 "client_id": `${client.id}`,
                 "isReady": false
@@ -414,7 +421,7 @@ const main = async () => {
             client.on('setName', playerName => {
                 logDebug(`players = ${JSON.stringify(players)}`); 
                 let player = players.find(player => player.client_id === client.id)
-                logDebug(`player ${player.client_id} set name to be ${playerName}`); 
+                logDebug(`player ${player.client_id} set their name to be ${playerName}`); 
                 player.name = playerName; 
                 socket.emit('playersUpdate', players);
             });
@@ -432,7 +439,7 @@ const main = async () => {
             client.on('startGame', () => {
                 if(players.length < constants.MIN_PLAYERS || players.length > constants.MAX_PLAYERS){
                     logError('number of players too small or too large'); 
-                    socket.emit('error', 'number of players too small or too large'); 
+                    socket.emit('error', 'Wrong number of players'); 
                     return; 
                 } 
                 console.log(`${client.id} starts game for room ${namespace}`)

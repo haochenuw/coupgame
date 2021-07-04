@@ -110,7 +110,6 @@ export type GameState = {
     pendingExchangeCards: Array<Card> | null, 
     playersWhoSkippedBlock: Array<String> 
     playersWhoSkippedChallenge: Array<String>, 
-    playersWhoSkippedChallengeAndBlock: Array<String>, 
     surrenderReason: Action | undefined | null, 
     logs: Array<String>, 
 }

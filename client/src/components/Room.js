@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import MainGame from "./game/MainGame"
-
+import './styles/buttons.css';
 import io from "socket.io-client";
 
 export const SocketContext = React.createContext()
@@ -8,6 +8,9 @@ export const SocketContext = React.createContext()
 // const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 
 let socket = null; 
+
+const MAX_PLAYERS = 4; 
+const MIN_PLAYERS = 2; 
 
 export default function Room({history, match, location}) {
     // Connect through socket. 
@@ -26,12 +29,6 @@ export default function Room({history, match, location}) {
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     
     useEffect(() => {
-        // if (location.state !== undefined && location.state.playerName !== undefined){
-        //     console.log(`Got player name = ${JSON.stringify(location.state.playerName)}`); 
-        //     setName(location.state.playerName); 
-        //     socket.emit('setName', location.state.playerName); 
-        // }
-
         socket.on("connect", () => {
             setMe(socket.id); 
         });
@@ -75,6 +72,13 @@ export default function Room({history, match, location}) {
         return players.every(player => player.isReady);
     }
 
+    function isPlayerNumberAllowed(){
+        if (players === null){
+            return false; 
+        }
+        return players.length <= MAX_PLAYERS && players.length >= MIN_PLAYERS;  
+    }
+
     function startGame() {
         socket.emit('startGame')
     }
@@ -106,9 +110,13 @@ export default function Room({history, match, location}) {
         return(
             <div className="joinHome">
             <input id='inputName' value={name} type="text" placeholder="Your Name"/>
-            <button onClick={() => onSetName(document.getElementById('inputName').value)}>Save</button>
+            <button className="btn btn-info" onClick={() => onSetName(document.getElementById('inputName').value)}>Save</button>
             </div>
         )
+    }
+
+    function canStartGame(){
+        return isAllPlayersReady() && isPlayerNumberAllowed() && isCreator() === true
     }
 
     if (name === null){
@@ -120,11 +128,13 @@ export default function Room({history, match, location}) {
                 <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
                 {
                     roomStatus === 'NOT_READY_TO_START' &&
-                    <button onClick={setReady}>Ready</button>
+                    <button className="btn btn-success" onClick={setReady}>Ready</button>
                 }
                 {
-                    (isAllPlayersReady() && roomStatus !== 'STARTED' && isCreator() === true) &&
-                    <button onClick={startGame}>Start Game</button>
+                    roomStatus !== 'STARTED' &&
+                    isCreator() === true &&
+                    // (canStartGame()) &&
+                    <button className="btn btn-success" disabled={!canStartGame()} onClick={startGame}>Start Game</button>
                 }
                 {
                     roomStatus === 'STARTED' &&

@@ -170,8 +170,14 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - Remember socket connection after Refresh
 - Remember socket connection after Closing browser tab (Check netgames.io see how it saves state)
 - Better UI   
+    - Logging font families 
+    - Token -> pictures 
+    - Life -> pictures
+    - Card sizing
+    - Card background color
 - Handle Player disconnection
 - Auto reveal if has the right card during challenge. ? 
+- ~~number player check~~ Sunday, July 4, 2021
 
 ### More Fancy features 
 
@@ -186,10 +192,11 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Card not shuffled after revealing duke~~ Monday, June 28, 2021
 
-- 3 players: 
- - Shouldn't be able to block a steal for not me. 
- - Players already dead cannot be targets.  
+- >=3 players: 
+ - C shouldn't be able to block A stealing/assasinating B
+ - ~~56Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
  - Second reveal does not get processed properly? 
+ - player who selected skipped/blocked/challenged should go into waiting mode. 
 
 ## Feedbacks 
 
