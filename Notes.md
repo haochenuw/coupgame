@@ -197,4 +197,10 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~add "space between skip and challenge" in event log~~ Thursday, July 1, 2021
 
-- 
+- ~~disable coup and assasinate when not enough tokens~~ Saturday, July 3, 2021
+
+## Notes 
+
+Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. 
+
+There's some issue with getting the initial game state. 

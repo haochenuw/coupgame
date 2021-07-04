@@ -6,3 +6,13 @@
     color: red; 
 }
 
+.log {
+    color: gainsboro;
+}
+
+.log .newest{
+    font-size: large;
+}
+
+
+

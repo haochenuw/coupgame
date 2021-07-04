@@ -5,9 +5,13 @@ import EventLog from "./EventLog"
 import '../styles/buttons.css';
 
 export default function MainGame (props){
-    const socket = useContext(SocketContext);
+    const COUP_COST = 7; 
+    const ASSASINATE_COST = 3; 
 
-    const [roundState, setRoundState] = useState("WAIT_FOR_ACTION")
+    const socket = useContext(SocketContext);
+    const [coupDisable, setCoupDisable] = React.useState(false);
+    const [assDisable, setAssDisable] = React.useState(false);
+    const [roundState, setRoundState] = useState("")
 
     const [localGameState, setLocalGameState] = useState(null);
 
@@ -22,6 +26,7 @@ export default function MainGame (props){
             setHasError(true); 
             setRoundState("WAIT_FOR_ACTION"); 
         }); 
+        
         socket.on('gameState', gameState => {
             console.log(`got game state, ${JSON.stringify(gameState)}`)
             setHasError(false); 
@@ -41,6 +46,8 @@ export default function MainGame (props){
                     case "WAIT_FOR_ACTION":
                         console.log('wait for action...'); 
                         setRoundState("WAIT_FOR_ACTION"); 
+                        setCoupDisable(isCoupDisabled(gameState))
+                        setAssDisable(isAssDisabled(gameState))
                         break;
                     case "WAIT_FOR_EXCHANGE":
                         console.log('wait for exchange...'); 
@@ -65,17 +72,27 @@ export default function MainGame (props){
         });
     }, []);
 
+    function isCoupDisabled(gameState){
+        let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens; 
+        return playerTokens < COUP_COST; 
+    }
+
+    function isAssDisabled(gameState){
+        let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens; 
+        return playerTokens < ASSASINATE_COST; 
+    }
+
     function actionPanel(){
         return( 
             <>
             <h1> Please choose an action</h1>
-            <button className="btn-info" onClick={() => onActionSelected('Income')}>Income</button>
-            <button className="btn-info" onClick={() => onActionSelected('Coup')}>Coup</button>
-            <button className="btn-info" onClick={() => onActionSelected('Tax')}>Tax</button>
-            <button className="btn-info" onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
-            <button className="btn-info" onClick={() => onActionSelected('Exchange')}>Exchange</button>
-            <button className="btn-info" onClick={() => onActionSelected('Steal')}>Steal</button>
-            <button className="btn-info" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
+            <button className="btn btn-info" onClick={() => onActionSelected('Income')}>Income</button>
+            <button className="btn btn-info" disabled={coupDisable} onClick={() => onActionSelected('Coup')}>Coup</button>
+            <button className="btn btn-info" onClick={() => onActionSelected('Tax')}>Tax</button>
+            <button className="btn btn-info" disabled={assDisable} onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
+            <button className="btn btn-info" onClick={() => onActionSelected('Exchange')}>Exchange</button>
+            <button className="btn btn-info" onClick={() => onActionSelected('Steal')}>Steal</button>
+            <button className="btn btn-info" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
             </>
         )
     }
@@ -292,6 +309,7 @@ export default function MainGame (props){
 
     return(
         <div>
+        {hasError && <h2 className="error">There's an error</h2>}
         {playerStatePanel()}
         {
             roundState === "WAITING_FOR_OTHERS" && <h2>Waiting for others...</h2>
