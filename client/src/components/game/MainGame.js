@@ -84,7 +84,7 @@ export default function MainGame (props){
 
     function actionPanel(){
         return( 
-            <>
+            <div className="selection">
             <h2> Choose an action</h2>
             <button className="btn btn-info" onClick={() => onActionSelected('Income')}>Income</button>
             <button className="btn btn-info" disabled={coupDisable} onClick={() => onActionSelected('Coup')}>Coup</button>
@@ -93,7 +93,7 @@ export default function MainGame (props){
             <button className="btn btn-info" onClick={() => onActionSelected('Exchange')}>Exchange</button>
             <button className="btn btn-info" onClick={() => onActionSelected('Steal')}>Steal</button>
             <button className="btn btn-info" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
-            </>
+            </div>
         )
     }
 
@@ -197,7 +197,7 @@ export default function MainGame (props){
     // Display an array of buttons, given by the "options" arra,y. 
     function selectTargetPanel(action, options){
         return (
-        <div>
+        <div className="selection">
             <h2>Please select a target to {action} </h2>
             {options.map((item) => {
                 return(<span>
@@ -237,7 +237,7 @@ export default function MainGame (props){
         let cardsToKeep = []; 
 
         return (
-            <div>
+            <div className="selection">
             <h2>Please select {numToKeep} cards to keep </h2>
             {cards.map((item) => {
                 // if(playerState.lifePoint > 0){
@@ -292,7 +292,7 @@ export default function MainGame (props){
 
     function doXOrSkipPanel(actions) {
         return(
-            <div>
+            <div className="selection">
                 {actions.map(action => {
                     if (action === "Block"){
                         console.log(`players who can block = ${localGameState.playersWhoCanBlock}`);

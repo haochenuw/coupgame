@@ -211,3 +211,10 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. 
 
 There's some issue with getting the initial game state. 
+
+
+## Tricky situation
+
+in both c and b actions. If someone blocks first, need to "wait" on that block to happen until 
+everyone has made decision about challenge. If someone challenges, then the challenge is revealed first
+before block can take place. If every skips

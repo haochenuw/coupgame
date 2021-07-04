@@ -8,10 +8,17 @@
 
 .log {
     color: gainsboro;
+    font-family: 'Chakra Petch', sans-serif;
 }
 
 .log .newest{
     font-size: large;
+    font-family: 'Chakra Petch', sans-serif;
+}
+
+.selection{
+    padding-top: 50px;
+    padding-bottom: 50px;
 }
 
 
