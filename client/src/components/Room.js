@@ -139,7 +139,7 @@ export default function Room({history, match, location}) {
                 {
                     roomStatus === 'STARTED' &&
                     <SocketContext.Provider value={socket}>
-                    <MainGame me = {me} />
+                    <MainGame me = {me} myName ={name}/>
                     </SocketContext.Provider>
                 }
                 { 

@@ -192,9 +192,9 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Card not shuffled after revealing duke~~ Monday, June 28, 2021
 
-- >=3 players: 
- - C shouldn't be able to block A stealing/assasinating B
- - ~~56Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
+- multiplayers: 
+ - ~~C shouldn't be able to block A stealing/assasinating B~~ Sunday, July 4, 2021
+ - ~~Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
  - Second reveal does not get processed properly? 
  - player who selected skipped/blocked/challenged should go into waiting mode. 
 

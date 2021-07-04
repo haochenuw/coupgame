@@ -111,6 +111,7 @@ export type GameState = {
     playersWhoSkippedBlock: Array<String> 
     playersWhoSkippedChallenge: Array<String>, 
     surrenderReason: Action | undefined | null, 
+    playersWhoCanBlock: Array<String>, 
     logs: Array<String>, 
 }
 

@@ -200,7 +200,6 @@ export default function MainGame (props){
         <div>
             <h2>Please select a target to {action} </h2>
             {options.map((item) => {
-                // if(playerState.lifePoint > 0){
                 return(<span>
                     <button class="btn btn-warning" onClick={() => onTargetSelected(action, item)}>{item}</button>
                 </span>
@@ -295,6 +294,13 @@ export default function MainGame (props){
         return(
             <div>
                 {actions.map(action => {
+                    if (action === "Block"){
+                        console.log(`players who can block = ${localGameState.playersWhoCanBlock}`);
+                        if (localGameState.playersWhoCanBlock.includes(props.myName) === false){
+                            console.log("can't block");
+                            return null; // can't block 
+                        }
+                    }
                     return <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision(action)}>{action}</button>
                 })}
                 <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
@@ -303,7 +309,7 @@ export default function MainGame (props){
     }
 
     function onBlockOrChallengeDecision(action){
-        console.log('Block or Challenge action chosen'); 
+        console.log('Block or Challenge decision chosen'); 
         socket.emit('action', {name: action, target: null})
     }
 

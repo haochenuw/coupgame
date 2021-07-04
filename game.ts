@@ -46,6 +46,7 @@ export function initGame(players): GameState {
         playersWhoSkippedBlock: [], 
         playersWhoSkippedChallenge: [], 
         surrenderReason: null, 
+        playersWhoCanBlock: [], 
         logs: [], 
     }
 }

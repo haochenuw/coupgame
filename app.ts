@@ -453,7 +453,6 @@ const main = async () => {
             client.on('action', (action) => {
                 logInfo(`Got action = ${JSON.stringify(action)} from player ${client.id}`); 
 
-
                 if (!isValidAction(action, client.id, gameState)){
                     logError("Action is Invalid"); 
                     client.emit("clientError"); 
@@ -482,6 +481,18 @@ const main = async () => {
                 // Case 1: challengeable and bloackable 
                 let isActionChallengeable = isChallengeable(action.name as Action); 
                 let isActionBlockable = isBlockable(action.name as Action); 
+
+                // populate the who can block array
+                let playerNames = gameState.playerStates.map(player => player.friendlyName); 
+                if (action.target !== null){
+                    gameState.playersWhoCanBlock = [action.target]; 
+                } else{
+                    // everyone other than the source can block 
+                    gameState.playersWhoCanBlock = playerNames.filter(name => name !== action.sourceName);
+                }
+
+
+
                 if (isActionBlockable && isActionChallengeable){
                     // TODO: logic go here. 
                     logInfo('blockable + challengeable action'); 
