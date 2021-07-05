@@ -145,17 +145,20 @@ export function commitAction(gameState: GameState): GameState{
             // What is user skipping? 
             switch (gameState.roundState){
             case RoundState.WaitForChallenge: 
+                logDebug("skip challenge")
                 // Transform and call skip challenge.
-                gameState.pendingActions.splice(0,0, {name: Action.SkipBlock, source: action.source, target: action.target }); 
+                gameState.pendingActions.splice(0,0, {name: Action.SkipChallenge, source: action.source, target: action.target }); 
                 return commitAction(gameState); 
 
             case RoundState.WaitForBlock: 
                 // Transform and call skipblock.
+                logDebug("skip block")
                 gameState.pendingActions.splice(0,0, {name: Action.SkipBlock, source: action.source, target: action.target }); 
                 return commitAction(gameState); 
 
             // Separate skip challenge, skip block, or skip both.  
             case RoundState.WaitForChallengeOrBlock: 
+                logDebug("got here"); 
                 let numPlayersWhoCanBlock = gameState.pendingActions[0].target === null ? (alivePlayers -1): 1; 
                 if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
                     gameState.playersWhoSkippedChallenge.push(sourceName); 
@@ -171,16 +174,13 @@ export function commitAction(gameState: GameState): GameState{
                 }
                 if (gameState.playersWhoSkippedChallenge.length == alivePlayers - 1){
                     logInfo("all relevant players skipped challenge");
+                    if (gameState.playersWhoSkippedBlock.length == numPlayersWhoCanBlock){
+                        logInfo("all relevant players skipped block");
+                        gameState.playersWhoSkippedChallenge = []; 
+                        gameState.playersWhoSkippedBlock = []; 
+                        return commitAction(gameState);
+                    }
                 }
-                // target = null means everyone can skip
-                // target != null means only the target can skip
-                if (gameState.playersWhoSkippedBlock.length == numPlayersWhoCanBlock){
-                    logInfo("all relevant players skipped block");
-                    gameState.playersWhoSkippedChallenge = []; 
-                    gameState.playersWhoSkippedBlock = []; 
-                    return commitAction(gameState);
-                }
-
                 break; 
             default: 
                 // shouldn't get here
@@ -189,7 +189,7 @@ export function commitAction(gameState: GameState): GameState{
         }
         
         case Action.SkipChallenge: 
-            logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
+            logDebug(`player??? ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
             if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
                 gameState.playersWhoSkippedChallenge.push(sourceName); 
             }
@@ -255,7 +255,7 @@ export function commitAction(gameState: GameState): GameState{
                 logDebug(`pending action = ${JSON.stringify(pendingAction)}`); 
 
                 if (isBlockable(pendingAction.name as Action)){
-                    logInfo(`block after challenge...`); 
+                    logInfo(`Dealing with block after challenge...`); 
                     gameState.roundState = RoundState.WaitForBlock;
                     return gameState; 
                 } else{

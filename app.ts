@@ -458,6 +458,8 @@ const main = async () => {
                     client.emit("clientError"); 
                     return; 
                 } 
+                logInfo(`Round state = ${gameState.roundState}`); 
+
                 // Handle special case. If it is assasinate, then deduct tokens right away 
                 if(action.name as Action === Action.Assasinate){
                     logInfo(`Deducting assasinate costs`); 
@@ -482,13 +484,17 @@ const main = async () => {
                 let isActionChallengeable = isChallengeable(action.name as Action); 
                 let isActionBlockable = isBlockable(action.name as Action); 
 
-                // populate the who can block array
-                let playerNames = gameState.playerStates.map(player => player.friendlyName); 
-                if (action.target !== null){
-                    gameState.playersWhoCanBlock = [action.target]; 
-                } else{
-                    // everyone other than the source can block 
-                    gameState.playersWhoCanBlock = playerNames.filter(name => name !== action.sourceName);
+                if(isActionBlockable){
+                    logDebug("Populating the who can block array")
+                    let playerNames = gameState.playerStates.map(player => player.friendlyName); 
+                    if (action.target !== null){
+                        gameState.playersWhoCanBlock = [action.target]; 
+                    } else{
+                        // everyone other than the source can block 
+                        gameState.playersWhoCanBlock = playerNames.filter(name => name !== sourceName);
+                    }
+                    logDebug(`who can block = ${gameState.playersWhoCanBlock}`); 
+
                 }
 
 

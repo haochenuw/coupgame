@@ -21,5 +21,30 @@
     padding-bottom: 50px;
 }
 
+.cards{
+    text-align:center; 
+    display: block; 
+}
+
+.mycard{
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    height: 60px;
+    width: 200px;
+    background-color: beige;
+    text-align: center
+}
+
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: x-large;
+}
+
 
 

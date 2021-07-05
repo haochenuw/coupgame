@@ -157,7 +157,6 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - Debug some weird issues (sometimes reveal will freeze the server)
 
-
 - ~~Consistent masking~~ Monday, June 28, 2021
 
 ### ~~Deploy (heroku or digital ocean)~~ Tuesday, June 29, 2021 !!!
@@ -170,7 +169,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - Remember socket connection after Refresh
 - Remember socket connection after Closing browser tab (Check netgames.io see how it saves state)
 - Better UI   
-    - Logging font families 
+    - ~~Logging font families~~ Sunday, July 4, 2021 
     - Token -> pictures 
     - Life -> pictures
     - Card sizing
@@ -195,7 +194,6 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - multiplayers: 
  - ~~C shouldn't be able to block A stealing/assasinating B~~ Sunday, July 4, 2021
  - ~~Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
- - Second reveal does not get processed properly? 
  - player who selected skipped/blocked/challenged should go into waiting mode. 
 
 ## Feedbacks 
@@ -210,7 +208,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. 
 
-There's some issue with getting the initial game state. 
+There's some issue with getting the initial game state on mobile 
 
 
 ## Tricky situation
