@@ -155,7 +155,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Client action cost validation~~ Sunday, June 27, 2021
 
-- Debug some weird issues (sometimes reveal will freeze the server)
+- ~~Debug some weird issues (sometimes reveal will freeze the server)~~ Monday, July 5, 2021
 
 - ~~Consistent masking~~ Monday, June 28, 2021
 
@@ -182,6 +182,9 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Custom domain~~ Thursday, July 1, 2021 (got coupgames.xyz)
 - Players leave 
+- show player terminated
+    - ~~strike through. ~~ Monday, July 5, 2021
+    - skip surrender if player already died
 
 ## Bugs 
 
@@ -195,6 +198,15 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
  - ~~C shouldn't be able to block A stealing/assasinating B~~ Sunday, July 4, 2021
  - ~~Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
  - player who selected skipped/blocked/challenged should go into waiting mode. 
+ - player who selected skipped/challenge should go into waiting mode. 
+ - player who selected skipped/block should go into waiting mode. 
+ - ~~When stealed, the c/b/s panel sometimes does not show.~~ Monday, July 5, 2021
+
+- production website
+ - direct room link not working 
+
+- mobile website
+ - first gamestate not working 
 
 ## Feedbacks 
 
@@ -206,9 +218,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 ## Notes 
 
-Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. 
-
-There's some issue with getting the initial game state on mobile 
+- Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. There's some issue with getting the initial game state on mobile 
 
 
 ## Tricky situation

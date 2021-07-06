@@ -167,7 +167,7 @@ export default function MainGame (props){
                 } 
 
                 return <div className = {me}>
-                            <h2>{playerState.friendlyName}</h2>
+                            <h2 className={playerState.lifePoint == 0 ? "terminated-player" : null}>{playerState.friendlyName}</h2>
                             <h3>Life: {playerState.lifePoint} <i class="fas fa-coins"></i>Tokens: {playerState.tokens}</h3>
                             <div class="cards">{/* <div className="card-deck centered"> */}
                             {playerState.cards.map((card) => {
@@ -243,7 +243,7 @@ export default function MainGame (props){
             {cards.map((item) => {
                 // if(playerState.lifePoint > 0){
                 return(<span>
-                    <button class="btn" onClick={(event) => onKeepSelected(event, item)}>{item}</button>
+                    <button class="btn btn-warning" onClick={(event) => onKeepSelected(event, item)}>{item}</button>
                 </span>
                 )
                 }
@@ -322,7 +322,7 @@ export default function MainGame (props){
         }
 
         return(
-            <div className="selection">
+            <div className="selection with-border">
                 {actions.map(action => {
                     if (action === "Block"){
                         console.log(`players who can block = ${localGameState.playersWhoCanBlock}`);

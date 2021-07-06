@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import MainGame from "./game/MainGame"
 import './styles/buttons.css';
+import './styles/styles.css';
 import io from "socket.io-client";
 
 export const SocketContext = React.createContext()
@@ -126,6 +127,7 @@ export default function Room({history, match, location}) {
     return(
             <div className="roomHome">
                 <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
+                <div className="readyAndStart">
                 {
                     roomStatus === 'NOT_READY_TO_START' &&
                     <button className="btn btn-success" onClick={setReady}>Ready</button>
@@ -136,6 +138,7 @@ export default function Room({history, match, location}) {
                     // (canStartGame()) &&
                     <button className="btn btn-success" disabled={!canStartGame()} onClick={startGame}>Start Game</button>
                 }
+                </div>
                 {
                     roomStatus === 'STARTED' &&
                     <SocketContext.Provider value={socket}>

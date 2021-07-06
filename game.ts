@@ -17,7 +17,6 @@ export function initGame(players): GameState {
         }
     }
 
-
     let shuffled_deck = initial_deck
     .map((a) => ({sort: Math.random(), value: a}))
     .sort((a, b) => a.sort - b.sort)
@@ -138,6 +137,8 @@ export function commitAction(gameState: GameState): GameState{
                 gameState.pendingActions = []; 
                 gameState.activePlayerIndex = computeNextPlayer(gameState); 
                 gameState.roundState = RoundState.WaitForAction;
+                gameState.playersWhoSkippedBlock = []; 
+                gameState.playersWhoSkippedChallenge = []; 
             }
             break; 
 
@@ -248,6 +249,8 @@ export function commitAction(gameState: GameState): GameState{
             if (gameState.surrenderReason !== Action.Challenge){
                 gameState.activePlayerIndex = computeNextPlayer(gameState); 
                 gameState.roundState = RoundState.WaitForAction;
+                gameState.playersWhoSkippedBlock = []; 
+                gameState.playersWhoSkippedChallenge = []; 
                 return gameState; 
             } else{
                 // failed challenge 
@@ -297,6 +300,7 @@ export function commitAction(gameState: GameState): GameState{
             gameState.surrenderReason = Action.Assasinate; 
             gameState.surrenderingPlayerIndex = targetIndex; 
             break;     
+
         case Action.Steal: 
             targetIndex = computeIndexFromName(gameState, action.target);
             sourceIndex = computeIndex(gameState, action.source);
@@ -304,6 +308,7 @@ export function commitAction(gameState: GameState): GameState{
             gameState.playerStates[targetIndex].tokens -= stealCount; 
             gameState.playerStates[sourceIndex].tokens += stealCount; 
             break;     
+
         case Action.Exchange: 
             let playerIndex = computeIndex(gameState, action.source);
             // grab the player's live cards. 
@@ -357,6 +362,8 @@ export function commitAction(gameState: GameState): GameState{
     if(isAbsoluteAction(parsedAction)){
         gameState.activePlayerIndex = computeNextPlayer(gameState); 
         gameState.roundState = RoundState.WaitForAction;
+        gameState.playersWhoSkippedBlock = []; 
+        gameState.playersWhoSkippedChallenge = []; 
     }
     return gameState; 
 }
@@ -454,13 +461,6 @@ export function isValidAction(action: PlayerAction, clientId: string, state: Gam
     logDebug(`client id = ${clientId}`); 
     logDebug(`action = ${JSON.stringify(action)}`); 
     return false; 
-}
-
-export function nextPlayer(gameState: GameState){
-    gameState.activePlayerIndex += 1;      
-    gameState.activePlayerIndex %= gameState.playerStates.length; 
-    gameState.roundState = RoundState.WaitForAction; 
-    return gameState; 
 }
 
 export function computeAlivePlayers(playerStates: Array<PlayerState>): number{

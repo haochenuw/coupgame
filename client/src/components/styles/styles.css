@@ -46,5 +46,18 @@
     font-size: x-large;
 }
 
+.readyAndStart{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.with-border{
+    border: 5px solid red;
+}
+
+.terminated-player{
+    text-decoration: line-through;
+}
+
 
 
