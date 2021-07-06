@@ -135,15 +135,19 @@ export default function MainGame (props){
             return true; 
         } else if (gameState.pendingActions.length > 0 
             && gameState.playersWhoCanBlock.includes(props.myName)  
-            && gameState.roundState === "WAIT_FOR_BLOCK") {
+            && gameState.roundState === "WAIT_FOR_BLOCK"
+            && !gameState.playersWhoSkippedBlock.includes(props.myName)) {
             return true; 
         } else if (gameState.pendingActions.length > 0 
             && gameState.pendingActions[0].source !== props.me 
-            && gameState.roundState === "WAIT_FOR_CHALLENGE") {
+            && gameState.roundState === "WAIT_FOR_CHALLENGE"
+            && !gameState.playersWhoSkippedChallenge.includes(props.myName)) {
             return true; 
         } else if (gameState.pendingActions.length > 0 
             && gameState.pendingActions[0].source !== props.me 
-            && gameState.roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK") {
+            && gameState.roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK"
+            && !gameState.playersWhoSkippedChallenge.includes(props.myName)
+            && !gameState.playersWhoSkippedBlock.includes(props.myName)) {
             return true; 
         } 
         else if (gameState.pendingActions.length > 0 
@@ -299,6 +303,9 @@ export default function MainGame (props){
     }
 
     function BlockOrSkipPanel(){
+        if (alreadySkipedBlock()){
+            return null; 
+        }
         return(
             <div className="selection">
                 <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Block')}>Block</button>
@@ -307,7 +314,24 @@ export default function MainGame (props){
         )
     }
 
+    function alreadySkipedChallenge(){
+        if (localGameState === null){
+            return false; 
+        }
+        return localGameState.playersWhoSkippedChallenge.includes(props.myName)
+    }
+
+    function alreadySkipedBlock(){
+        if (localGameState === null){
+            return false; 
+        }
+        return localGameState.playersWhoSkippedBlock.includes(props.myName)
+    }
+
     function ChallengeOrSkipPanel(){
+        if (alreadySkipedChallenge()){
+            return null; 
+        }
         return(
             <div className="selection">
                 <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Challenge')}>Challenge</button>
