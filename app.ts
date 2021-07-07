@@ -5,7 +5,7 @@ import cors from "cors";
 import {Socket, Namespace} from "socket.io"; 
 import {makeid, logInfo, logError, logDebug, renderLog}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
-import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState} from "./game"; 
+import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers} from "./game"; 
 import { parse } from "path/posix";
 import * as constants from "./constants"; 
 
@@ -362,7 +362,7 @@ const main = async () => {
     app.use(express.static(join(__dirname, '../client/build')));
 
     app.get('/', (req, res) => {
-        res.sendFile(join(__dirname+'../client/build/index.html'));
+        res.sendFile(join(__dirname+'/../client/build/index.html'));
     });
 
     app.get('/newgame', (_, res) => {
@@ -460,22 +460,43 @@ const main = async () => {
                 } 
                 logInfo(`Round state = ${gameState.roundState}`); 
 
+                
                 // Handle special case. If it is assasinate, then deduct tokens right away 
                 if(action.name as Action === Action.Assasinate){
                     logInfo(`Deducting assasinate costs`); 
                     gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
                 }
-
-                let sourceName = gameState.playerStates.find(state => state.socket_id === client.id).friendlyName; 
-                // Add event to the log
                 
+                let sourceName = gameState.playerStates.find(state => state.socket_id === client.id).friendlyName; 
                 let actionWithSource = {...action, source: client.id}; 
+                
+                // Handle special case. block arrives first before challenge 
+                if (action.name as Action === Action.Block 
+                    && gameState.roundState === RoundState.WaitForChallengeOrBlock
+                    && computeAlivePlayers(gameState.playerStates) > 2
+                    )
+                {
+                    gameState.pendingBlock = actionWithSource; 
+                    // block => skips challenge
+                    if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
+                        gameState.playersWhoSkippedChallenge.push(sourceName)
+                    }
+                    logInfo("block arrives before challenge"); 
+
+                    gameState.roundState = RoundState.WaitForChallenge; 
+                    sendMaskedGameStates(socket, gameState); 
+                    return; 
+                    // TODO: consume pending block in skip challenge or challenge reveal. 
+                }
+                
+                // assign target to challenge 
                 if (actionWithSource.target === null && action.name as Action === Action.Challenge){
                     let source = gameState.pendingActions[0].source;
                     let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
                     actionWithSource.target = name; 
                 }    
-
+                
+                // Add event to the log
                 gameState.logs.splice(0, 0, renderLog(sourceName, action.name, actionWithSource.target)); 
                 
                 gameState.pendingActions.splice(0,0,actionWithSource as PlayerAction); 
@@ -544,6 +565,11 @@ const main = async () => {
             res.send("room does not exist"); 
         }
     }); 
+
+    // handle the issue with sending direct link to rooms
+    app.get('/room/:code', (_, res) => {
+        res.sendFile(join(__dirname+'/../client/build/index.html'));
+    });
 
     const port = process.env.PORT || 3002;
 

@@ -17,6 +17,7 @@ export default function Room({history, match, location}) {
     // Connect through socket. 
     console.log(`got room name = ${match.params.name}`); 
     if (socket === null){
+        console.log('connecting to socket.io...'); 
         socket = io(`/${match.params.name}`);
     }
     // if (location.state === undefined || location.state.playerName === undefined){

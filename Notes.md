@@ -208,6 +208,12 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - mobile website
  - first gamestate not working 
 
+- dead player should not be able to challenge 
+
+- corner case...when chose b from c/b/s and only 2 players left. Should not stuck. 
+
+- when player died, should skip the surrender. 
+
 ## Feedbacks 
 
 - ~~Put skip and challenge in one screen~~ Thursday, July 1, 2021
@@ -215,6 +221,8 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - ~~add "space between skip and challenge" in event log~~ Thursday, July 1, 2021
 
 - ~~disable coup and assasinate when not enough tokens~~ Saturday, July 3, 2021
+
+- challenge (XXX) to make clear who is to be challenged. 
 
 ## Notes 
 
@@ -226,3 +234,5 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 in both c and b actions. If someone blocks first, need to "wait" on that block to happen until 
 everyone has made decision about challenge. If someone challenges, then the challenge is revealed first
 before block can take place. If every skips
+
+- Working on resolving this, caching the block. Then, if challenged, need to handle this cached block only if the reveal is legit.p

@@ -113,6 +113,7 @@ export type GameState = {
     surrenderReason: Action | undefined | null, 
     playersWhoCanBlock: Array<String>, 
     logs: Array<String>, 
+    pendingBlock: PlayerAction | null 
 }
 
 export type PlayerState = {

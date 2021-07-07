@@ -126,6 +126,11 @@ export default function MainGame (props){
     }
 
     function isMe(gameState){
+        // return false if player died? should allow for surrender. 
+        if (gameState.playerStates.find(state => state.socket_id === props.me).lifePoint == 0){
+            console.log('player already died'); 
+            return false; 
+        }
         if (gameState.playerStates[gameState.activePlayerIndex].socket_id === props.me
             && (gameState.roundState === "WAIT_FOR_ACTION" || gameState.roundState === "WAIT_FOR_EXCHANGE") ){
                 return true; 
@@ -171,8 +176,8 @@ export default function MainGame (props){
                 } 
 
                 return <div className = {me}>
-                            <h2 className={playerState.lifePoint == 0 ? "terminated-player" : null}>{playerState.friendlyName}</h2>
-                            <h3>Life: {playerState.lifePoint} <i class="fas fa-coins"></i>Tokens: {playerState.tokens}</h3>
+                            <h3 className={playerState.lifePoint == 0 ? "terminated-player" : null}>{playerState.friendlyName} <span>Life: {playerState.lifePoint} Tokens: {playerState.tokens}</span></h3>
+                           
                             <div class="cards">{/* <div className="card-deck centered"> */}
                             {playerState.cards.map((card) => {
                                 return (

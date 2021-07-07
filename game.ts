@@ -1,7 +1,7 @@
 
 import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable} from "./types";
 import * as constants from "./constants"; 
-import {logDebug, logError, logInfo} from "./utils"; 
+import {logDebug, logError, logInfo, renderLog} from "./utils"; 
 import { parse } from "path/posix";
 
 export function initGame(players): GameState {
@@ -46,6 +46,7 @@ export function initGame(players): GameState {
         playersWhoSkippedChallenge: [], 
         surrenderReason: null, 
         playersWhoCanBlock: [], 
+        pendingBlock: null, 
         logs: [], 
     }
 }
@@ -113,20 +114,20 @@ export function commitAction(gameState: GameState): GameState{
                 // 1. get new card to revealing player
                 let deck = gameState.deckState; 
                 deck.push(card); 
-                logDebug(`before shuffle = ${JSON.stringify(deck)}`); 
+                // logDebug(`before shuffle = ${JSON.stringify(deck)}`); 
                 deck = shuffle(deck); 
-                logDebug(`after shuffle = ${JSON.stringify(deck)}`); 
+                // logDebug(`after shuffle = ${JSON.stringify(deck)}`); 
                 let newCard = deck.pop(); 
                 source.cards[cardIndex] = newCard; 
                 gameState.deckState = deck; 
                 // 2. challenging player lose a life and surrenders
                 logInfo('waiting for challenger to choose a card to surrender...'); 
+                gameState.surrenderReason = Action.Challenge; 
                 let challengingPlayerName = gameState.playerStates[gameState.challengingPlayerIndex].friendlyName;
-                gameState.playerStates[gameState.challengingPlayerIndex].lifePoint -=1; 
+                gameState.playerStates[gameState.challengingPlayerIndex].lifePoint -= 1; 
                 gameState.logs.splice(0, 0, challengingPlayerName + " lost a life"); 
                 gameState.surrenderingPlayerIndex = gameState.challengingPlayerIndex; 
                 gameState.roundState = RoundState.WaitForSurrender; 
-                gameState.surrenderReason = Action.Challenge; 
             } else{
                 logInfo('False Reveal...'); 
                 card.isRevealed = true; 
@@ -138,7 +139,8 @@ export function commitAction(gameState: GameState): GameState{
                 gameState.activePlayerIndex = computeNextPlayer(gameState); 
                 gameState.roundState = RoundState.WaitForAction;
                 gameState.playersWhoSkippedBlock = []; 
-                gameState.playersWhoSkippedChallenge = []; 
+                gameState.playersWhoSkippedChallenge = [];
+                gameState.pendingBlock = null;  
             }
             break; 
 
@@ -190,7 +192,7 @@ export function commitAction(gameState: GameState): GameState{
         }
         
         case Action.SkipChallenge: 
-            logDebug(`player??? ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
+            logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
             if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
                 gameState.playersWhoSkippedChallenge.push(sourceName); 
             }
@@ -198,6 +200,18 @@ export function commitAction(gameState: GameState): GameState{
                 // if everyone other than the actor skips, then execute action. 
                 logInfo("all relevant players skipped challenge");
                 gameState.playersWhoSkippedChallenge = []; 
+                // if there is a pending block then handle it
+                if (gameState.pendingBlock !== null){
+                    let block = gameState.pendingBlock; 
+                    gameState.pendingActions.splice(0,0, block); 
+                    gameState.pendingBlock = null; 
+                    // block is challengeable
+                    gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+
+                    gameState.roundState = RoundState.WaitForChallenge;
+                    return gameState; 
+                }
+                // no pending block, but action is blockable. 
                 if (isBlockable(gameState.pendingActions[0].name as Action)){
                     gameState.roundState = RoundState.WaitForBlock; 
                     return gameState; 
@@ -207,6 +221,7 @@ export function commitAction(gameState: GameState): GameState{
                 }
             }
             break; 
+
         case Action.Challenge: 
             logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} tries to challenge`); 
             gameState.roundState = RoundState.WaitForReveal; 
@@ -215,9 +230,9 @@ export function commitAction(gameState: GameState): GameState{
         case Action.Block: 
             sourceIndex = computeIndex(gameState, action.source);
             logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} tries to block`); 
-            // TODO handle challenge of blocks 
             gameState.pendingActions.shift(); 
             break; 
+
         case Action.SkipBlock: 
             sourceIndex = computeIndex(gameState, action.source);
             let name = gameState.playerStates[sourceIndex].friendlyName;
@@ -245,7 +260,7 @@ export function commitAction(gameState: GameState): GameState{
             // Think about different paths. 
             // 1. coup / assasinate. In this case just move to next player. 
             // 2. challenge failed. 
-            // TO distinguish, maybe add a "surrender reason". 
+            // TO distinguish, added a "surrender reason". 
             if (gameState.surrenderReason !== Action.Challenge){
                 gameState.activePlayerIndex = computeNextPlayer(gameState); 
                 gameState.roundState = RoundState.WaitForAction;
@@ -254,9 +269,17 @@ export function commitAction(gameState: GameState): GameState{
                 return gameState; 
             } else{
                 // failed challenge 
-                let pendingAction = gameState.pendingActions[0]; 
-                logDebug(`pending action = ${JSON.stringify(pendingAction)}`); 
+                if (gameState.pendingBlock !== null){
+                    let block = gameState.pendingBlock; 
+                    gameState.pendingActions.splice(0,0, block); 
+                    gameState.pendingBlock = null; 
+                    // block is challengeable
+                    gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+                    gameState.roundState = RoundState.WaitForChallenge;
+                    return gameState; 
+                } 
 
+                let pendingAction = gameState.pendingActions[0]; 
                 if (isBlockable(pendingAction.name as Action)){
                     logInfo(`Dealing with block after challenge...`); 
                     gameState.roundState = RoundState.WaitForBlock;
@@ -270,11 +293,10 @@ export function commitAction(gameState: GameState): GameState{
             gameState.playerStates[gameState.activePlayerIndex].tokens += constants.INCOME_RATE; 
             break;
         case Action.Coup: 
-            // TODO validate 
             surrendererIndex = computeIndexFromName(gameState, action.target);
+            gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.COUP_COST; 
             gameState.playerStates[surrendererIndex].lifePoint -= 1; 
             gameState.logs.splice(0, 0, action.target + " lost a life"); 
-            gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.COUP_COST; 
             gameState.surrenderReason = Action.Coup; 
             gameState.roundState = RoundState.WaitForSurrender;
             // compute the player to surrender
@@ -288,7 +310,6 @@ export function commitAction(gameState: GameState): GameState{
             gameState.playerStates[gameState.activePlayerIndex].tokens += constants.FOREIGN_AID_AMOUNT; 
             break;     
         case Action.Assasinate: 
-            // TODO validate. 
             targetIndex = computeIndexFromName(gameState, action.target);
             if (targetIndex < 0){
                 logError(`target ${action.target} not found`); 
@@ -504,3 +525,17 @@ export function maskState(gameState: GameState, playerId: string): GameState{
     return copyState; 
 }
 
+
+function handleLifeLost(gameState: GameState, index: number, surrenderReason: Action): GameState{
+    let player = gameState.playerStates[index];
+    gameState.playerStates[index].lifePoint -= 1; 
+    if (gameState.playerStates[index].lifePoint > 0){
+        gameState.logs.splice(0, 0, player.friendlyName + " lost an influence"); 
+        gameState.surrenderingPlayerIndex = index;
+        gameState.roundState = RoundState.WaitForSurrender; 
+    } else {
+        gameState.logs.splice(0, 0, player.friendlyName + " was eliminated"); 
+        // TODO: craft a surrender request from player and commit that. 
+    }
+    return gameState; 
+}
