@@ -445,9 +445,8 @@ const main = async () => {
                 console.log(`${client.id} starts game for room ${namespace}`)
                   
                 gameState = initGame(players); 
-                socket.emit('startGameResponse');
-                // socket.emit('gameState', gameState);
-                sendMaskedGameStates(socket, gameState); 
+                socket.emit('startGameResponse', gameState);
+                // sendMaskedGameStates(socket, gameState); 
             })
 
             client.on('action', (action) => {

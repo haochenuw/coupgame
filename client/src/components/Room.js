@@ -29,6 +29,7 @@ export default function Room({history, match, location}) {
     const [me, setMe] = useState(''); 
     const [winner, setWinner] = useState(null); 
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
+    const [initialState, setInitialState] = useState(null);
     
     useEffect(() => {
         socket.on("connect", () => {
@@ -40,12 +41,13 @@ export default function Room({history, match, location}) {
             setPlayers(players); 
         }); 
 
-        socket.on('startGameResponse', ()=>{
+        socket.on('startGameResponse', (initialStateFromServer)=>{
             console.log('got start game response');
+            setInitialState(initialStateFromServer); 
             setRoomStatus("STARTED");
         });
 
-        socket.on("initialState", state=>{
+        socket.on("initialState", state =>{
             console.log('state', JSON.stringify(state));
         });
 
@@ -136,14 +138,14 @@ export default function Room({history, match, location}) {
                 {
                     roomStatus !== 'STARTED' &&
                     isCreator() === true &&
-                    // (canStartGame()) &&
                     <button className="btn btn-success" disabled={!canStartGame()} onClick={startGame}>Start Game</button>
                 }
                 </div>
                 {
                     roomStatus === 'STARTED' &&
+                    initialState !== null &&
                     <SocketContext.Provider value={socket}>
-                    <MainGame me = {me} myName ={name}/>
+                    <MainGame me = {me} myName ={name} initialState={initialState}/>
                     </SocketContext.Provider>
                 }
                 { 

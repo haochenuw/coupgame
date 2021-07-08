@@ -228,6 +228,10 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. There's some issue with getting the initial game state on mobile 
 
+## Todos 
+
+- Make use of handleLifeLost. 
+- Show special paragraph when player has died. 
 
 ## Tricky situation
 

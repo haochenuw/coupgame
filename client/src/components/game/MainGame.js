@@ -19,8 +19,12 @@ export default function MainGame (props){
 
     const [hasError, setHasError] = useState(false); 
 
+    const [dead, setDead] = useState(false); 
+
     useEffect(() =>{
         console.log('I am ', props.me)
+        console.log('props', props); 
+        setLocalGameState(props.initialState); 
 
         socket.on('clientError', ()=>{
             setHasError(true); 
@@ -31,7 +35,10 @@ export default function MainGame (props){
             console.log(`got game state, ${JSON.stringify(gameState)}`)
             setHasError(false); 
             setLocalGameState(gameState)
-            console.log(`player who can block = ${gameState.playersWhoCanBlock}`); 
+
+            let player = gameState.playerStates.filter(state => state.friendlyName === props.myName); 
+            setDead(player.lifePoint === 0); 
+
             if (!isMe(gameState)){
                 setRoundState("WAITING_FOR_OTHERS"); 
             } else{
@@ -167,6 +174,7 @@ export default function MainGame (props){
         if (localGameState === null){
             return null 
         }
+
         return(            
             localGameState.playerStates.map((playerState) => {
                 let me = ""; 
@@ -376,6 +384,9 @@ export default function MainGame (props){
         <div>
         {hasError && <h2 className="error">There's an error</h2>}
         {playerStatePanel()}
+        {
+            dead && <h2>You have been eliminated</h2>
+        }
         {
             roundState === "WAITING_FOR_OTHERS" && <h2>Waiting for others...</h2>
         }

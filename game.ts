@@ -525,17 +525,28 @@ export function maskState(gameState: GameState, playerId: string): GameState{
     return copyState; 
 }
 
-
+// Handle player life lost. 
 function handleLifeLost(gameState: GameState, index: number, surrenderReason: Action): GameState{
     let player = gameState.playerStates[index];
     gameState.playerStates[index].lifePoint -= 1; 
+    // Case 1. still alive 
     if (gameState.playerStates[index].lifePoint > 0){
         gameState.logs.splice(0, 0, player.friendlyName + " lost an influence"); 
         gameState.surrenderingPlayerIndex = index;
         gameState.roundState = RoundState.WaitForSurrender; 
-    } else {
+    }
+    // Case 2. Player eliminated. 
+    else {
         gameState.logs.splice(0, 0, player.friendlyName + " was eliminated"); 
-        // TODO: craft a surrender request from player and commit that. 
+        
+        // find the only card the player has live
+        let onlyCard = player.cards.filter(card => card.isRevealed === false)[0].name;
+
+        gameState.roundState = RoundState.WaitForSurrender;
+        // craft a surrender action from the server side and commit it. 
+        let surrenderAction = {name: Action.Surrender, source: player.socket_id, target: onlyCard}; 
+        gameState.pendingActions.splice(0, 0, surrenderAction); 
+        gameState = commitAction(gameState); 
     }
     return gameState; 
 }
