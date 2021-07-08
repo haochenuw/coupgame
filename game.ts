@@ -114,33 +114,40 @@ export function commitAction(gameState: GameState): GameState{
                 // 1. get new card to revealing player
                 let deck = gameState.deckState; 
                 deck.push(card); 
-                // logDebug(`before shuffle = ${JSON.stringify(deck)}`); 
                 deck = shuffle(deck); 
-                // logDebug(`after shuffle = ${JSON.stringify(deck)}`); 
                 let newCard = deck.pop(); 
                 source.cards[cardIndex] = newCard; 
                 gameState.deckState = deck; 
                 // 2. challenging player lose a life and surrenders
                 logInfo('waiting for challenger to choose a card to surrender...'); 
-                gameState.surrenderReason = Action.Challenge; 
-                let challengingPlayerName = gameState.playerStates[gameState.challengingPlayerIndex].friendlyName;
-                gameState.playerStates[gameState.challengingPlayerIndex].lifePoint -= 1; 
-                gameState.logs.splice(0, 0, challengingPlayerName + " lost a life"); 
-                gameState.surrenderingPlayerIndex = gameState.challengingPlayerIndex; 
-                gameState.roundState = RoundState.WaitForSurrender; 
+                gameState = handleLifeLost(gameState, gameState.challengingPlayerIndex, action);
             } else{
                 logInfo('False Reveal...'); 
-                card.isRevealed = true; 
-                gameState.playerStates[sourceIndex].lifePoint -= 1; 
-                gameState.logs.splice(0, 0, sourceName + " lost a life"); 
-                gameState.surrenderingPlayerIndex = sourceIndex; 
-                // action is nullified. Move to next player. 
-                gameState.pendingActions = []; 
-                gameState.activePlayerIndex = computeNextPlayer(gameState); 
-                gameState.roundState = RoundState.WaitForAction;
+
+                // TODO: FIX the bug of challenging a block! 
+                // Should still commit the action before moving to next player. 
+                // card.isRevealed = true; 
+                // gameState.playerStates[sourceIndex].lifePoint -= 1; 
+                // gameState.logs.splice(0, 0, sourceName + " lost an influence"); 
+                // gameState.surrenderingPlayerIndex = sourceIndex; 
+                gameState = handleLifeLost(gameState, sourceIndex, {source: null, target: null, name : Action.Challenge}); 
+                // action is nullified. 
+                gameState.pendingActions.shift();
+                // Is there still a pending action? 
+                // 1. Yes, this means that the challenge succeeded on a block
+                // commit the action. It could be foreign aid, ass, steal.  
                 gameState.playersWhoSkippedBlock = []; 
                 gameState.playersWhoSkippedChallenge = [];
                 gameState.pendingBlock = null;  
+                if(gameState.pendingActions.length > 0){
+                    return commitAction(gameState); 
+                }
+                // 2. No. This means that the challenge succeeded on a regular action
+                else{
+                    gameState.activePlayerIndex = computeNextPlayer(gameState); 
+                    gameState.roundState = RoundState.WaitForAction;
+                    return gameState; 
+                }
             }
             break; 
 
@@ -268,7 +275,8 @@ export function commitAction(gameState: GameState): GameState{
                 gameState.playersWhoSkippedChallenge = []; 
                 return gameState; 
             } else{
-                // failed challenge 
+                // surrendering because of failed challenge 
+                // in this case. should keep handling the action that was challenged. 
                 if (gameState.pendingBlock !== null){
                     let block = gameState.pendingBlock; 
                     gameState.pendingActions.splice(0,0, block); 
@@ -295,12 +303,13 @@ export function commitAction(gameState: GameState): GameState{
         case Action.Coup: 
             surrendererIndex = computeIndexFromName(gameState, action.target);
             gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.COUP_COST; 
-            gameState.playerStates[surrendererIndex].lifePoint -= 1; 
-            gameState.logs.splice(0, 0, action.target + " lost a life"); 
-            gameState.surrenderReason = Action.Coup; 
-            gameState.roundState = RoundState.WaitForSurrender;
-            // compute the player to surrender
-            gameState.surrenderingPlayerIndex = surrendererIndex; 
+            // gameState.playerStates[surrendererIndex].lifePoint -= 1; 
+            // gameState.logs.splice(0, 0, action.target + " lost a life"); 
+            // gameState.surrenderReason = Action.Coup; 
+            // gameState.roundState = RoundState.WaitForSurrender;
+            // // compute the player to surrender
+            // gameState.surrenderingPlayerIndex = surrendererIndex; 
+            gameState = handleLifeLost(gameState, surrendererIndex, action); 
             break; 
         case Action.Tax: 
             gameState.playerStates[gameState.activePlayerIndex].tokens += constants.TAX_AMOUNT; 
@@ -314,12 +323,7 @@ export function commitAction(gameState: GameState): GameState{
             if (targetIndex < 0){
                 logError(`target ${action.target} not found`); 
             }
-            gameState.playerStates[targetIndex].lifePoint -= 1; 
-            gameState.logs.splice(0, 0, action.target + " lost a life"); 
-            // gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
-            gameState.roundState = RoundState.WaitForSurrender;
-            gameState.surrenderReason = Action.Assasinate; 
-            gameState.surrenderingPlayerIndex = targetIndex; 
+            gameState = handleLifeLost(gameState, targetIndex, action); 
             break;     
 
         case Action.Steal: 
@@ -526,23 +530,32 @@ export function maskState(gameState: GameState, playerId: string): GameState{
 }
 
 // Handle player life lost. 
-function handleLifeLost(gameState: GameState, index: number, surrenderReason: Action): GameState{
+function handleLifeLost(gameState: GameState, index: number, surrenderReason: PlayerAction): GameState{
     let player = gameState.playerStates[index];
+    // if player is already died, do nothing 
+    if (player.lifePoint === 0){
+        return gameState; 
+    }
     gameState.playerStates[index].lifePoint -= 1; 
+    gameState.surrenderingPlayerIndex = index;
+    gameState.roundState = RoundState.WaitForSurrender; 
+    gameState.surrenderReason = surrenderReason.name; 
     // Case 1. still alive 
     if (gameState.playerStates[index].lifePoint > 0){
         gameState.logs.splice(0, 0, player.friendlyName + " lost an influence"); 
-        gameState.surrenderingPlayerIndex = index;
-        gameState.roundState = RoundState.WaitForSurrender; 
+        if (surrenderReason.name === Action.Reveal){
+            // craft a surrender 
+            let card = surrenderReason.target; // what is the player revealing
+            let surrenderAction = {name: Action.Surrender, source: player.socket_id, target: card}; 
+            gameState.pendingActions.splice(0, 0, surrenderAction); 
+            gameState = commitAction(gameState); 
+        }
     }
     // Case 2. Player eliminated. 
     else {
         gameState.logs.splice(0, 0, player.friendlyName + " was eliminated"); 
-        
         // find the only card the player has live
         let onlyCard = player.cards.filter(card => card.isRevealed === false)[0].name;
-
-        gameState.roundState = RoundState.WaitForSurrender;
         // craft a surrender action from the server side and commit it. 
         let surrenderAction = {name: Action.Surrender, source: player.socket_id, target: onlyCard}; 
         gameState.pendingActions.splice(0, 0, surrenderAction); 

@@ -182,8 +182,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Custom domain~~ Thursday, July 1, 2021 (got coupgames.xyz)
 - Players leave 
-- show player terminated
-    - ~~strike through. ~~ Monday, July 5, 2021
+- ~~show player terminated~~ Thursday, July 8, 2021
     - skip surrender if player already died
 
 ## Bugs 
@@ -206,13 +205,15 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
  - ~~direct room link not working~~ Wednesday, July 7, 2021 
 
 - mobile website
- - first gamestate not working 
+ - ~~first gamestate not working~~ Thursday, July 8, 2021 (don't send two socket in a row. seem to solve it) 
 
-- dead player should not be able to challenge 
+- ~~dead player should not be able to challenge~~ Thursday, July 8, 2021 
 
 - corner case...when chose b from c/b/s and only 2 players left. Should not stuck. 
 
 - when player died, should skip the surrender. 
+
+- BIG BUG: when false reveal on challenging a block, should still commit the action!
 
 ## Feedbacks 
 
@@ -227,6 +228,10 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 ## Notes 
 
 - Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. There's some issue with getting the initial game state on mobile 
+
+- What happens when joining a room with game in progress
+ 
+- edge case when challenge assasination => prevent life being -1.
 
 ## Todos 
 
