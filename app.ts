@@ -445,8 +445,7 @@ const main = async () => {
                 console.log(`${client.id} starts game for room ${namespace}`)
                   
                 gameState = initGame(players); 
-                socket.emit('startGameResponse', gameState);
-                // sendMaskedGameStates(socket, gameState); 
+                sendMaskedGameStates(socket, gameState, 'startGameResponse'); 
             })
 
             client.on('action', (action) => {
@@ -483,7 +482,7 @@ const main = async () => {
                     logInfo("block arrives before challenge"); 
 
                     gameState.roundState = RoundState.WaitForChallenge; 
-                    sendMaskedGameStates(socket, gameState); 
+                    sendMaskedGameStates(socket, gameState, 'gameState'); 
                     return; 
                     // TODO: consume pending block in skip challenge or challenge reveal. 
                 }
@@ -523,19 +522,19 @@ const main = async () => {
                     // TODO: logic go here. 
                     logInfo('blockable + challengeable action'); 
                     gameState.roundState = RoundState.WaitForChallengeOrBlock; 
-                    sendMaskedGameStates(socket, gameState); 
+                    sendMaskedGameStates(socket, gameState, 'gameState'); 
                     return; 
                 } else if (isActionChallengeable){
                     logInfo('waiting for challenge...'); 
                     gameState.roundState = RoundState.WaitForChallenge; 
                     // socket.emit('gameState', gameState); 
-                    sendMaskedGameStates(socket, gameState); 
+                    sendMaskedGameStates(socket, gameState, 'gameState'); 
                     return; 
                 } else if (isActionBlockable){
                     logInfo('waiting for block...'); 
                     gameState.roundState = RoundState.WaitForBlock; 
                     // socket.emit('gameState', gameState); 
-                    sendMaskedGameStates(socket, gameState); 
+                    sendMaskedGameStates(socket, gameState, 'gameState'); 
                     return; 
                 }
                 gameState = commitAction(gameState);
@@ -546,7 +545,7 @@ const main = async () => {
                 logDebug(`round state = ${JSON.stringify(gameState.roundState)}`)
                 logDebug(`active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
                 // socket.emit('gameState', gameState); 
-                sendMaskedGameStates(socket, gameState); 
+                sendMaskedGameStates(socket, gameState, 'gameState'); 
             }); 
 
         })
@@ -576,9 +575,9 @@ const main = async () => {
         console.log(`listening on port ${port}`);
     });
 
-    function sendMaskedGameStates(namespace: Namespace, gameState: GameState) {
+    function sendMaskedGameStates(namespace: Namespace, gameState: GameState, name: String) {
         for (let [clientId, clientSocket] of Object.entries(namespace.sockets)) {
-            (clientSocket as Socket).emit('gameState', maskState(gameState, clientId)); 
+            (clientSocket as Socket).emit(name, maskState(gameState, clientId)); 
         }
     }
 };

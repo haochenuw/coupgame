@@ -203,7 +203,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
  - ~~When stealed, the c/b/s panel sometimes does not show.~~ Monday, July 5, 2021
 
 - production website
- - direct room link not working 
+ - ~~direct room link not working~~ Wednesday, July 7, 2021 
 
 - mobile website
  - first gamestate not working 
@@ -232,6 +232,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - Make use of handleLifeLost. 
 - Show special paragraph when player has died. 
+- Should now let player join room if game already started (or better, join as spectator mode.)
 
 ## Tricky situation
 

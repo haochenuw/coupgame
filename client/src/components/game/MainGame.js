@@ -24,7 +24,7 @@ export default function MainGame (props){
     useEffect(() =>{
         console.log('I am ', props.me)
         console.log('props', props); 
-        setLocalGameState(props.initialState); 
+        handleGameState(props.initialState); 
 
         socket.on('clientError', ()=>{
             setHasError(true); 
@@ -32,53 +32,57 @@ export default function MainGame (props){
         }); 
         
         socket.on('gameState', gameState => {
-            console.log(`got game state, ${JSON.stringify(gameState)}`)
-            setHasError(false); 
-            setLocalGameState(gameState)
-
-            let player = gameState.playerStates.filter(state => state.friendlyName === props.myName); 
-            setDead(player.lifePoint === 0); 
-
-            if (!isMe(gameState)){
-                setRoundState("WAITING_FOR_OTHERS"); 
-            } else{
-                switch(gameState.roundState){
-                    case "WAIT_FOR_SURRENDER": 
-                        console.log('wait for surrender...'); 
-                        setRoundState("WAIT_FOR_SURRENDER");
-                        break; 
-                    case "WAIT_FOR_CHALLENGE": 
-                        console.log('waiting for challenge...'); 
-                        setRoundState("WAIT_FOR_CHALLENGE");
-                        break; 
-                    case "WAIT_FOR_ACTION":
-                        console.log('wait for action...'); 
-                        setRoundState("WAIT_FOR_ACTION"); 
-                        setCoupDisable(isCoupDisabled(gameState))
-                        setAssDisable(isAssDisabled(gameState))
-                        break;
-                    case "WAIT_FOR_EXCHANGE":
-                        console.log('wait for exchange...'); 
-                        setRoundState("WAIT_FOR_EXCHANGE"); 
-                        break;
-                    case "WAIT_FOR_BLOCK":
-                        console.log("\x1b[31m", 'Changing State to wait for block...'); 
-                        setRoundState("WAIT_FOR_BLOCK"); 
-                        break;
-                    case "WAIT_FOR_REVEAL":
-                        console.log("\x1b[31m", 'Changing State to wait for reveal...'); 
-                        setRoundState("WAIT_FOR_REVEAL"); 
-                        break;
-                    case "WAIT_FOR_CHALLENGE_OR_BLOCK":
-                        console.log("\x1b[31m", 'Changing State to wait for c or b...'); 
-                        setRoundState("WAIT_FOR_CHALLENGE_OR_BLOCK"); 
-                        break;
-                    default: 
-                        break; 
-                }
-            }
+            handleGameState(gameState);
         });
     }, []);
+
+    function handleGameState(gameState){
+        console.log(`got game state, ${JSON.stringify(gameState)}`)
+        setHasError(false); 
+        setLocalGameState(gameState)
+
+        let player = gameState.playerStates.filter(state => state.friendlyName === props.myName); 
+        setDead(player.lifePoint === 0); 
+
+        if (!isMe(gameState)){
+            setRoundState("WAITING_FOR_OTHERS"); 
+        } else{
+            switch(gameState.roundState){
+                case "WAIT_FOR_SURRENDER": 
+                    console.log('wait for surrender...'); 
+                    setRoundState("WAIT_FOR_SURRENDER");
+                    break; 
+                case "WAIT_FOR_CHALLENGE": 
+                    console.log('waiting for challenge...'); 
+                    setRoundState("WAIT_FOR_CHALLENGE");
+                    break; 
+                case "WAIT_FOR_ACTION":
+                    console.log('wait for action...'); 
+                    setRoundState("WAIT_FOR_ACTION"); 
+                    setCoupDisable(isCoupDisabled(gameState))
+                    setAssDisable(isAssDisabled(gameState))
+                    break;
+                case "WAIT_FOR_EXCHANGE":
+                    console.log('wait for exchange...'); 
+                    setRoundState("WAIT_FOR_EXCHANGE"); 
+                    break;
+                case "WAIT_FOR_BLOCK":
+                    console.log("\x1b[31m", 'Changing State to wait for block...'); 
+                    setRoundState("WAIT_FOR_BLOCK"); 
+                    break;
+                case "WAIT_FOR_REVEAL":
+                    console.log("\x1b[31m", 'Changing State to wait for reveal...'); 
+                    setRoundState("WAIT_FOR_REVEAL"); 
+                    break;
+                case "WAIT_FOR_CHALLENGE_OR_BLOCK":
+                    console.log("\x1b[31m", 'Changing State to wait for c or b...'); 
+                    setRoundState("WAIT_FOR_CHALLENGE_OR_BLOCK"); 
+                    break;
+                default: 
+                    break; 
+            }
+        }
+    }
 
     function isCoupDisabled(gameState){
         let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens; 
@@ -382,6 +386,7 @@ export default function MainGame (props){
 
     return(
         <div>
+        {<h2>Round state = {roundState} </h2>}
         {hasError && <h2 className="error">There's an error</h2>}
         {playerStatePanel()}
         {
@@ -407,7 +412,7 @@ export default function MainGame (props){
         {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
         {hasError && <h3 className="error">Not enough Tokens</h3>}
         {localGameState !== null && <EventLog logs={localGameState.logs}/>}
-        {localGameState !== null && gameStateDebugPanel()}
+        {/* {localGameState !== null && gameStateDebugPanel()} */}
         </div>
     )
 }
