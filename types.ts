@@ -20,6 +20,13 @@ export enum CardName {
     Contessa, 
 }
 
+export enum SurrenderReason{
+    Coup = "Coup", 
+    Assasinate = "Assasinate", 
+    FailedChallenge = "FailedChallenge", 
+    FalseReveal = "FalseReveal"
+}
+
 export enum Action {
     Income = "Income", 
     Coup = "Coup", 
@@ -110,7 +117,7 @@ export type GameState = {
     pendingExchangeCards: Array<Card> | null, 
     playersWhoSkippedBlock: Array<String> 
     playersWhoSkippedChallenge: Array<String>, 
-    surrenderReason: Action | undefined | null, 
+    surrenderReason: SurrenderReason | undefined | null, 
     playersWhoCanBlock: Array<String>, 
     logs: Array<String>, 
     pendingBlock: PlayerAction | null 

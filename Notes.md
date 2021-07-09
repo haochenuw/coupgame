@@ -211,9 +211,11 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - corner case...when chose b from c/b/s and only 2 players left. Should not stuck. 
 
-- when player died, should skip the surrender. 
+- (>=3) when player died, should skip the surrender. 
 
-- BIG BUG: when false reveal on challenging a block, should still commit the action!
+- ~~BIG BUG: when false reveal on challenging a block, should still commit the action!~~ Thursday, July 8, 2021
+
+- 3 players => should hide the challenge panel after skipping challenge *after the other player blocked.
 
 ## Feedbacks 
 
@@ -235,7 +237,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 ## Todos 
 
-- Make use of handleLifeLost. 
+- ~~Make use of handleLifeLost.~~ Thursday, July 8, 2021
 - Show special paragraph when player has died. 
 - Should now let player join room if game already started (or better, join as spectator mode.)
 
