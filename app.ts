@@ -402,6 +402,7 @@ const main = async () => {
     // React: handle socket
     function openSocket(socket, namespace) {
         let players = []; 
+        let gameInProgress = false; 
         let gameState = null; 
         socket.on('connection', client => {
             console.log('id: ' + client.id + ' connected');
@@ -409,6 +410,12 @@ const main = async () => {
             if (players.length >= constants.MAX_PLAYERS){
                 logError("too many players")
                 socket.emit('roomFull'); 
+                return; 
+            }
+
+            if (gameInProgress){
+                logError("game has already started"); 
+                socket.emit('gameInProgress'); 
                 return; 
             }
 
@@ -421,9 +428,11 @@ const main = async () => {
             client.on('setName', playerName => {
                 logDebug(`players = ${JSON.stringify(players)}`); 
                 let player = players.find(player => player.client_id === client.id)
-                logDebug(`player ${player.client_id} set their name to be ${playerName}`); 
-                player.name = playerName; 
-                socket.emit('playersUpdate', players);
+                if (player !== undefined){
+                    logDebug(`player ${player.client_id} set their name to be ${playerName}`); 
+                    player.name = playerName; 
+                    socket.emit('playersUpdate', players);
+                }
             });
 
             client.on('playerReady', () => {
@@ -443,7 +452,7 @@ const main = async () => {
                     return; 
                 } 
                 console.log(`${client.id} starts game for room ${namespace}`)
-                  
+                gameInProgress = true; 
                 gameState = initGame(players); 
                 sendMaskedGameStates(socket, gameState, 'startGameResponse'); 
             })
@@ -540,6 +549,7 @@ const main = async () => {
                 gameState = commitAction(gameState);
                 let winner = checkForWinner(gameState);
                 if (winner !== null){
+                    gameInProgress = false; 
                     socket.emit('gameOver', winner); 
                 }
                 logDebug(`round state = ${JSON.stringify(gameState.roundState)}`)

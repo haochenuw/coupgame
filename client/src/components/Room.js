@@ -40,6 +40,10 @@ export default function Room({history, match, location}) {
             setRoomStatus("ROOM_FULL"); 
         });
 
+        socket.on("gameInProgress", () => {
+            setRoomStatus("GAME_IN_PROGRESS"); 
+        });
+
         socket.on("playersUpdate", (players) => {
             console.log('got players update', players);
             setPlayers(players); 
@@ -138,6 +142,10 @@ export default function Room({history, match, location}) {
                 {
                     roomStatus === 'ROOM_FULL' &&
                     <h2>Room is full!</h2>
+                }
+                {
+                    roomStatus === 'GAME_IN_PROGRESS' &&
+                    <h2>Game has already started!</h2>
                 }
                 {
                     roomStatus === 'NOT_READY_TO_START' &&

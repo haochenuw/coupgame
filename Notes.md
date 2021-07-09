@@ -225,26 +225,23 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~disable coup and assasinate when not enough tokens~~ Saturday, July 3, 2021
 
-- challenge (XXX) to make clear who is to be challenged. 
+- ~~challenge (XXX) to make clear who is to be challenged.~~ Friday, July 9, 2021 
 
 ## Notes 
 
 - Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. There's some issue with getting the initial game state on mobile 
 
-- What happens when joining a room with game in progress
- 
 - ~~edge case when challenge assasination => prevent life being -1.~~Friday, July 9, 2021
 
 ## Todos 
 
 - ~~Make use of handleLifeLost.~~ Thursday, July 8, 2021
-- Show special paragraph when player has died. 
-- Should now let player join room if game already started (or better, join as spectator mode.)
+- ~~Show special when player has died.~~ Friday, July 9, 2021 
+- Should not let player join room if game already started (or better, join as spectator mode.)
 
 ## Tricky situation
 
-in both c and b actions. If someone blocks first, need to "wait" on that block to happen until 
-everyone has made decision about challenge. If someone challenges, then the challenge is revealed first
-before block can take place. If every skips
+~~in both c and b actions. If someone blocks first, need to "wait" on that block to happen until 
+everyone has made decision about challenge. If someone challenges, then the challenge is revealed first before block can take place. If every skips~~ Friday, July 9, 2021
 
 - Working on resolving this, caching the block. Then, if challenged, need to handle this cached block only if the reveal is legit.p
