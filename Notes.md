@@ -233,7 +233,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - What happens when joining a room with game in progress
  
-- edge case when challenge assasination => prevent life being -1.
+- ~~edge case when challenge assasination => prevent life being -1.~~Friday, July 9, 2021
 
 ## Todos 
 

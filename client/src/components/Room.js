@@ -36,6 +36,10 @@ export default function Room({history, match, location}) {
             setMe(socket.id); 
         });
 
+        socket.on("roomFull", () => {
+            setRoomStatus("ROOM_FULL"); 
+        });
+
         socket.on("playersUpdate", (players) => {
             console.log('got players update', players);
             setPlayers(players); 
@@ -131,6 +135,10 @@ export default function Room({history, match, location}) {
             <div className="roomHome">
                 <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
                 <div className="readyAndStart">
+                {
+                    roomStatus === 'ROOM_FULL' &&
+                    <h2>Room is full!</h2>
+                }
                 {
                     roomStatus === 'NOT_READY_TO_START' &&
                     <button className="btn btn-success" onClick={setReady}>Ready</button>

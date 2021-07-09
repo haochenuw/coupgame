@@ -406,9 +406,9 @@ const main = async () => {
         socket.on('connection', client => {
             console.log('id: ' + client.id + ' connected');
 
-            if (players.length > constants.MAX_PLAYERS){
+            if (players.length >= constants.MAX_PLAYERS){
                 logError("too many players")
-                socket.emit('error', 'too many players'); 
+                socket.emit('roomFull'); 
                 return; 
             }
 
