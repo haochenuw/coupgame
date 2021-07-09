@@ -41,9 +41,11 @@ export default function MainGame (props){
         setHasError(false); 
         setLocalGameState(gameState)
 
-        let player = gameState.playerStates.filter(state => state.friendlyName === props.myName); 
-        setDead(player.lifePoint === 0); 
-
+        let player = gameState.playerStates.find(state => state.friendlyName === props.myName); 
+        if(player.lifePoint === 0){
+            console.log('player died'); 
+            setDead(true); 
+        }
         if (!isMe(gameState)){
             setRoundState("WAITING_FOR_OTHERS"); 
         } else{

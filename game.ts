@@ -271,7 +271,12 @@ export function commitAction(gameState: GameState): GameState{
             } else{
                 // surrendering because of failed challenge 
                 // in this case. should keep handling the action that was challenged. 
-                if (gameState.pendingBlock !== null){
+                // 1. handle block if any
+                // 2. commit the action. 
+                // 3. player can't block if it is died. 
+                let playerAlive = gameState.playerStates[gameState.surrenderingPlayerIndex].lifePoint > 0; 
+                let pendingAction = gameState.pendingActions[0]; 
+                if (playerAlive && gameState.pendingBlock !== null){
                     let block = gameState.pendingBlock; 
                     gameState.pendingActions.splice(0,0, block); 
                     gameState.pendingBlock = null; 
@@ -280,9 +285,7 @@ export function commitAction(gameState: GameState): GameState{
                     gameState.roundState = RoundState.WaitForChallenge;
                     return gameState; 
                 } 
-
-                let pendingAction = gameState.pendingActions[0]; 
-                if (isBlockable(pendingAction.name as Action)){
+                else if (playerAlive && isBlockable(pendingAction.name as Action)){
                     logInfo(`Dealing with block after challenge...`); 
                     gameState.roundState = RoundState.WaitForBlock;
                     return gameState; 
