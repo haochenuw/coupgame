@@ -6,4 +6,7 @@
       "esModuleInterop": true,
       "strictFunctionTypes": true,
     },
+    "exclude": [
+        "**/*.test.ts"
+    ]
 }

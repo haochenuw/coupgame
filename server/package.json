@@ -6,8 +6,8 @@
   "engines": {
     "node": "14.x"
   },
-  "test": "jest",
   "scripts": {
+    "test": "jest",
     "build-ts": "tsc",
     "tsc": "tsc",
     "postinstall": "npm run build-ts",
