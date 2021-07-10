@@ -215,7 +215,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~BIG BUG: when false reveal on challenging a block, should still commit the action!~~ Thursday, July 8, 2021
 
-- 3 players => should hide the challenge panel after skipping challenge *after the other player blocked.
+- ~~3 players => should hide the challenge panel after skipping challenge *after the other player blocked.~~ Friday, July 9, 2021
 
 ## Feedbacks 
 
@@ -227,6 +227,8 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~challenge (XXX) to make clear who is to be challenged.~~ Friday, July 9, 2021 
 
+- Click on a card to see its ability.
+
 ## Notes 
 
 - Can debug mobile device using safari "develop" feature. Select in the "develop" manual the user agent to be iOS. There's some issue with getting the initial game state on mobile 
@@ -237,11 +239,21 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Make use of handleLifeLost.~~ Thursday, July 8, 2021
 - ~~Show special when player has died.~~ Friday, July 9, 2021 
-- Should not let player join room if game already started (or better, join as spectator mode.)
+- ~~Should not let player join room if game already started (or better, join as spectator mode.)~~ Friday, July 9, 2021
 
 ## Tricky situation
 
 ~~in both c and b actions. If someone blocks first, need to "wait" on that block to happen until 
 everyone has made decision about challenge. If someone challenges, then the challenge is revealed first before block can take place. If every skips~~ Friday, July 9, 2021
 
-- Working on resolving this, caching the block. Then, if challenged, need to handle this cached block only if the reveal is legit.p
+- Working on resolving this, caching the block. Then, if challenged, need to handle this cached block only if the reveal is legit.
+
+
+- Issue: when A: c/b/s -> select b, B: c/s -> select s. The c/s panel looks like it did not go away. This is because it is c/s for the action turned
+into c/s for block. However, the "skip" button still looks pressed. 
+    - ~~Idea to fix: (1) make sure to display challenging who~~ Friday, July 9, 2021 
+    - Remove somehow the "pressed" style on buttons 
+
+## 3 player issues
+
+- ~~When only 2 players left, tax -> challenge will crash.~~ Friday, July 9, 2021

@@ -322,7 +322,7 @@ export default function MainGame (props){
     }
 
     function BlockOrSkipPanel(){
-        if (alreadySkipedBlock()){
+        if (alreadySkipedBlock() || localGameState.pendingActions.length === 0){
             return null; 
         }
         return(
@@ -348,12 +348,13 @@ export default function MainGame (props){
     }
 
     function ChallengeOrSkipPanel(){
-        if (alreadySkipedChallenge()){
+        if (alreadySkipedChallenge() || localGameState.pendingActions.length === 0){
             return null; 
         }
+        const name = getNameById(localGameState.pendingActions[0].source); 
         return(
             <div className="selection">
-                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Challenge')}>Challenge</button>
+                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Challenge')}>Challenge {name}</button>
                 <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
             </div>
         )
@@ -363,7 +364,7 @@ export default function MainGame (props){
         if (alreadyMadeDecisionOnChallengeOrBlock()){
             return null; 
         }
-
+        const name = getNameById(localGameState.pendingActions[0].source); 
         return(
             <div className="selection with-border">
                 {actions.map(action => {
@@ -374,7 +375,7 @@ export default function MainGame (props){
                             return null; // can't block 
                         }
                     }
-                    return <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision(action)}>{action}</button>
+                    return <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision(action)}>{action} {name}</button>
                 })}
                 <button className="btn btn-warning"  onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
             </div>
@@ -384,6 +385,10 @@ export default function MainGame (props){
     function onBlockOrChallengeDecision(action){
         console.log('Block or Challenge decision chosen'); 
         socket.emit('action', {name: action, target: null})
+    }
+
+    function getNameById(id){
+        return localGameState.playerStates.find(state => state.socket_id === id).friendlyName; 
     }
 
     return(
