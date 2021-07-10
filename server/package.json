@@ -13,7 +13,7 @@
     "postinstall": "npm run build-ts",
     "dev2": "tsc && cd client && npm install && npm run build; cd .. && nodemon out/app.js",
     "dev": "tsc && nodemon out/app.js",
-    "start": "node out/app.js",
+    "start": "node out/app.js"
   },
   "keywords": [],
   "author": "",
