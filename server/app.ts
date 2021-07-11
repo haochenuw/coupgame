@@ -525,8 +525,6 @@ const main = async () => {
 
                 }
 
-
-
                 if (isActionBlockable && isActionChallengeable){
                     // TODO: logic go here. 
                     logInfo('blockable + challengeable action'); 

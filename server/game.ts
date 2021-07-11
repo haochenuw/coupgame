@@ -66,7 +66,6 @@ function computeNextPlayer(gameState){
         b += 1; 
         b %= max; 
         if (gameState.playerStates[b].lifePoint != 0){
-            console.log(`changing active player index from ${a} to ${b}`)
             return b; 
         }
     }
@@ -147,7 +146,6 @@ export function commitAction(gameState: GameState): GameState{
 
             // Separate skip challenge, skip block, or skip both.  
             case RoundState.WaitForChallengeOrBlock: 
-                logDebug("got here"); 
                 let numPlayersWhoCanBlock = gameState.pendingActions[0].target === null ? (alivePlayers -1): 1; 
                 if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
                     gameState.playersWhoSkippedChallenge.push(sourceName); 
@@ -155,9 +153,7 @@ export function commitAction(gameState: GameState): GameState{
                 if (!gameState.playersWhoSkippedBlock.includes(sourceName)){
                     // validate 
                     let target = gameState.pendingActions[0].target;
-                    if (target !== null && target !== sourceName){
-                        logError(`ERR you should not be able to block this action. target = ${target}`)
-                    } else{
+                    if (target === null || target === sourceName){
                         gameState.playersWhoSkippedBlock.push(sourceName); 
                     }
                 }
@@ -307,7 +303,7 @@ export function commitAction(gameState: GameState): GameState{
         case Action.Income:
             gameState.playerStates[gameState.activePlayerIndex].tokens += constants.INCOME_RATE; 
             break;
-            
+
         case Action.Coup: 
             surrendererIndex = computeIndexFromName(gameState, action.target);
             gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.COUP_COST; 

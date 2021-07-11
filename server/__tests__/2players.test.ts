@@ -18,24 +18,6 @@ const twoPlayers =
         }, 
     ];
 
-const threePlayers = 
-    [
-        {
-            client_id: "0", 
-            isReady: true,
-            name: "A", 
-        }, 
-        {
-            client_id: "1", 
-            isReady: true,
-            name: "B", 
-        }, 
-        {
-            client_id: "2", 
-            isReady: true,
-            name: "C", 
-        }, 
-    ];
 
 function setActivePlayer(gameState, index): GameState{
     gameState.activePlayerIndex = index;
