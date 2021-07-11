@@ -1,4 +1,4 @@
-import {Action} from "./types";
+import {Action, Card} from "./types";
 
 export const CARD_TYPES = [
     {
@@ -32,6 +32,8 @@ export const CARD_TYPES = [
         isRevealed: false // if card is already revealed. 
     }
 ]; 
+
+export const DUKE: Card = CARD_TYPES[0]; 
 
 export const MaskedCard = {
     name: "???", 

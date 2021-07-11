@@ -66,6 +66,7 @@ function computeNextPlayer(gameState){
         b += 1; 
         b %= max; 
         if (gameState.playerStates[b].lifePoint != 0){
+            console.log(`changing active player index from ${a} to ${b}`)
             return b; 
         }
     }
@@ -122,26 +123,10 @@ export function commitAction(gameState: GameState): GameState{
                 logInfo('waiting for challenger to choose a card to surrender...'); 
                 gameState = handleLifeLost(gameState, gameState.challengingPlayerIndex, SurrenderReason.FailedChallenge);
             } else{
-                logInfo('False Reveal...'); 
+                logInfo('False Reveal'); 
 
                 gameState = handleLifeLost(gameState, sourceIndex, SurrenderReason.FalseReveal, action.target); 
-                // action is nullified. 
-                gameState.pendingActions.shift();
-                // Is there still a pending action? 
-                // 1. Yes, this means that the challenge succeeded on a block
-                // commit the action. It could be foreign aid, ass, steal.  
-                gameState.playersWhoSkippedBlock = []; 
-                gameState.playersWhoSkippedChallenge = [];
-                gameState.pendingBlock = null;  
-                if(gameState.pendingActions.length > 0){
-                    return commitAction(gameState); 
-                }
-                // 2. No. This means that the challenge succeeded on a regular action
-                else{
-                    gameState.activePlayerIndex = computeNextPlayer(gameState); 
-                    gameState.roundState = RoundState.WaitForAction;
-                    return gameState; 
-                }
+                return gameState;
             }
             break; 
 
@@ -262,13 +247,36 @@ export function commitAction(gameState: GameState): GameState{
             // 1. coup / assasinate. In this case just move to next player. 
             // 2. challenge failed. 
             // TO distinguish, added a "surrender reason". 
-            if (gameState.surrenderReason !== SurrenderReason.FailedChallenge){
+            if (gameState.surrenderReason === SurrenderReason.Coup || gameState.surrenderReason === SurrenderReason.Assasinate){
+                logDebug('coup or assasinate'); 
                 gameState.activePlayerIndex = computeNextPlayer(gameState); 
                 gameState.roundState = RoundState.WaitForAction;
                 gameState.playersWhoSkippedBlock = []; 
                 gameState.playersWhoSkippedChallenge = []; 
                 return gameState; 
-            } else{
+            } 
+            else if (gameState.surrenderReason === SurrenderReason.FalseReveal){
+                // First, nullify the top pending action 
+                gameState.pendingActions.shift();
+                gameState.playersWhoSkippedBlock = []; 
+                gameState.playersWhoSkippedChallenge = [];
+                gameState.pendingBlock = null;  
+                // Is there still a pending action? 
+                // 1. Yes, this means that the challenge succeeded on a block
+                // commit the action. It could be foreign aid, ass, steal. (note income, coup, exchange, tax are not blockable)
+                if(gameState.pendingActions.length > 0){
+                    logDebug("false reveal on a block..."); 
+                    return commitAction(gameState); 
+                }
+                // 2. No. This means that the challenge succeeded on a regular action
+                else{
+                    logDebug("false reveal on a regular action..."); 
+                    gameState.activePlayerIndex = computeNextPlayer(gameState); 
+                    gameState.roundState = RoundState.WaitForAction;
+                    return gameState; 
+                }
+            }
+            else if (gameState.surrenderReason === SurrenderReason.FailedChallenge){
                 // surrendering because of failed challenge 
                 // in this case. should keep handling the action that was challenged. 
                 // 1. handle block if any
@@ -293,10 +301,13 @@ export function commitAction(gameState: GameState): GameState{
                     // commit the action. 
                     return commitAction(gameState); 
                 }
-            }
+            } 
+            break; 
+
         case Action.Income:
             gameState.playerStates[gameState.activePlayerIndex].tokens += constants.INCOME_RATE; 
             break;
+            
         case Action.Coup: 
             surrendererIndex = computeIndexFromName(gameState, action.target);
             gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.COUP_COST; 
