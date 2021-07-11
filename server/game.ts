@@ -1,5 +1,5 @@
 
-import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable, SurrenderReason} from "./types";
+import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable, SurrenderReason, isChallengeable} from "./types";
 import * as constants from "./constants"; 
 import {logDebug, logError, logInfo, renderLog} from "./utils"; 
 import { parse } from "path/posix";
@@ -211,7 +211,7 @@ export function commitAction(gameState: GameState): GameState{
             break; 
         case Action.Block: 
             sourceIndex = computeIndex(gameState, action.source);
-            logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} tries to block`); 
+            logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} blocks`); 
             gameState.pendingActions.shift(); 
             break; 
 
@@ -278,22 +278,47 @@ export function commitAction(gameState: GameState): GameState{
                 // 1. handle block if any
                 // 2. commit the action. 
                 // 3. player can't block if it is died. 
-                let playerAlive = gameState.playerStates[gameState.surrenderingPlayerIndex].lifePoint > 0; 
+
+                // TODO: Fix this. Alive player should be target. 
+                // let targetPlayer = null; 
+                // if (gameState.pendingActions[0].target !== null){
+                //     targetPlayer = 
+                // }
                 let pendingAction = gameState.pendingActions[0]; 
-                if (playerAlive && gameState.pendingBlock !== null){
-                    let block = gameState.pendingBlock; 
-                    gameState.pendingActions.splice(0,0, block); 
-                    gameState.pendingBlock = null; 
-                    // block is challengeable
-                    gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
-                    gameState.roundState = RoundState.WaitForChallenge;
-                    return gameState; 
-                } 
-                else if (playerAlive && isBlockable(pendingAction.name as Action)){
-                    logInfo(`Dealing with block after challenge...`); 
-                    gameState.roundState = RoundState.WaitForBlock;
-                    return gameState; 
-                } else{
+                let needToConsiderBlock = isBlockable(pendingAction.name as Action); 
+                
+                
+                const target = pendingAction.target; 
+                if (target !== null){
+                    // there is a target. 
+                    let targetAlive = gameState.playerStates.find(player => player.friendlyName === target).lifePoint > 0; 
+                    if (targetAlive === false){
+                        // target died. Don't need to consider block. 
+                        needToConsiderBlock = false; 
+                    }
+                }
+
+                if (needToConsiderBlock){
+                    if (gameState.pendingBlock !== null){
+                        let block = gameState.pendingBlock; 
+                        gameState.pendingActions.splice(0,0, block); 
+                        gameState.pendingBlock = null; 
+                        // block is challengeable
+                        gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+                        gameState.roundState = RoundState.WaitForChallenge;
+                        return gameState; 
+                    } 
+                    // if still have player who did not made decision about block
+                    else 
+                    {
+                        // TODO: check if some players has made decisions. 
+                        let playersAbleToBlock = computePlayersAbleToBlock(gameState, pendingAction); 
+                        logInfo(`Dealing with block after challenge...`); 
+                        gameState.roundState = RoundState.WaitForBlock;
+                        return gameState; 
+                    }
+                }
+                else{
                     // commit the action. 
                     return commitAction(gameState); 
                 }
@@ -556,6 +581,91 @@ function handleLifeLost(gameState: GameState, index: number, surrenderReason: Su
         let surrenderAction = {name: Action.Surrender, source: player.socket_id, target: onlyCard}; 
         gameState.pendingActions.splice(0, 0, surrenderAction); 
         gameState = commitAction(gameState); 
+    }
+    return gameState; 
+}
+
+
+export function computePlayersAbleToBlock(gameState, action): Array<string>{
+    let result = [];
+    if (isBlockable(action.name) === false){
+        return result; 
+    } 
+    let players = gameState.playerStates.filter(state => state.client_id !== action.source && state.lifePoint > 0); 
+    if (action.target !== null){
+        // only target can block
+        players = players.filter(state => state.friendlyName === action.target); 
+    }
+
+    return players.map(state => state.friendlyName); 
+}
+
+export function handleAction(gameState, action: PlayerAction): GameState {
+    // Handle special case. If it is assasinate, then deduct tokens right away 
+    if(action.name as Action === Action.Assasinate){
+        gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
+    }
+
+    let sourceName = gameState.playerStates.find(state => state.socket_id === action.source).friendlyName; 
+
+    // Handle special case. block arrives first before challenge 
+    if (action.name as Action === Action.Block 
+        && gameState.roundState === RoundState.WaitForChallengeOrBlock
+        && computeAlivePlayers(gameState.playerStates) > 2
+        )
+    {
+        gameState.pendingBlock = action; 
+        // block => skips challenge
+        if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
+            gameState.playersWhoSkippedChallenge.push(sourceName)
+        }
+        logInfo("block arrives before challenge"); 
+        gameState.roundState = RoundState.WaitForChallenge; 
+        // sendMaskedGameStates(socket, gameState, 'gameState'); 
+        return gameState; 
+        // TODO: consume pending block in skip challenge or challenge reveal. 
+    }
+
+    // assign target to challenge 
+    if (action.target === null && action.name as Action === Action.Challenge){
+        let source = gameState.pendingActions[0].source;
+        let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
+        action.target = name; 
+    }    
+
+    // Add event to the log
+    gameState.logs.splice(0, 0, renderLog(sourceName, action.name, action.target)); 
+
+    gameState.pendingActions.splice(0,0,action); 
+
+    //  handle challenge and blocks 
+    // Case 1: challengeable and bloackable 
+    let isActionChallengeable = isChallengeable(action.name as Action); 
+    let isActionBlockable = isBlockable(action.name as Action); 
+
+    if(isActionBlockable){
+        logDebug("Populating the who can block array")
+        let playerNames = gameState.playerStates.map(player => player.friendlyName); 
+        if (action.target !== null){
+            gameState.playersWhoCanBlock = [action.target]; 
+        } else{
+            // everyone other than the source can block 
+            gameState.playersWhoCanBlock = playerNames.filter(name => name !== sourceName);
+        }
+        logDebug(`who can block = ${gameState.playersWhoCanBlock}`); 
+    }
+
+    if (isActionBlockable && isActionChallengeable){
+        logInfo('blockable + challengeable action'); 
+        gameState.roundState = RoundState.WaitForChallengeOrBlock; 
+    } else if (isActionChallengeable){
+        logInfo('waiting for challenge...'); 
+        gameState.roundState = RoundState.WaitForChallenge; 
+    } else if (isActionBlockable){
+        logInfo('waiting for block...'); 
+        gameState.roundState = RoundState.WaitForBlock; 
+    } else{
+        gameState = commitAction(gameState);
     }
     return gameState; 
 }

@@ -5,7 +5,7 @@ import cors from "cors";
 import {Socket, Namespace} from "socket.io"; 
 import {makeid, logInfo, logError, logDebug, renderLog}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
-import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers} from "./game"; 
+import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers, handleAction} from "./game"; 
 import { parse } from "path/posix";
 import * as constants from "./constants"; 
 
@@ -465,94 +465,19 @@ const main = async () => {
                     client.emit("clientError"); 
                     return; 
                 } 
+
                 logInfo(`Round state = ${gameState.roundState}`); 
 
-                
-                // Handle special case. If it is assasinate, then deduct tokens right away 
-                if(action.name as Action === Action.Assasinate){
-                    logInfo(`Deducting assasinate costs`); 
-                    gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
-                }
-                
-                let sourceName = gameState.playerStates.find(state => state.socket_id === client.id).friendlyName; 
-                let actionWithSource = {...action, source: client.id}; 
-                
-                // Handle special case. block arrives first before challenge 
-                if (action.name as Action === Action.Block 
-                    && gameState.roundState === RoundState.WaitForChallengeOrBlock
-                    && computeAlivePlayers(gameState.playerStates) > 2
-                    )
-                {
-                    gameState.pendingBlock = actionWithSource; 
-                    // block => skips challenge
-                    if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
-                        gameState.playersWhoSkippedChallenge.push(sourceName)
-                    }
-                    logInfo("block arrives before challenge"); 
+                gameState = handleAction(gameState, action as PlayerAction); 
+                logDebug('gameState after handling action...'); 
 
-                    gameState.roundState = RoundState.WaitForChallenge; 
-                    sendMaskedGameStates(socket, gameState, 'gameState'); 
-                    return; 
-                    // TODO: consume pending block in skip challenge or challenge reveal. 
-                }
-                
-                // assign target to challenge 
-                if (actionWithSource.target === null && action.name as Action === Action.Challenge){
-                    let source = gameState.pendingActions[0].source;
-                    let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
-                    actionWithSource.target = name; 
-                }    
-                
-                // Add event to the log
-                gameState.logs.splice(0, 0, renderLog(sourceName, action.name, actionWithSource.target)); 
-                
-                gameState.pendingActions.splice(0,0,actionWithSource as PlayerAction); 
-                //  handle challenge and blocks 
-                // Case 1: challengeable and bloackable 
-                let isActionChallengeable = isChallengeable(action.name as Action); 
-                let isActionBlockable = isBlockable(action.name as Action); 
-
-                if(isActionBlockable){
-                    logDebug("Populating the who can block array")
-                    let playerNames = gameState.playerStates.map(player => player.friendlyName); 
-                    if (action.target !== null){
-                        gameState.playersWhoCanBlock = [action.target]; 
-                    } else{
-                        // everyone other than the source can block 
-                        gameState.playersWhoCanBlock = playerNames.filter(name => name !== sourceName);
-                    }
-                    logDebug(`who can block = ${gameState.playersWhoCanBlock}`); 
-
-                }
-
-                if (isActionBlockable && isActionChallengeable){
-                    // TODO: logic go here. 
-                    logInfo('blockable + challengeable action'); 
-                    gameState.roundState = RoundState.WaitForChallengeOrBlock; 
-                    sendMaskedGameStates(socket, gameState, 'gameState'); 
-                    return; 
-                } else if (isActionChallengeable){
-                    logInfo('waiting for challenge...'); 
-                    gameState.roundState = RoundState.WaitForChallenge; 
-                    // socket.emit('gameState', gameState); 
-                    sendMaskedGameStates(socket, gameState, 'gameState'); 
-                    return; 
-                } else if (isActionBlockable){
-                    logInfo('waiting for block...'); 
-                    gameState.roundState = RoundState.WaitForBlock; 
-                    // socket.emit('gameState', gameState); 
-                    sendMaskedGameStates(socket, gameState, 'gameState'); 
-                    return; 
-                }
-                gameState = commitAction(gameState);
                 let winner = checkForWinner(gameState);
                 if (winner !== null){
                     gameInProgress = false; 
                     socket.emit('gameOver', winner); 
                 }
-                logDebug(`round state = ${JSON.stringify(gameState.roundState)}`)
-                logDebug(`active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
-                // socket.emit('gameState', gameState); 
+                logDebug(`Changed Round state TO ${JSON.stringify(gameState.roundState)}`)
+                logDebug(`Active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
                 sendMaskedGameStates(socket, gameState, 'gameState'); 
             }); 
 

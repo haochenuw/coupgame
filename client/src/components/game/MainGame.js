@@ -117,7 +117,7 @@ export default function MainGame (props){
         if (requiresTarget(action)){
             setRoundState('SELECT_TARGET')
         } else{
-            socket.emit('action', {name: action, target: null})
+            socket.emit('action', {source: props.me, name: action, target: null})
         }
     }
 
@@ -236,7 +236,7 @@ export default function MainGame (props){
 
     function onTargetSelected(action, item) {
         console.log(`target ${item} selected`); 
-        socket.emit('action', {name: action, target: item}); 
+        socket.emit('action', {source: props.me, name: action, target: item}); 
     }
 
     function selectAliveCardsPanel(name) {
@@ -281,7 +281,7 @@ export default function MainGame (props){
 
             if (cardsToKeep.length === numToKeep){
                 // already selected everything
-                socket.emit('action', {name: "ExchangeResponse", target: null, additionalData: cardsToKeep}); 
+                socket.emit('action', {source: props.me, name: "ExchangeResponse", target: null, additionalData: cardsToKeep}); 
                 setRoundState("WAITING_FOR_OTHERS")
             }
         }
@@ -384,7 +384,7 @@ export default function MainGame (props){
 
     function onBlockOrChallengeDecision(action){
         console.log('Block or Challenge decision chosen'); 
-        socket.emit('action', {name: action, target: null})
+        socket.emit('action', {source: props.me, name: action, target: null})
     }
 
     function getNameById(id){

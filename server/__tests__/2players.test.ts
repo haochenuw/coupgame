@@ -18,6 +18,8 @@ const twoPlayers =
         }, 
     ];
 
+const assAction = {source: "0", name: Action.Assasinate, target: "B"}; 
+
 
 function setActivePlayer(gameState, index): GameState{
     gameState.activePlayerIndex = index;
@@ -148,7 +150,6 @@ test('assasinateSkip', () => {
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
     state.playerStates[0].tokens = ASSASINATE_COST; 
-    const assAction = {source: "0", name: Action.Assasinate, target: "B"}; 
     state.pendingActions.splice(0,0, assAction); 
     state.roundState = RoundState.WaitForChallengeOrBlock; 
     const skipAction = {source: "1", name:Action.Skip, target: null}; 
@@ -161,6 +162,17 @@ test('assasinateSkip', () => {
     expect(state.surrenderReason).toEqual(SurrenderReason.Assasinate); 
     expect(state.surrenderingPlayerIndex).toEqual(1); 
 }); 
+
+
+test('blockUtil', () =>{
+    let state = game.initGame(twoPlayers); 
+    state = setActivePlayer(state, 0); 
+    const playersWhoCanBlock = game.computePlayersAbleToBlock(state, assAction); 
+    expect(playersWhoCanBlock).toEqual(["B"]); 
+}); 
+
+
+
 
 // TODO 
 // Test assasinate challenged 
