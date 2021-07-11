@@ -6,3 +6,4 @@ This repo contains a web browser implementation of the board game "Coup". It is 
 ## Testing 
 
 run `npm t` from the `/server` directory. 
+To filter tests, run `npx jest -t <pattern>`

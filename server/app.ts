@@ -359,10 +359,10 @@ const main = async () => {
     //         }
     //     }
 
-    app.use(express.static(join(__dirname, '../client/build')));
+    app.use(express.static(join(__dirname, '../../client/build')));
 
     app.get('/', (req, res) => {
-        res.sendFile(join(__dirname+'/../client/build/index.html'));
+        res.sendFile(join(__dirname+'/../../client/build/index.html'));
     });
 
     app.get('/newgame', (_, res) => {
@@ -576,7 +576,7 @@ const main = async () => {
 
     // handle the issue with sending direct link to rooms
     app.get('/room/:code', (_, res) => {
-        res.sendFile(join(__dirname+'/../client/build/index.html'));
+        res.sendFile(join(__dirname+'/../../client/build/index.html'));
     });
 
     const port = process.env.PORT || 3002;

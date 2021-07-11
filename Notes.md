@@ -257,3 +257,8 @@ into c/s for block. However, the "skip" button still looks pressed.
 ## 3 player issues
 
 - ~~When only 2 players left, tax -> challenge will crash.~~ Friday, July 9, 2021
+
+## Further notes 
+- ~~Added  unit tests for 2 players~~ Sunday, July 11, 2021
+- [ ] Complete unit test
+- [ ] Add unit test for 3+ players
