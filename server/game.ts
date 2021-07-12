@@ -157,14 +157,16 @@ export function commitAction(gameState: GameState): GameState{
                         gameState.playersWhoSkippedBlock.push(sourceName); 
                     }
                 }
-                if (gameState.playersWhoSkippedChallenge.length == alivePlayers - 1){
-                    logInfo("all relevant players skipped challenge");
-                    if (gameState.playersWhoSkippedBlock.length == numPlayersWhoCanBlock){
-                        logInfo("all relevant players skipped block");
-                        gameState.playersWhoSkippedChallenge = []; 
-                        gameState.playersWhoSkippedBlock = []; 
-                        return commitAction(gameState);
-                    }
+                const allSkippedBlock = gameState.playersWhoSkippedBlock.length == numPlayersWhoCanBlock; 
+                const allSkippedChallenge = gameState.playersWhoSkippedChallenge.length == alivePlayers - 1; 
+                if (allSkippedChallenge && allSkippedBlock){
+                    gameState.playersWhoSkippedChallenge = []; 
+                    gameState.playersWhoSkippedBlock = []; 
+                    return commitAction(gameState);
+                } else if (allSkippedBlock){
+                    gameState.roundState = RoundState.WaitForChallenge; 
+                } else if (allSkippedChallenge){
+                    gameState.roundState = RoundState.WaitForBlock; 
                 }
                 break; 
             default: 

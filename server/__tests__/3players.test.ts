@@ -30,6 +30,7 @@ const cSkipAction: PlayerAction = {name: Action.Skip, source: "2", target: null}
 const foreignAidAction: PlayerAction = {name: Action.ForeignAid, source: "0", target: null}; 
 const b_block_a_Action: PlayerAction = {name: Action.Block, source: "0", target: "A"}; 
 const a_challenge_b_action: PlayerAction = {name: Action.Challenge, source: "0", target: "B"}; 
+const c_challenge_a_action: PlayerAction = {name: Action.Challenge, source: "2", target: "A"}; 
 
 test('init', () => {
     let initialState = game.initGame(threePlayers); 
@@ -212,6 +213,69 @@ test('stealBlockThenChallengeThenTrueReveal', ()=>{
 
 
 test('stealPendingBlockThenChallengeFalseReveal', () => {
+    let state = game.initGame(threePlayers); 
+    state.activePlayerIndex = 0; 
 
+    state = game.handleAction(state, stealAction); 
+    
+    state.playerStates[0].cards = [CARD_TYPES[1], CARD_TYPES[1]]; // Assassin
+
+    state = game.handleAction(state, b_block_a_Action); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForChallenge); 
+    expect(state.pendingBlock === null).toBeFalsy(); 
+
+    // state = game.commitAction(state); 
+    state = game.handleAction(state, c_challenge_a_action); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+
+    const aRevealAssassin= {name: Action.Reveal, source:"0", target: "Assassin"}; 
+    state = game.handleAction(state, aRevealAssassin); 
+
+    // /* expect:
+    // A should surrender a card. 
+    // */
+    expect(state.playerStates[0].lifePoint).toEqual(1);
+    expect(state.roundState).toEqual(RoundState.WaitForAction); 
+}); 
+
+test('stealTargetSkipThenChallengeTrueReveal', () => {
+    let state = game.initGame(threePlayers); 
+    state.activePlayerIndex = 0; 
+
+    state = game.handleAction(state, stealAction); 
+    
+    state.playerStates[0].cards = [CARD_TYPES[2], CARD_TYPES[1]]; // Captain, Assassin
+    state.playerStates[2].cards = [CARD_TYPES[2], CARD_TYPES[1]]; // Captain, Assassin
+
+    state = game.handleAction(state, bSkipAction); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForChallenge); 
+
+    state = game.handleAction(state, c_challenge_a_action); 
+    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+
+    const aRevealCaptain = {name: Action.Reveal, source:"0", target: "Captain"}; 
+    state = game.handleAction(state, aRevealCaptain); 
+
+    
+    expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+    expect(state.playerStates[2].lifePoint).toEqual(1); 
+    expect(state.surrenderingPlayerIndex).toEqual(2); 
+    expect(state.surrenderReason).toEqual(SurrenderReason.FailedChallenge); 
+
+
+    const cSurrendersCaptain = {name: Action.Surrender, source:"2", target: "Captain"}; 
+    state = game.handleAction(state, cSurrendersCaptain); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForAction); 
+    expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS + INITIAL_TOKENS); 
+
+    // // /* expect:
+    // // C should surrender a card. 
+    // // */
+    // expect(state.playerStates[0].lifePoint).toEqual(1);
+    // expect(state.roundState).toEqual(RoundState.WaitForAction); 
 }); 
 
