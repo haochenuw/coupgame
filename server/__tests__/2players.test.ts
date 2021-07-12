@@ -19,6 +19,11 @@ const twoPlayers =
     ];
 
 const assAction = {source: "0", name: Action.Assasinate, target: "B"}; 
+const b_challenge_a = {source: "1", name: Action.Challenge, target: "A"}; 
+const a_reveal_ass = {source: "0", name: Action.Reveal, target: "Assassin"}; 
+const a_reveal_duke = {source: "0", name: Action.Reveal, target: "Duke"}; 
+const b_blocks_a = {source: "1", name: Action.Block, target: "A"}; 
+const a_skip = {source: "0", name: Action.Skip, target: null}; 
 
 
 function setActivePlayer(gameState, index): GameState{
@@ -172,18 +177,67 @@ test('blockUtil', () =>{
 }); 
 
 
-
-
-// TODO 
 // Test assasinate challenged 
-// Test assasinate blocked => challenge yes, no
+test('assChallengeTrueReveal', () =>{
+    let state = game.initGame(twoPlayers); 
+    state = setActivePlayer(state, 0); 
+    state.playerStates[0].tokens = ASSASINATE_COST;
+    state.playerStates[0].cards[0] = CARD_TYPES[1]; 
+ 
+    state = game.handleAction(state, assAction); 
+    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+    state = game.handleAction(state, b_challenge_a); 
+    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+
+    // 
+    state = game.handleAction(state, a_reveal_ass); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+    expect(state.playerStates[1].lifePoint).toEqual(1); 
+    expect(state.playerStates[0].tokens).toEqual(0); 
+
+}); 
+
+test('assChallengeFalseReveal', () =>{
+    let state = game.initGame(twoPlayers); 
+    state = setActivePlayer(state, 0); 
+    state.playerStates[0].tokens = ASSASINATE_COST;
+    state.playerStates[0].cards[0] = CARD_TYPES[0] // Duke; 
+ 
+    state = game.handleAction(state, assAction); 
+    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+    state = game.handleAction(state, b_challenge_a); 
+    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+
+    state = game.handleAction(state, a_reveal_duke); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForAction); 
+    expect(state.activePlayerIndex).toEqual(1); 
+    expect(state.playerStates[0].lifePoint).toEqual(1); 
+    expect(state.playerStates[0].tokens).toEqual(0); 
+}); 
+
+test('assBlockSkip', () =>{
+    let state = game.initGame(twoPlayers); 
+    state = setActivePlayer(state, 0); 
+    state.playerStates[0].tokens = ASSASINATE_COST;
+    state.playerStates[0].cards[0] = CARD_TYPES[0] // Duke; 
+ 
+    state = game.handleAction(state, assAction); 
+    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+    state = game.handleAction(state, b_blocks_a); 
+    expect(state.roundState).toEqual(RoundState.WaitForChallenge); 
+
+    state = game.handleAction(state, a_skip); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForAction); 
+    expect(state.activePlayerIndex).toEqual(1); 
+    expect(state.playerStates[0].lifePoint).toEqual(2); 
+    expect(state.playerStates[1].lifePoint).toEqual(2); 
+    expect(state.playerStates[0].tokens).toEqual(0); 
+}); 
+
+// Test assasinate blocked => challenge yes, challenge no
 // Test foreign aid skipped
 // Test foreign aid blocked => challenge yes, no. 
 
-
-// test('reveal', () => {
-
-// }); 
-
-
-// 3-player tests. 
