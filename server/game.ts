@@ -280,12 +280,6 @@ export function commitAction(gameState: GameState): GameState{
                 // 1. handle block if any
                 // 2. commit the action. 
                 // 3. player can't block if it is died. 
-
-                // TODO: Fix this. Alive player should be target. 
-                // let targetPlayer = null; 
-                // if (gameState.pendingActions[0].target !== null){
-                //     targetPlayer = 
-                // }
                 let pendingAction = gameState.pendingActions[0]; 
                 let needToConsiderBlock = isBlockable(pendingAction.name as Action); 
                 
@@ -294,11 +288,11 @@ export function commitAction(gameState: GameState): GameState{
                 if (target !== null){
                     // there is a target. 
                     let targetAlive = gameState.playerStates.find(player => player.friendlyName === target).lifePoint > 0; 
-                    if (targetAlive === false){
-                        // target died. Don't need to consider block. 
-                        needToConsiderBlock = false; 
-                    }
+                    needToConsiderBlock &&= targetAlive; 
                 }
+                const playersAbleToBlock = computePlayersAbleToBlock(gameState, pendingAction); 
+                let allSkipped = playersAbleToBlock.every(name => gameState.playersWhoSkippedBlock.includes(name)); 
+                needToConsiderBlock &&= (!allSkipped); 
 
                 if (needToConsiderBlock){
                     if (gameState.pendingBlock !== null){
@@ -314,7 +308,6 @@ export function commitAction(gameState: GameState): GameState{
                     else 
                     {
                         // TODO: check if some players has made decisions. 
-                        let playersAbleToBlock = computePlayersAbleToBlock(gameState, pendingAction); 
                         logInfo(`Dealing with block after challenge...`); 
                         gameState.roundState = RoundState.WaitForBlock;
                         return gameState; 
