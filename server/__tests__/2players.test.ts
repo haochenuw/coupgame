@@ -238,6 +238,9 @@ test('assBlockSkip', () =>{
 }); 
 
 // Test assasinate blocked => challenge yes, challenge no
+
+// Test steal 
+
 // Test foreign aid skipped
 // Test foreign aid blocked => challenge yes, no. 
 
