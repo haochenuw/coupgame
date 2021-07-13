@@ -303,3 +303,7 @@ test('assasinateSkip', () => {
 
 }); 
 
+test('assasinateChallengeTrueReveal', ()=>{
+
+}); 
+
