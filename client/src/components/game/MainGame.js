@@ -361,7 +361,7 @@ export default function MainGame (props){
     }
 
     function doXOrSkipPanel(actions) {
-        if (alreadyMadeDecisionOnChallengeOrBlock()){
+        if (alreadyMadeDecisionOnChallengeOrBlock() || localGameState.pendingActions.length === 0){
             return null; 
         }
         const name = getNameById(localGameState.pendingActions[0].source); 

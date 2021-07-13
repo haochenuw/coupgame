@@ -260,5 +260,5 @@ into c/s for block. However, the "skip" button still looks pressed.
 
 ## Further notes 
 - ~~Added  unit tests for 2 players~~ Sunday, July 11, 2021
-- [ ] Complete unit test
-- [ ] Add unit test for 3+ players
+- ~~Add unit test for 3+ players~~ Monday, July 12, 2021
+- Unit test for 3 players Assasinate 
