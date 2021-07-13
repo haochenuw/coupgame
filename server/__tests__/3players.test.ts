@@ -33,7 +33,9 @@ const foreignAidAction: PlayerAction = {name: Action.ForeignAid, source: "0", ta
 const b_block_a_Action: PlayerAction = {name: Action.Block, source: "0", target: "A"}; 
 const a_challenge_b_action: PlayerAction = {name: Action.Challenge, source: "0", target: "B"}; 
 const c_challenge_a_action: PlayerAction = {name: Action.Challenge, source: "2", target: "A"}; 
+const b_challenge_a_action: PlayerAction = {name: Action.Challenge, source: "1", target: "A"}; 
 const assAction = {source: "0", name: Action.Assasinate, target: "B"}; 
+const aRevealAss = {source: "0", name: Action.Reveal, target: "Assassin"}; 
 
 test('init', () => {
     let initialState = game.initGame(threePlayers); 
@@ -286,6 +288,7 @@ test('stealTargetSkipThenChallengeTrueReveal', () => {
 test('assasinateSkip', () => {
     let state = game.initGame(threePlayers); 
     state.activePlayerIndex = 0; 
+    state.playerStates[0].tokens = ASSASINATE_COST; 
 
     state = game.handleAction(state, assAction); 
     
@@ -299,11 +302,43 @@ test('assasinateSkip', () => {
     
     expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
     
+    expect(state.playerStates[0].tokens).toEqual(0); 
+
     expect(state.playerStates[1].lifePoint).toEqual(1); 
 
 }); 
 
 test('assasinateChallengeTrueReveal', ()=>{
+    let state = game.initGame(threePlayers); 
+    state.activePlayerIndex = 0; 
+    state.playerStates[0].tokens = ASSASINATE_COST; 
+    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[1]); 
+
+    state = game.handleAction(state, assAction); 
+    
+    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+
+    state = game.handleAction(state, b_challenge_a_action); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+
+    state = game.handleAction(state, aRevealAss); 
+    
+    expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+    expect(state.playerStates[1].lifePoint).toEqual(1); 
+
+    // surrender
+    let bSurrender = {name: Action.Surrender, source: "1", target: state.playerStates[1].cards[0].name}; 
+    state = game.handleAction(state, bSurrender); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForBlock); 
+
+    state = game.handleAction(state, bSkipAction); 
+
+    // B is eliminated due to assasination. 
+    expect(state.roundState).toEqual(RoundState.WaitForAction); 
+    expect(state.playerStates[1].lifePoint).toEqual(0); 
+    expect(state.activePlayerIndex).toEqual(2); // C should act since B is eliminated already. 
 
 }); 
 
