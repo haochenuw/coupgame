@@ -4,6 +4,8 @@ import * as game from "../game";
 import {GameState, SurrenderReason} from "../types"
 import { Action, PlayerAction, RoundState } from "../types";
 
+import lodash from 'lodash';
+
 const twoPlayers = 
     [
         {
@@ -115,7 +117,7 @@ test('taxChallenge', ()=>{
 test('taxLegitReveal', ()=>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
-    state.playerStates[0].cards[0] = CARD_TYPES[0]; 
+    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); 
     const taxAction = {source: "0", name: Action.Tax, target: null}; 
     state.pendingActions.splice(0,0, taxAction); 
     state.challengingPlayerIndex = 1; // 1 is challenging 0. 
@@ -134,7 +136,7 @@ test('taxLegitReveal', ()=>{
 test('taxFalseReveal', ()=>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
-    state.playerStates[0].cards[0] = CARD_TYPES[1]; 
+    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[1]); 
     console.log(state.playerStates[0].cards); 
     const taxAction = {source: "0", name: Action.Tax, target: null}; 
     state.pendingActions.splice(0,0, taxAction); 
@@ -182,7 +184,7 @@ test('assChallengeTrueReveal', () =>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
     state.playerStates[0].tokens = ASSASINATE_COST;
-    state.playerStates[0].cards[0] = CARD_TYPES[1]; 
+    state.playerStates[0].cards[0] = JSON.parse(JSON.stringify(CARD_TYPES[1]));  
  
     state = game.handleAction(state, assAction); 
     expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
@@ -202,7 +204,7 @@ test('assChallengeFalseReveal', () =>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
     state.playerStates[0].tokens = ASSASINATE_COST;
-    state.playerStates[0].cards[0] = CARD_TYPES[0] // Duke; 
+    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); 
  
     state = game.handleAction(state, assAction); 
     expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
@@ -221,7 +223,7 @@ test('assBlockSkip', () =>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
     state.playerStates[0].tokens = ASSASINATE_COST;
-    state.playerStates[0].cards[0] = CARD_TYPES[0] // Duke; 
+    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); // Duke; 
  
     state = game.handleAction(state, assAction); 
     expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 

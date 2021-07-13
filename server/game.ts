@@ -185,20 +185,23 @@ export function commitAction(gameState: GameState): GameState{
                 logInfo("all relevant players skipped challenge");
                 gameState.playersWhoSkippedChallenge = []; 
                 // if there is a pending block then handle it
-                if (gameState.pendingBlock !== null){
-                    let block = gameState.pendingBlock; 
-                    gameState.pendingActions.splice(0,0, block); 
-                    gameState.pendingBlock = null; 
-                    // block is challengeable
-                    gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+                   // 3. player can't block if it is died. 
+                let shouldConsiderBlock = computeShouldConsiderBlock(gameState); 
 
-                    gameState.roundState = RoundState.WaitForChallenge;
-                    return gameState; 
-                }
-                // no pending block, but action is blockable. 
-                if (isBlockable(gameState.pendingActions[0].name as Action)){
-                    gameState.roundState = RoundState.WaitForBlock; 
-                    return gameState; 
+                if (shouldConsiderBlock){
+                    if (gameState.pendingBlock !== null){
+                        let block = gameState.pendingBlock; 
+                        gameState.pendingActions.splice(0,0, block); 
+                        gameState.pendingBlock = null; 
+                        // block is challengeable
+                        gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+
+                        gameState.roundState = RoundState.WaitForChallenge;
+                        return gameState; 
+                    } else {
+                        gameState.roundState = RoundState.WaitForBlock; 
+                        return gameState; 
+                    }
                 }
                 else{
                     return commitAction(gameState); 
@@ -281,18 +284,8 @@ export function commitAction(gameState: GameState): GameState{
                 // 2. commit the action. 
                 // 3. player can't block if it is died. 
                 let pendingAction = gameState.pendingActions[0]; 
-                let needToConsiderBlock = isBlockable(pendingAction.name as Action); 
-                
-                
-                const target = pendingAction.target; 
-                if (target !== null){
-                    // there is a target. 
-                    let targetAlive = gameState.playerStates.find(player => player.friendlyName === target).lifePoint > 0; 
-                    needToConsiderBlock &&= targetAlive; 
-                }
-                const playersAbleToBlock = computePlayersAbleToBlock(gameState, pendingAction); 
-                let allSkipped = playersAbleToBlock.every(name => gameState.playersWhoSkippedBlock.includes(name)); 
-                needToConsiderBlock &&= (!allSkipped); 
+                const needToConsiderBlock = computeShouldConsiderBlock(gameState); 
+
 
                 if (needToConsiderBlock){
                     if (gameState.pendingBlock !== null){
@@ -663,4 +656,26 @@ export function handleAction(gameState, action: PlayerAction): GameState {
         gameState = commitAction(gameState);
     }
     return gameState; 
+}
+
+
+
+function computeShouldConsiderBlock(gameState: GameState): boolean{
+    if (gameState.pendingActions.length === 0){
+        return false; 
+    }
+
+    const pendingAction = gameState.pendingActions[0]; 
+    let needToConsiderBlock = isBlockable(pendingAction.name as Action); 
+                
+    const target = pendingAction.target; 
+    if (target !== null){
+        // there is a target. 
+        let targetAlive = gameState.playerStates.find(player => player.friendlyName === target).lifePoint > 0; 
+        needToConsiderBlock &&= targetAlive; 
+    }
+    const playersAbleToBlock = computePlayersAbleToBlock(gameState, pendingAction); 
+    let allSkipped = playersAbleToBlock.every(name => gameState.playersWhoSkippedBlock.includes(name)); 
+    needToConsiderBlock &&= (!allSkipped); 
+    return needToConsiderBlock; 
 }

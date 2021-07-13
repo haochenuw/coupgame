@@ -1,8 +1,10 @@
+import { assert } from "console";
 import { STATUS_CODES } from "http";
 import { ASSASINATE_COST, CARD_TYPES, COUP_COST, FOREIGN_AID_AMOUNT, INCOME_RATE, INITIAL_TOKENS } from "../constants";
 import * as game from "../game"; 
 import {GameState, SurrenderReason} from "../types"
 import { Action, PlayerAction, RoundState } from "../types";
+import lodash from 'lodash';
 
 
 const threePlayers = 
@@ -31,6 +33,7 @@ const foreignAidAction: PlayerAction = {name: Action.ForeignAid, source: "0", ta
 const b_block_a_Action: PlayerAction = {name: Action.Block, source: "0", target: "A"}; 
 const a_challenge_b_action: PlayerAction = {name: Action.Challenge, source: "0", target: "B"}; 
 const c_challenge_a_action: PlayerAction = {name: Action.Challenge, source: "2", target: "A"}; 
+const assAction = {source: "0", name: Action.Assasinate, target: "B"}; 
 
 test('init', () => {
     let initialState = game.initGame(threePlayers); 
@@ -98,7 +101,7 @@ test('foreignaidBlockFalseRevealElimination', ()=>{
     state.pendingActions.splice(0,0,foreignAidAction); 
     
     state.playerStates[1].lifePoint = 1;
-    state.playerStates[1].cards = [CARD_TYPES[1], CARD_TYPES[1]]; // 
+    state.playerStates[1].cards = [lodash.cloneDeep(CARD_TYPES[1]), lodash.cloneDeep(CARD_TYPES[1])]; // 
 
 
     state.pendingActions.splice(0,0, b_block_a_Action); 
@@ -142,7 +145,7 @@ test('stealBlockThenChallengeThenFalseReveal', ()=>{
     state.pendingActions.splice(0,0,stealAction); 
     
     state.playerStates[1].lifePoint = 1;
-    state.playerStates[1].cards = [CARD_TYPES[1], CARD_TYPES[1]]; // 
+    state.playerStates[1].cards[0] = lodash.cloneDeep(CARD_TYPES[1]);
 
 
     state.pendingActions.splice(0,0, b_block_a_Action); 
@@ -185,7 +188,7 @@ test('stealBlockThenChallengeThenTrueReveal', ()=>{
 
     state.pendingActions.splice(0,0,stealAction); 
     
-    state.playerStates[1].cards = [CARD_TYPES[2], CARD_TYPES[2]]; // Captain
+    state.playerStates[1].cards = [lodash.cloneDeep(CARD_TYPES[2]), lodash.cloneDeep(CARD_TYPES[2])]; // Captain
 
     state.pendingActions.splice(0,0, b_block_a_Action); 
 
@@ -218,7 +221,7 @@ test('stealPendingBlockThenChallengeFalseReveal', () => {
 
     state = game.handleAction(state, stealAction); 
     
-    state.playerStates[0].cards = [CARD_TYPES[1], CARD_TYPES[1]]; // Assassin
+    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[1]); // Assassin
 
     state = game.handleAction(state, b_block_a_Action); 
 
@@ -246,8 +249,8 @@ test('stealTargetSkipThenChallengeTrueReveal', () => {
 
     state = game.handleAction(state, stealAction); 
     
-    state.playerStates[0].cards = [CARD_TYPES[2], CARD_TYPES[1]]; // Captain, Assassin
-    state.playerStates[2].cards = [CARD_TYPES[2], CARD_TYPES[1]]; // Captain, Assassin
+    state.playerStates[0].cards = [lodash.cloneDeep(CARD_TYPES[2]), lodash.cloneDeep(CARD_TYPES[1])]; // Captain, Assassin
+    state.playerStates[2].cards = [lodash.cloneDeep(CARD_TYPES[2]), lodash.cloneDeep(CARD_TYPES[1])]; // Captain, Assassin
 
     state = game.handleAction(state, bSkipAction); 
 
@@ -277,5 +280,26 @@ test('stealTargetSkipThenChallengeTrueReveal', () => {
     // // */
     // expect(state.playerStates[0].lifePoint).toEqual(1);
     // expect(state.roundState).toEqual(RoundState.WaitForAction); 
+}); 
+
+
+test('assasinateSkip', () => {
+    let state = game.initGame(threePlayers); 
+    state.activePlayerIndex = 0; 
+
+    state = game.handleAction(state, assAction); 
+    
+    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+
+    state = game.handleAction(state, bSkipAction); 
+
+    expect(state.roundState).toEqual(RoundState.WaitForChallenge); 
+
+    state = game.handleAction(state, cSkipAction); 
+    
+    expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+    
+    expect(state.playerStates[1].lifePoint).toEqual(1); 
+
 }); 
 
