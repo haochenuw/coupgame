@@ -1,8 +1,8 @@
 
-import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable, SurrenderReason, isChallengeable} from "./types";
+import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable, SurrenderReason, isChallengeable, PlayerActionWithStatus} from "./types";
 import * as constants from "./constants"; 
 import {logDebug, logError, logInfo, renderLog} from "./utils"; 
-import { parse } from "path/posix";
+import lodash from 'lodash';
 
 export function initGame(players): GameState {
     // logDebug(`initial deck = ${JSON.stringify(constants.INITIAL_DECK)}`); 
@@ -42,10 +42,7 @@ export function initGame(players): GameState {
         roundState: RoundState.WaitForAction, 
         pendingActions: [],
         pendingExchangeCards: null, 
-        playersWhoSkippedBlock: [], 
-        playersWhoSkippedChallenge: [], 
         surrenderReason: null, 
-        playersWhoCanBlock: [], 
         pendingBlock: null, 
         logs: [], 
     }
@@ -102,6 +99,7 @@ export function commitAction(gameState: GameState): GameState{
     let source = gameState.playerStates[sourceIndex]; 
     let sourceName = source.friendlyName;
     let alivePlayers = computeAlivePlayers(gameState.playerStates);  
+    let pendingAction = gameState.pendingActions[0]; 
 
     switch (parsedAction) {
         case Action.Reveal: 
@@ -130,38 +128,34 @@ export function commitAction(gameState: GameState): GameState{
             break; 
 
         case Action.Skip: 
+            console.log(`player ${gameState.playerStates[sourceIndex].friendlyName} skips action ${JSON.stringify(pendingAction)}`); 
+
             // What is user skipping? 
             switch (gameState.roundState){
             case RoundState.WaitForChallenge: 
-                logDebug("skip challenge")
                 // Transform and call skip challenge.
                 gameState.pendingActions.splice(0,0, {name: Action.SkipChallenge, source: action.source, target: action.target }); 
                 return commitAction(gameState); 
-
             case RoundState.WaitForBlock: 
                 // Transform and call skipblock.
-                logDebug("skip block")
                 gameState.pendingActions.splice(0,0, {name: Action.SkipBlock, source: action.source, target: action.target }); 
                 return commitAction(gameState); 
-
-            // Separate skip challenge, skip block, or skip both.  
+            // Skip both.  
             case RoundState.WaitForChallengeOrBlock: 
-                let numPlayersWhoCanBlock = gameState.pendingActions[0].target === null ? (alivePlayers -1): 1; 
-                if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
-                    gameState.playersWhoSkippedChallenge.push(sourceName); 
+                let numPlayersWhoCanBlock = pendingAction.target === null ? (alivePlayers -1): 1; 
+                if (!pendingAction.playersWhoSkippedChallenge.includes(sourceName)){
+                    pendingAction.playersWhoSkippedChallenge.push(sourceName); 
                 }
-                if (!gameState.playersWhoSkippedBlock.includes(sourceName)){
+                if (!pendingAction.playersWhoSkippedBlock.includes(sourceName)){
                     // validate 
-                    let target = gameState.pendingActions[0].target;
+                    let target = pendingAction.target;
                     if (target === null || target === sourceName){
-                        gameState.playersWhoSkippedBlock.push(sourceName); 
+                        pendingAction.playersWhoSkippedBlock.push(sourceName); 
                     }
                 }
-                const allSkippedBlock = gameState.playersWhoSkippedBlock.length == numPlayersWhoCanBlock; 
-                const allSkippedChallenge = gameState.playersWhoSkippedChallenge.length == alivePlayers - 1; 
+                const allSkippedBlock = pendingAction.playersWhoSkippedBlock.length == numPlayersWhoCanBlock; 
+                const allSkippedChallenge = pendingAction.playersWhoSkippedChallenge.length == alivePlayers - 1; 
                 if (allSkippedChallenge && allSkippedBlock){
-                    gameState.playersWhoSkippedChallenge = []; 
-                    gameState.playersWhoSkippedBlock = []; 
                     return commitAction(gameState);
                 } else if (allSkippedBlock){
                     gameState.roundState = RoundState.WaitForChallenge; 
@@ -171,22 +165,25 @@ export function commitAction(gameState: GameState): GameState{
                 break; 
             default: 
                 // shouldn't get here
-                logError('invalid round state for skipping action'); 
+                logError(`invalid round state ${gameState.roundState} for skipping action`); 
                 return; 
-        }
+            }
+            break; 
         
         case Action.SkipChallenge: 
-            logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
-            if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
-                gameState.playersWhoSkippedChallenge.push(sourceName); 
+            console.log(`player ${gameState.playerStates[sourceIndex].friendlyName} skips challenge`); 
+            console.log(`gameState = ${JSON.stringify(gameState)}`);
+            if (!pendingAction.playersWhoSkippedChallenge.includes(sourceName)){
+                pendingAction.playersWhoSkippedChallenge.push(sourceName); 
             }
-            if (gameState.playersWhoSkippedChallenge.length == alivePlayers - 1){
+            console.log(`Who have skipped so far ${JSON.stringify(pendingAction.playersWhoSkippedChallenge)}`)
+            if (pendingAction.playersWhoSkippedChallenge.length == alivePlayers - 1){
                 // if everyone other than the actor skips, then execute action. 
                 logInfo("all relevant players skipped challenge");
-                gameState.playersWhoSkippedChallenge = []; 
                 // if there is a pending block then handle it
                    // 3. player can't block if it is died. 
                 let shouldConsiderBlock = computeShouldConsiderBlock(gameState); 
+                console.log(`should consider block = ${shouldConsiderBlock}`)
 
                 if (shouldConsiderBlock){
                     if (gameState.pendingBlock !== null){
@@ -224,16 +221,14 @@ export function commitAction(gameState: GameState): GameState{
             sourceIndex = computeIndex(gameState, action.source);
             let name = gameState.playerStates[sourceIndex].friendlyName;
             logDebug(`player ${name} skips block`); 
-            if (!gameState.playersWhoSkippedBlock.includes(name)){
-                gameState.playersWhoSkippedBlock.push(name); 
+            if (!pendingAction.playersWhoSkippedBlock.includes(name)){
+                pendingAction.playersWhoSkippedBlock.push(name); 
             }
             let numbersToSkip = gameState.pendingActions[0].target === null ? (alivePlayers -1): 1; 
             
             // if everyone skipped
-            if (gameState.playersWhoSkippedBlock.length === numbersToSkip){
+            if (pendingAction.playersWhoSkippedBlock.length === numbersToSkip){
                 logInfo("all relevant players skipped block");
-                // reset the state  
-                gameState.playersWhoSkippedBlock = [];
                 return commitAction(gameState); 
             }
             
@@ -252,21 +247,17 @@ export function commitAction(gameState: GameState): GameState{
                 logDebug('coup or assasinate'); 
                 gameState.activePlayerIndex = computeNextPlayer(gameState); 
                 gameState.roundState = RoundState.WaitForAction;
-                gameState.playersWhoSkippedBlock = []; 
-                gameState.playersWhoSkippedChallenge = []; 
                 return gameState; 
             } 
             else if (gameState.surrenderReason === SurrenderReason.FalseReveal){
                 // First, nullify the top pending action 
                 gameState.pendingActions.shift();
-                gameState.playersWhoSkippedBlock = []; 
-                gameState.playersWhoSkippedChallenge = [];
                 gameState.pendingBlock = null;  
                 // Is there still a pending action? 
                 // 1. Yes, this means that the challenge succeeded on a block
                 // commit the action. It could be foreign aid, ass, steal. (note income, coup, exchange, tax are not blockable)
                 if(gameState.pendingActions.length > 0){
-                    logDebug("false reveal on a block..."); 
+                    logDebug(`false reveal on a block..pending action = ${JSON.stringify(gameState.pendingActions)}.`); 
                     return commitAction(gameState); 
                 }
                 // 2. No. This means that the challenge succeeded on a regular action
@@ -397,8 +388,6 @@ export function commitAction(gameState: GameState): GameState{
     if(isAbsoluteAction(parsedAction)){
         gameState.activePlayerIndex = computeNextPlayer(gameState); 
         gameState.roundState = RoundState.WaitForAction;
-        gameState.playersWhoSkippedBlock = []; 
-        gameState.playersWhoSkippedChallenge = []; 
     }
     return gameState; 
 }
@@ -574,12 +563,12 @@ function handleLifeLost(gameState: GameState, index: number, surrenderReason: Su
 }
 
 
-export function computePlayersAbleToBlock(gameState, action): Array<string>{
+export function computePlayersAbleToBlock(gameState: GameState, action: PlayerActionWithStatus): Array<string>{
     let result = [];
     if (isBlockable(action.name) === false){
         return result; 
     } 
-    let players = gameState.playerStates.filter(state => state.client_id !== action.source && state.lifePoint > 0); 
+    let players = gameState.playerStates.filter(state => state.socket_id !== action.source && state.lifePoint > 0); 
     if (action.target !== null){
         // only target can block
         players = players.filter(state => state.friendlyName === action.target); 
@@ -589,6 +578,7 @@ export function computePlayersAbleToBlock(gameState, action): Array<string>{
 }
 
 export function handleAction(gameState, action: PlayerAction): GameState {
+    console.log(`got action ${JSON.stringify(action)}`); 
     // Handle special case. If it is assasinate, then deduct tokens right away 
     if(action.name as Action === Action.Assasinate){
         gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
@@ -597,55 +587,67 @@ export function handleAction(gameState, action: PlayerAction): GameState {
     let sourceName = gameState.playerStates.find(state => state.socket_id === action.source).friendlyName; 
 
     // Handle special case. block arrives first before challenge 
+    // TODO: this is not exactly covering all cases. There could be cases where all player but the target has skipped
+    // challenge. 
     if (action.name as Action === Action.Block 
         && gameState.roundState === RoundState.WaitForChallengeOrBlock
         && computeAlivePlayers(gameState.playerStates) > 2
         )
     {
-        gameState.pendingBlock = action; 
         // block => skips challenge
-        if (!gameState.playersWhoSkippedChallenge.includes(sourceName)){
-            gameState.playersWhoSkippedChallenge.push(sourceName)
+        let pendingAction = gameState.pendingActions[0]; 
+        if (!pendingAction.playersWhoSkippedChallenge.includes(sourceName)){
+            pendingAction.playersWhoSkippedChallenge.push(sourceName)
         }
-        logInfo("block arrives before challenge"); 
-        gameState.roundState = RoundState.WaitForChallenge; 
-        // sendMaskedGameStates(socket, gameState, 'gameState'); 
-        return gameState; 
-        // TODO: consume pending block in skip challenge or challenge reveal. 
+        // If NOT all players have skipped challenge. No need
+        if (pendingAction.playersWhoSkippedChallenge.length < computeAlivePlayers(gameState.playerStates) - 1){
+            gameState.pendingBlock = action; 
+            logInfo("writing to pending block"); 
+            gameState.roundState = RoundState.WaitForChallenge; 
+            return gameState; 
+        }
     }
 
-    // assign target to challenge 
+    // If action is challenge => assign targe. 
     if (action.target === null && action.name as Action === Action.Challenge){
         let source = gameState.pendingActions[0].source;
         let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
         action.target = name; 
     }    
 
-    // Add event to the log
     gameState.logs.splice(0, 0, renderLog(sourceName, action.name, action.target)); 
-
-    gameState.pendingActions.splice(0,0,action); 
-
-    //  handle challenge and blocks 
-    // Case 1: challengeable and bloackable 
     let isActionChallengeable = isChallengeable(action.name as Action); 
     let isActionBlockable = isBlockable(action.name as Action); 
 
+    //  handle challenge and blocks 
+    // Case 1: challengeable and bloackable 
+
+    // if(isActionBlockable){
+    //     logDebug("Populating the who can block array")
+    //     let playerNames = gameState.playerStates.map(player => player.friendlyName); 
+    //     if (action.target !== null){
+    //         gameState.playersWhoCanBlock = [action.target]; 
+    //     } else{
+    //         // everyone other than the source can block 
+    //         gameState.playersWhoCanBlock = playerNames.filter(name => name !== sourceName);
+    //     }
+    //     logDebug(`who can block = ${gameState.playersWhoCanBlock}`); 
+    // }
+
+    let actionWithStatus: PlayerActionWithStatus = lodash.cloneDeep(action); 
     if(isActionBlockable){
-        logDebug("Populating the who can block array")
-        let playerNames = gameState.playerStates.map(player => player.friendlyName); 
-        if (action.target !== null){
-            gameState.playersWhoCanBlock = [action.target]; 
-        } else{
-            // everyone other than the source can block 
-            gameState.playersWhoCanBlock = playerNames.filter(name => name !== sourceName);
-        }
-        logDebug(`who can block = ${gameState.playersWhoCanBlock}`); 
+        actionWithStatus.playersWhoSkippedBlock = []; 
+    } 
+    if(isActionChallengeable){
+        actionWithStatus.playersWhoSkippedChallenge = []; 
     }
+
+    gameState.pendingActions.splice(0,0, actionWithStatus); 
 
     if (isActionBlockable && isActionChallengeable){
         logInfo('blockable + challengeable action'); 
         gameState.roundState = RoundState.WaitForChallengeOrBlock; 
+
     } else if (isActionChallengeable){
         logInfo('waiting for challenge...'); 
         gameState.roundState = RoundState.WaitForChallenge; 
@@ -655,6 +657,7 @@ export function handleAction(gameState, action: PlayerAction): GameState {
     } else{
         gameState = commitAction(gameState);
     }
+    
     return gameState; 
 }
 
@@ -675,7 +678,7 @@ function computeShouldConsiderBlock(gameState: GameState): boolean{
         needToConsiderBlock &&= targetAlive; 
     }
     const playersAbleToBlock = computePlayersAbleToBlock(gameState, pendingAction); 
-    let allSkipped = playersAbleToBlock.every(name => gameState.playersWhoSkippedBlock.includes(name)); 
+    let allSkipped = playersAbleToBlock.every(name => pendingAction.playersWhoSkippedBlock.includes(name)); 
     needToConsiderBlock &&= (!allSkipped); 
     return needToConsiderBlock; 
 }

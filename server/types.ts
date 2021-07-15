@@ -45,11 +45,17 @@ export enum Action {
     Skip = "Skip", 
 }
 
-export type PlayerAction =  {
+export interface PlayerAction {
     name: Action, 
     target: string | null | undefined
     source?: string | null | undefined, 
     additionalData?: Array<string> | undefined 
+}
+
+// For tracking status of each pending action.
+export interface PlayerActionWithStatus extends PlayerAction {
+    playersWhoSkippedBlock?: Array<string>
+    playersWhoSkippedChallenge?: Array<string>
 }
 
 export enum RoundState{
@@ -113,12 +119,9 @@ export type GameState = {
     playerStates: Array<PlayerState>,
     deckState: Array<Card>, 
     roundState: RoundState, 
-    pendingActions: Array<PlayerAction>, 
+    pendingActions: Array<PlayerActionWithStatus>, 
     pendingExchangeCards: Array<Card> | null, 
-    playersWhoSkippedBlock: Array<String> 
-    playersWhoSkippedChallenge: Array<String>, 
     surrenderReason: SurrenderReason | undefined | null, 
-    playersWhoCanBlock: Array<String>, 
     logs: Array<String>, 
     pendingBlock: PlayerAction | null 
 }

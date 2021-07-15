@@ -153,22 +153,78 @@ test('taxFalseReveal', ()=>{
     expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS); // no change since false reveal.  
 });     
 
-test('assasinateSkip', () => {
-    let state = game.initGame(twoPlayers); 
-    state = setActivePlayer(state, 0); 
-    state.playerStates[0].tokens = ASSASINATE_COST; 
-    state.pendingActions.splice(0,0, assAction); 
-    state.roundState = RoundState.WaitForChallengeOrBlock; 
-    const skipAction = {source: "1", name:Action.Skip, target: null}; 
-    state.pendingActions.splice(0,0, skipAction); 
 
-    state = game.commitAction(state); 
+describe('assasinate tests', ()=>{
+    var state; 
 
-    expect(state.playerStates[1].lifePoint).toEqual(1); 
-    expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
-    expect(state.surrenderReason).toEqual(SurrenderReason.Assasinate); 
-    expect(state.surrenderingPlayerIndex).toEqual(1); 
+    beforeEach(()=>{
+        state = game.initGame(twoPlayers); 
+        state = setActivePlayer(state, 0); 
+        state.playerStates[0].tokens = ASSASINATE_COST; 
+        state = game.handleAction(state, assAction); 
+    }); 
+
+    test('2pAssasinateSkip', () => {
+        const skipAction = {source: "1", name:Action.Skip, target: null}; 
+        state.pendingActions.splice(0,0, skipAction); 
+    
+        state = game.commitAction(state); 
+    
+        expect(state.playerStates[1].lifePoint).toEqual(1); 
+        expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+        expect(state.surrenderReason).toEqual(SurrenderReason.Assasinate); 
+        expect(state.surrenderingPlayerIndex).toEqual(1); 
+    }); 
+    
+    // Test assasinate challenged 
+    test('assChallengeTrueReveal', () =>{
+        state.playerStates[0].cards[0] = JSON.parse(JSON.stringify(CARD_TYPES[1]));  
+     
+        expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+        state = game.handleAction(state, b_challenge_a); 
+        expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+    
+        // 
+        state = game.handleAction(state, a_reveal_ass); 
+    
+        expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+        expect(state.playerStates[1].lifePoint).toEqual(1); 
+        expect(state.playerStates[0].tokens).toEqual(0); 
+    
+    }); 
+
+    test('assChallengeFalseReveal', () =>{
+        state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); 
+     
+        expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+        state = game.handleAction(state, b_challenge_a); 
+        expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+    
+        state = game.handleAction(state, a_reveal_duke); 
+    
+        expect(state.roundState).toEqual(RoundState.WaitForAction); 
+        expect(state.activePlayerIndex).toEqual(1); 
+        expect(state.playerStates[0].lifePoint).toEqual(1); 
+        expect(state.playerStates[0].tokens).toEqual(0); 
+    }); 
+
+    test('assBlockSkip', () =>{
+        state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); // Duke; 
+     
+        expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
+        state = game.handleAction(state, b_blocks_a); 
+        expect(state.roundState).toEqual(RoundState.WaitForChallenge); 
+    
+        state = game.handleAction(state, a_skip); 
+    
+        expect(state.roundState).toEqual(RoundState.WaitForAction); 
+        expect(state.activePlayerIndex).toEqual(1); 
+        expect(state.playerStates[0].lifePoint).toEqual(2); 
+        expect(state.playerStates[1].lifePoint).toEqual(2); 
+        expect(state.playerStates[0].tokens).toEqual(0); 
+    }); 
 }); 
+
 
 
 test('blockUtil', () =>{
@@ -179,65 +235,6 @@ test('blockUtil', () =>{
 }); 
 
 
-// Test assasinate challenged 
-test('assChallengeTrueReveal', () =>{
-    let state = game.initGame(twoPlayers); 
-    state = setActivePlayer(state, 0); 
-    state.playerStates[0].tokens = ASSASINATE_COST;
-    state.playerStates[0].cards[0] = JSON.parse(JSON.stringify(CARD_TYPES[1]));  
- 
-    state = game.handleAction(state, assAction); 
-    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
-    state = game.handleAction(state, b_challenge_a); 
-    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
-
-    // 
-    state = game.handleAction(state, a_reveal_ass); 
-
-    expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
-    expect(state.playerStates[1].lifePoint).toEqual(1); 
-    expect(state.playerStates[0].tokens).toEqual(0); 
-
-}); 
-
-test('assChallengeFalseReveal', () =>{
-    let state = game.initGame(twoPlayers); 
-    state = setActivePlayer(state, 0); 
-    state.playerStates[0].tokens = ASSASINATE_COST;
-    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); 
- 
-    state = game.handleAction(state, assAction); 
-    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
-    state = game.handleAction(state, b_challenge_a); 
-    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
-
-    state = game.handleAction(state, a_reveal_duke); 
-
-    expect(state.roundState).toEqual(RoundState.WaitForAction); 
-    expect(state.activePlayerIndex).toEqual(1); 
-    expect(state.playerStates[0].lifePoint).toEqual(1); 
-    expect(state.playerStates[0].tokens).toEqual(0); 
-}); 
-
-test('assBlockSkip', () =>{
-    let state = game.initGame(twoPlayers); 
-    state = setActivePlayer(state, 0); 
-    state.playerStates[0].tokens = ASSASINATE_COST;
-    state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); // Duke; 
- 
-    state = game.handleAction(state, assAction); 
-    expect(state.roundState).toEqual(RoundState.WaitForChallengeOrBlock); 
-    state = game.handleAction(state, b_blocks_a); 
-    expect(state.roundState).toEqual(RoundState.WaitForChallenge); 
-
-    state = game.handleAction(state, a_skip); 
-
-    expect(state.roundState).toEqual(RoundState.WaitForAction); 
-    expect(state.activePlayerIndex).toEqual(1); 
-    expect(state.playerStates[0].lifePoint).toEqual(2); 
-    expect(state.playerStates[1].lifePoint).toEqual(2); 
-    expect(state.playerStates[0].tokens).toEqual(0); 
-}); 
 
 // Test assasinate blocked => challenge yes, challenge no
 
