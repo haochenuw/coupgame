@@ -586,6 +586,18 @@ export function handleAction(gameState, action: PlayerAction): GameState {
 
     let sourceName = gameState.playerStates.find(state => state.socket_id === action.source).friendlyName; 
 
+    // If action is challenge => assign targe. 
+    if (action.target === null && action.name as Action === Action.Challenge){
+        let source = gameState.pendingActions[0].source;
+        let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
+        action.target = name; 
+    }    
+
+    let isActionChallengeable = isChallengeable(action.name as Action); 
+    let isActionBlockable = isBlockable(action.name as Action); 
+    let actionWithStatus: PlayerActionWithStatus = lodash.cloneDeep(action); 
+    actionWithStatus.playersWhoSkippedBlock = []; 
+    actionWithStatus.playersWhoSkippedChallenge = []; 
     // Handle special case. block arrives first before challenge 
     // TODO: this is not exactly covering all cases. There could be cases where all player but the target has skipped
     // challenge. 
@@ -601,23 +613,12 @@ export function handleAction(gameState, action: PlayerAction): GameState {
         }
         // If NOT all players have skipped challenge. No need
         if (pendingAction.playersWhoSkippedChallenge.length < computeAlivePlayers(gameState.playerStates) - 1){
-            gameState.pendingBlock = action; 
+            gameState.pendingBlock = actionWithStatus; 
             logInfo("writing to pending block"); 
             gameState.roundState = RoundState.WaitForChallenge; 
             return gameState; 
         }
     }
-
-    // If action is challenge => assign targe. 
-    if (action.target === null && action.name as Action === Action.Challenge){
-        let source = gameState.pendingActions[0].source;
-        let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
-        action.target = name; 
-    }    
-
-    gameState.logs.splice(0, 0, renderLog(sourceName, action.name, action.target)); 
-    let isActionChallengeable = isChallengeable(action.name as Action); 
-    let isActionBlockable = isBlockable(action.name as Action); 
 
     //  handle challenge and blocks 
     // Case 1: challengeable and bloackable 
@@ -634,13 +635,8 @@ export function handleAction(gameState, action: PlayerAction): GameState {
     //     logDebug(`who can block = ${gameState.playersWhoCanBlock}`); 
     // }
 
-    let actionWithStatus: PlayerActionWithStatus = lodash.cloneDeep(action); 
-    if(isActionBlockable){
-        actionWithStatus.playersWhoSkippedBlock = []; 
-    } 
-    if(isActionChallengeable){
-        actionWithStatus.playersWhoSkippedChallenge = []; 
-    }
+    gameState.logs.splice(0, 0, renderLog(sourceName, action.name, action.target)); 
+
 
     gameState.pendingActions.splice(0,0, actionWithStatus); 
 

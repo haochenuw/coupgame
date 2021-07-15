@@ -152,20 +152,20 @@ export default function MainGame (props){
             && gameState.roundState === "WAIT_FOR_SURRENDER") {
             return true; 
         } else if (gameState.pendingActions.length > 0 
-            && gameState.playersWhoCanBlock.includes(props.myName)  
+            && computePlayersAbleToBlock(gameState).includes(props.myName)  
             && gameState.roundState === "WAIT_FOR_BLOCK"
-            && !gameState.playersWhoSkippedBlock.includes(props.myName)) {
+            && !gameState.pendingActions[0].playersWhoSkippedBlock.includes(props.myName)) {
             return true; 
         } else if (gameState.pendingActions.length > 0 
             && gameState.pendingActions[0].source !== props.me 
             && gameState.roundState === "WAIT_FOR_CHALLENGE"
-            && !gameState.playersWhoSkippedChallenge.includes(props.myName)) {
+            && !gameState.pendingActions[0].playersWhoSkippedChallenge.includes(props.myName)) {
             return true; 
         } else if (gameState.pendingActions.length > 0 
             && gameState.pendingActions[0].source !== props.me 
             && gameState.roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK"
-            && !gameState.playersWhoSkippedChallenge.includes(props.myName)
-            && !gameState.playersWhoSkippedBlock.includes(props.myName)) {
+            && !gameState.pendingActions[0].playersWhoSkippedChallenge.includes(props.myName)
+            && !gameState.pendingActions[0].playersWhoSkippedBlock.includes(props.myName)) {
             return true; 
         } 
         else if (gameState.pendingActions.length > 0 
@@ -318,11 +318,16 @@ export default function MainGame (props){
         if (localGameState === null){
             return false; 
         }
-        return localGameState.playersWhoSkippedBlock.includes(props.myName) || localGameState.playersWhoSkippedChallenge.includes(props.myName)
+        if (localGameState.pendingActions.length === 0){
+            return false; 
+        }
+        return localGameState.pendingActions[0].playersWhoSkippedBlock.includes(props.myName) || localGameState.pendingActions[0].playersWhoSkippedChallenge.includes(props.myName)
     }
 
     function BlockOrSkipPanel(){
-        if (alreadySkipedBlock() || localGameState.pendingActions.length === 0){
+        if (localGameState.pendingActions.length === 0){
+            return null; 
+        } else if (alreadySkipedBlock()){
             return null; 
         }
         return(
@@ -337,14 +342,20 @@ export default function MainGame (props){
         if (localGameState === null){
             return false; 
         }
-        return localGameState.playersWhoSkippedChallenge.includes(props.myName)
+        if (localGameState.pendingActions.length === 0){
+            return false; 
+        }
+        return localGameState.pendingActions[0].playersWhoSkippedChallenge.includes(props.myName)
     }
 
     function alreadySkipedBlock(){
         if (localGameState === null){
             return false; 
         }
-        return localGameState.playersWhoSkippedBlock.includes(props.myName)
+        if (localGameState.pendingActions.length === 0){
+            return false; 
+        }
+        return localGameState.pendingActions[0].playersWhoSkippedBlock.includes(props.myName)
     }
 
     function ChallengeOrSkipPanel(){
@@ -361,16 +372,19 @@ export default function MainGame (props){
     }
 
     function doXOrSkipPanel(actions) {
-        if (alreadyMadeDecisionOnChallengeOrBlock() || localGameState.pendingActions.length === 0){
+        if (localGameState === null || localGameState.pendingActions.length === 0){
             return null; 
+        } else if (alreadyMadeDecisionOnChallengeOrBlock()){
+            return null
         }
         const name = getNameById(localGameState.pendingActions[0].source); 
         return(
             <div className="selection with-border">
                 {actions.map(action => {
                     if (action === "Block"){
-                        console.log(`players who can block = ${localGameState.playersWhoCanBlock}`);
-                        if (localGameState.playersWhoCanBlock.includes(props.myName) === false){
+                        let playersWhoCanBlock = computePlayersAbleToBlock(localGameState); 
+                        console.log(`players who can block = ${playersWhoCanBlock}`);
+                        if (playersWhoCanBlock.includes(props.myName) === false){
                             console.log("can't block");
                             return null; // can't block 
                         }
@@ -389,6 +403,18 @@ export default function MainGame (props){
 
     function getNameById(id){
         return localGameState.playerStates.find(state => state.socket_id === id).friendlyName; 
+    }
+
+    function computePlayersAbleToBlock(gameState) {
+        let result = [];
+        const action = gameState.pendingActions[0]; 
+        let players = gameState.playerStates.filter(state => state.socket_id !== action.source && state.lifePoint > 0); 
+        if (action.target !== null){
+            // only target can block
+            players = players.filter(state => state.friendlyName === action.target); 
+        }
+    
+        return players.map(state => state.friendlyName); 
     }
 
     return(
