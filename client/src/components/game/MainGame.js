@@ -419,7 +419,7 @@ export default function MainGame (props){
 
     return(
         <div>
-        {<h2>Round state = {roundState} </h2>}
+        {/* {<h2>Round state = {roundState} </h2>} */}
         {hasError && <h2 className="error">There's an error</h2>}
         {playerStatePanel()}
         {

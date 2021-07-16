@@ -344,10 +344,8 @@ export function commitAction(gameState: GameState): GameState{
             // player will keep the dead cards 
             gameState.playerStates[playerIndex].cards = playerDeadCards;
 
-            // // put the cards in deck
-            // gameState.deckState = gameState.deckState.concat(playerLiveCards); 
-            // // shuffle 
-            // gameState.deckState = shuffle(gameState.deckState); 
+            // shuffle 
+            gameState.deckState = shuffle(gameState.deckState); 
             
             // will draw 2 random cards from the deck and mix in the live cards
             let cardsToGiveToPlayer = playerLiveCards; 

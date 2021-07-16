@@ -49,7 +49,7 @@ test('init', () => {
 });
 
 describe('steal tests', () => {
-    var state; 
+    var state: GameState; 
 
     beforeEach(() => {
          state = game.initGame(threePlayers); 
@@ -81,48 +81,65 @@ describe('steal tests', () => {
 
 // Check elimination in the middle of action. Action should still go through
 
-test('foreignaidBlockFalseRevealElimination', ()=>{
-    /* setup:
-    A to use foriegn aid 
-    B to have life 1. 
-    B to block. 
-    A/C to challenge 
-    B to reveal a non-Duke card
-    */
-    let state = game.initGame(threePlayers); 
-    state.activePlayerIndex = 0; 
+describe('foreign aid tests', ()=>{
+    var state: GameState; 
 
-    state.pendingActions.splice(0,0,foreignAidAction); 
+    beforeEach(() => {
+         state = game.initGame(threePlayers); 
+         state.activePlayerIndex = 0; 
+         state = game.handleAction(state, foreignAidAction); 
+    }); 
+
+    test('foreignAidSkip', ()=>{
+        state = game.handleAction(state, bSkipAction);
+        state = game.handleAction(state, cSkipAction);
+        expect(state.roundState).toEqual(RoundState.WaitForAction); 
+        expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS + FOREIGN_AID_AMOUNT); 
+        expect(state.activePlayerIndex).toEqual(1); 
+    }); 
     
-    state.playerStates[1].lifePoint = 1;
-    state.playerStates[1].cards = [lodash.cloneDeep(CARD_TYPES[1]), lodash.cloneDeep(CARD_TYPES[1])]; // 
 
-
-    state.pendingActions.splice(0,0, b_block_a_Action); 
-    state.pendingActions.splice(0,0, a_challenge_b_action); 
-
-    state.roundState = RoundState.WaitForChallenge; 
-
-
-    state = game.commitAction(state); 
-
-    expect(state.roundState).toEqual(RoundState.WaitForReveal); 
-
-    const bRevealAssassin = {name: Action.Reveal, source:"1", target: "Assassin"}; 
-    state.pendingActions.splice(0,0, bRevealAssassin); 
-
-    state = game.commitAction(state); 
+    test('foreignaidBlockFalseRevealElimination', ()=>{
+        /* setup:
+        A to use foriegn aid 
+        B to have life 1. 
+        B to block. 
+        A/C to challenge 
+        B to reveal a non-Duke card
+        */
+        state.playerStates[1].lifePoint = 1;
+        state.playerStates[1].cards = [lodash.cloneDeep(CARD_TYPES[1]), lodash.cloneDeep(CARD_TYPES[1])]; // 
     
-    /* expect:
-    B should be eliminated
-    A should get the action 
-    C should be the next player
-    */
-    expect(state.playerStates[1].lifePoint).toEqual(0);
-    expect(state.activePlayerIndex).toEqual(2); 
-    expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS + FOREIGN_AID_AMOUNT); 
-    expect(state.roundState).toEqual(RoundState.WaitForAction); 
+    
+        state.pendingActions.splice(0,0, b_block_a_Action); 
+        state.pendingActions.splice(0,0, a_challenge_b_action); 
+    
+        state.roundState = RoundState.WaitForChallenge; 
+    
+    
+        state = game.commitAction(state); 
+    
+        expect(state.roundState).toEqual(RoundState.WaitForReveal); 
+    
+        const bRevealAssassin = {name: Action.Reveal, source:"1", target: "Assassin"}; 
+        state.pendingActions.splice(0,0, bRevealAssassin); 
+    
+        state = game.commitAction(state); 
+        
+        /* expect:
+        B should be eliminated
+        A should get the action 
+        C should be the next player
+        */
+        expect(state.playerStates[1].lifePoint).toEqual(0);
+        expect(state.activePlayerIndex).toEqual(2); 
+        expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS + FOREIGN_AID_AMOUNT); 
+        expect(state.roundState).toEqual(RoundState.WaitForAction); 
+    }); 
+    
+
 }); 
+
 
 
 // Complex tests: blockable + challengeable aciton. 
@@ -277,7 +294,7 @@ test('stealTargetSkipThenChallengeTrueReveal', () => {
 }); 
 
 describe('assasinate tests', ()=>{
-    var state; 
+    var state: GameState; 
 
     beforeEach( ()=>{
         state = game.initGame(threePlayers); 
@@ -374,8 +391,41 @@ describe('assasinate tests', ()=>{
 }); 
 
 
+describe('basic actions', ()=>{
+    var state: GameState;
+
+
+    beforeEach(()=>{
+        state = game.initGame(threePlayers); 
+        state.activePlayerIndex = 0; 
+    });
+
+    test('income', ()=>{
+        let incomeAction = {name:Action.Income, target: null, source:"0"}; 
+        state = game.handleAction(state, incomeAction); 
+
+        expect(state.roundState).toEqual(RoundState.WaitForAction); 
+        expect(state.activePlayerIndex).toEqual(1); 
+    }); 
+
+    test('coup', ()=>{
+        let coupAction = {name:Action.Coup, target: "B", source:"0"}; 
+        state.playerStates[0].tokens = COUP_COST; 
+        state = game.handleAction(state, coupAction); 
+
+        expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
+        expect(state.surrenderingPlayerIndex).toEqual(1); 
+        expect(state.playerStates[1].lifePoint).toEqual(1); 
+        expect(state.playerStates[0].tokens).toEqual(0); 
+    }); 
+});
+
+
+
 
 
 // assasinate block chllenge true reveal
 
 // assasinate block chllenge false reveal
+
+// 
