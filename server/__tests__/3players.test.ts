@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { STATUS_CODES } from "http";
-import { ASSASINATE_COST, CARD_TYPES, COUP_COST, FOREIGN_AID_AMOUNT, INCOME_RATE, INITIAL_TOKENS } from "../constants";
+import { ASSASINATE_COST, CARD_TYPES, COUP_COST, FOREIGN_AID_AMOUNT, INCOME_RATE, INITIAL_TOKENS, TAX_AMOUNT } from "../constants";
 import * as game from "../game"; 
 import {GameState, SurrenderReason} from "../types"
 import { Action, PlayerAction, RoundState } from "../types";
@@ -421,8 +421,22 @@ describe('basic actions', ()=>{
 });
 
 
+describe('tax tests', ()=>{
+    var state: GameState; 
 
+    beforeEach( ()=>{
+        state = game.initGame(threePlayers); 
+        state.activePlayerIndex = 0; 
+        state = game.handleAction(state, taxAction); 
+    }); 
 
+    test('tax skip', ()=>{
+        state = game.handleAction(state, bSkipAction);
+        state = game.handleAction(state, cSkipAction);
+        expect(state.roundState).toEqual(RoundState.WaitForAction); 
+        expect(state.activePlayerIndex).toEqual(1); 
+        expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS+TAX_AMOUNT); 
+    }); 
 
 // assasinate block chllenge true reveal
 
