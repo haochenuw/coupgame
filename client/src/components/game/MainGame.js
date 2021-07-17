@@ -386,7 +386,7 @@ export default function MainGame(props) {
         }
         const name = getNameById(localGameState.pendingActions[0].source);
         return (
-            <div className="selection with-border">
+            <div className="selection">
                 {actions.map(action => {
                     if (action === "Block") {
                         let playersWhoCanBlock = computePlayersAbleToBlock(localGameState);

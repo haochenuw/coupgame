@@ -165,9 +165,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - ~~Make exchange selection look better (disable already selected )~~ Wednesday, June 30, 2021
 - ~~Randomize starting player~~ Wednesday, June 30, 2021
 - ~~Allow Joining through link~~  
-- Room code copying button 
 - Remember socket connection after Refresh
-- Remember socket connection after Closing browser tab (Check netgames.io see how it saves state)
 - Better UI   
     - ~~Logging font families~~ Sunday, July 4, 2021 
     - Token -> pictures 
@@ -175,7 +173,6 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
     - Card sizing
     - Card background color
 - Handle Player disconnection
-- Auto reveal if has the right card during challenge. ? 
 - ~~number player check~~ Sunday, July 4, 2021
 
 ### More Fancy features 
@@ -183,7 +180,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 - ~~Custom domain~~ Thursday, July 1, 2021 (got coupgames.xyz)
 - Players leave 
 - ~~show player terminated~~ Thursday, July 8, 2021
-    - skip surrender if player already died
+    - ~~skip surrender if player already died~~ Saturday, July 17, 2021
 
 ## Bugs 
 
@@ -193,25 +190,23 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~Card not shuffled after revealing duke~~ Monday, June 28, 2021
 
-- multiplayers: 
- - ~~C shouldn't be able to block A stealing/assasinating B~~ Sunday, July 4, 2021
- - ~~Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
- - player who selected skipped/blocked/challenged should go into waiting mode. 
- - player who selected skipped/challenge should go into waiting mode. 
- - player who selected skipped/block should go into waiting mode. 
- - ~~When stealed, the c/b/s panel sometimes does not show.~~ Monday, July 5, 2021
+- ~~C shouldn't be able to block A stealing/assasinating B~~ Sunday, July 4, 2021
+- ~~Players already dead cannot be targets of steal/coup/etc.~~ Sunday, July 4, 2021
+- player who selected skipped/blocked/challenged should go into waiting mode. 
+- player who selected skipped/challenge should go into waiting mode. 
+- player who selected skipped/block should go into waiting mode. 
+- ~~When stealed, the c/b/s panel sometimes does not show.~~ Monday, July 5, 2021
 
 - production website
  - ~~direct room link not working~~ Wednesday, July 7, 2021 
 
-- mobile website
  - ~~first gamestate not working~~ Thursday, July 8, 2021 (don't send two socket in a row. seem to solve it) 
 
 - ~~dead player should not be able to challenge~~ Thursday, July 8, 2021 
 
-- corner case...when chose b from c/b/s and only 2 players left. Should not stuck. 
+- corner case...when chose b from c/b/s and only 2 players left. Should not stuck
 
-- (>=3) when player died, should skip the surrender. 
+- ~~(>=3) when player died, should skip the surrender.~~ Saturday, July 17, 2021 
 
 - ~~BIG BUG: when false reveal on challenging a block, should still commit the action!~~ Thursday, July 8, 2021
 
@@ -227,7 +222,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 
 - ~~challenge (XXX) to make clear who is to be challenged.~~ Friday, July 9, 2021 
 
-- Click on a card to see its ability.
+- ~~Click on a card to see its ability.~~ Saturday, July 17, 2021
 
 ## Notes 
 
@@ -246,7 +241,7 @@ Player 1pTkGjC7pD7IBdgRAAAC played lost one life
 ~~in both c and b actions. If someone blocks first, need to "wait" on that block to happen until 
 everyone has made decision about challenge. If someone challenges, then the challenge is revealed first before block can take place. If every skips~~ Friday, July 9, 2021
 
-- Working on resolving this, caching the block. Then, if challenged, need to handle this cached block only if the reveal is legit.
+- ~~Working on resolving this, caching the block. Then, if challenged, need to handle this cached block only if the reveal is legit.~~ Saturday, July 17, 2021
 
 
 - Issue: when A: c/b/s -> select b, B: c/s -> select s. The c/s panel looks like it did not go away. This is because it is c/s for the action turned
@@ -261,4 +256,4 @@ into c/s for block. However, the "skip" button still looks pressed.
 ## Further notes 
 - ~~Added  unit tests for 2 players~~ Sunday, July 11, 2021
 - ~~Add unit test for 3+ players~~ Monday, July 12, 2021
-- Unit test for 3 players Assasinate 
+- ~~Unit test for 3 players Assasinate~~ Saturday, July 17, 2021 
