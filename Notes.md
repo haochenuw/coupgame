@@ -257,3 +257,17 @@ into c/s for block. However, the "skip" button still looks pressed.
 - ~~Added  unit tests for 2 players~~ Sunday, July 11, 2021
 - ~~Add unit test for 3+ players~~ Monday, July 12, 2021
 - ~~Unit test for 3 players Assasinate~~ Saturday, July 17, 2021 
+
+## Milestones 
+
+- Sunday, July 18, 2021, close friends roll-out 
+
+
+- (TODO) End of July, wechat roll-out 
+    - Improve UI 
+    - Allow up to 6 players 
+
+- (TODO) Mid August, twitter roll-out V0
+
+- (TODO) End of Year, V1
+    - reformation extension (alliance, inquisitor, embezzlement)

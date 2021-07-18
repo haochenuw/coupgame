@@ -7,7 +7,6 @@ import CardModal from './CardModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoffee, faHeart } from '@fortawesome/free-solid-svg-icons'
 
-const coffeeIcon = <FontAwesomeIcon icon={faCoffee} />
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
 
 export default function MainGame(props) {
@@ -316,22 +315,7 @@ export default function MainGame(props) {
     }
 
 
-    // function isWaiting(){
-    //     if (localGameState === null){
-    //         return true; 
-    //     } 
-    //     if (localGameState.playerStates[localGameState.activePlayerIndex].socket_id !== props.me){
-    //         console.log(`not active player`)
-    //         return true; 
-    //     }  
-    //     if (roundState !== "WAIT_FOR_ACTION"){
-    //         return true; 
-    //     }
-    //     return false; 
-    // }
-
     function gameStateDebugPanel() {
-        // TODO  
         return (
             <div>
                 <p> I am {props.me} </p>
@@ -434,7 +418,6 @@ export default function MainGame(props) {
     }
 
     function computePlayersAbleToBlock(gameState) {
-        let result = [];
         const action = gameState.pendingActions[0];
         let players = gameState.playerStates.filter(state => state.socket_id !== action.source && state.lifePoint > 0);
         if (action.target !== null) {
@@ -457,10 +440,12 @@ export default function MainGame(props) {
                 roundState === "WAITING_FOR_OTHERS" && <h2>Waiting for others...</h2>
             }
             {
-                roundState === "WAIT_FOR_ACTION" && actionPanel()
-            }
-            {
                 roundState === "PENDING_SERVER" && <h2>Pending server response...</h2>
+            }
+            {hasError && <h3 className="error">Not enough Tokens</h3>}
+            <div className="footer">
+            {
+                roundState === "WAIT_FOR_ACTION" && actionPanel()
             }
             {
                 roundState === "WAIT_FOR_SURRENDER" && selectAliveCardsPanel('Surrender')
@@ -471,7 +456,7 @@ export default function MainGame(props) {
             {roundState === "WAIT_FOR_CHALLENGE" && ChallengeOrSkipPanel()}
             {roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK" && doXOrSkipPanel(['Challenge', 'Block'])}
             {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
-            {hasError && <h3 className="error">Not enough Tokens</h3>}
+            </div>
             {localGameState !== null && <EventLog logs={localGameState.logs} />}
             {/* {localGameState !== null && gameStateDebugPanel()} */}
         </div>

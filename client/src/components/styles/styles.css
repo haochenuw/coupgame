@@ -29,13 +29,14 @@
 .mycard{
     display: inline-flex;
     flex-direction: column;
-    margin-left: 50px;
-    margin-right: 50px;
-    margin-top: 30px;
-    margin-bottom: 30px;
-    height: 60px;
-    width: 200px;
-    background-color: beige;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 30px;
+    width: 50px;
+    background-color: #D9E5D6;
+    border-radius: 5px;
     text-align: center
 }
 
@@ -43,7 +44,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: x-large;
+    font-size: 1em;
 }
 
 .readyAndStart{
@@ -91,5 +92,13 @@
     margin: 5px; 
 }
 
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: beige;
+    text-align: center;
+  }
 
 

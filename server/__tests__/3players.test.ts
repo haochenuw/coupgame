@@ -26,6 +26,7 @@ const threePlayers =
         }, 
     ];
 
+const taxAction: PlayerAction = {name: Action.Tax, source: "0", target: null}; 
 const stealAction: PlayerAction = {name: Action.Steal, source: "0", target: "B"}; 
 const aSkipAction: PlayerAction = {name: Action.Skip, source: "0", target: null}; 
 const bSkipAction: PlayerAction = {name: Action.Skip, source: "1", target: null}; 
@@ -437,7 +438,7 @@ describe('tax tests', ()=>{
         expect(state.activePlayerIndex).toEqual(1); 
         expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS+TAX_AMOUNT); 
     }); 
-
+});
 // assasinate block chllenge true reveal
 
 // assasinate block chllenge false reveal
