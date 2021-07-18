@@ -57,10 +57,38 @@
 
 .terminated-player{
     text-decoration: line-through;
+    font-size: 25px;
+}
+
+.alive-player{
+    font-size: 25px;
 }
 
 .cardContent{
     font-family: 'Bangers', cursive;
+}
+
+.tokenImg{
+    height: 20px; 
+    width: 20px;
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+}
+
+.fa-heart{
+    color: hsl(342, 90%, 50%);
+    height: 20px; 
+    width: 20px;
+    margin-left: 2.5px;
+    margin-right: 2.5px; 
+}
+
+.btn-info{
+    margin: 5px; 
+}
+
+.btn-warning{
+    margin: 5px; 
 }
 
 

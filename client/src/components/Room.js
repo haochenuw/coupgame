@@ -165,7 +165,7 @@ export default function Room({history, match, location}) {
                     </SocketContext.Provider>
                 }
                 { 
-                    roomStatus !== 'STARTED' && <PlayersPanel players= {players} me = {me} name = {name} />
+                    roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayersPanel players= {players} me = {me} name = {name} />
                 }   
                 { 
                     roomStatus === 'GAMEOVER' && gameOverPanel()
