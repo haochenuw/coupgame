@@ -137,7 +137,7 @@ export default function Room({history, match, location}) {
 
     return(
             <div className="roomHome">
-                <h1 style={{backgroundColor : "grey"}}> ROOM {match.params.name} </h1>
+                <div className="roomName"> ROOM {match.params.name} </div>
                 <div className="readyAndStart">
                 {
                     roomStatus === 'ROOM_FULL' &&

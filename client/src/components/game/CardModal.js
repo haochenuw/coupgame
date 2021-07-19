@@ -55,7 +55,7 @@ export default function CardModal(props) {
 
     return (
         <>
-        <div className="mycard w-10" onClick={cardClicked} style={{ color: card.isRevealed ? revealedColor : availableColor }}>
+        <div className="mycard w-10 center" onClick={cardClicked} style={{ color: card.isRevealed ? revealedColor : availableColor }}>
         <div className="content cardContent">
             {card.name}
         </div>

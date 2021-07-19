@@ -1,3 +1,9 @@
+.roomName {
+   /* background-color: bisque; */
+   font-size: 24px; 
+   color: black;
+}
+
 .me {
     color: rgb(137, 167, 57);
 }
@@ -7,7 +13,7 @@
 }
 
 .log {
-    color: gainsboro;
+    color: black;
     font-family: 'Chakra Petch', sans-serif;
 }
 
@@ -33,9 +39,9 @@
     margin-right: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
-    height: 30px;
-    width: 50px;
-    background-color: #D9E5D6;
+    height: 50px;
+    width: 150px;
+    background-color: beige;
     border-radius: 5px;
     text-align: center
 }
@@ -66,7 +72,9 @@
 }
 
 .cardContent{
-    font-family: 'Bangers', cursive;
+    /* font-family: 'Bangers', cursive; */
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 20px; 
 }
 
 .tokenImg{
