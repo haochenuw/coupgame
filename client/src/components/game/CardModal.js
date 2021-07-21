@@ -43,7 +43,7 @@ export default function CardModal(props) {
 
     const card = props.card; 
     const revealedColor = "red";
-    const availableColor = "green";
+    const availableColor = "black";
 
     function closeModal() {
         setIsOpen(false)
@@ -53,17 +53,19 @@ export default function CardModal(props) {
         setIsOpen(true)
     }
 
+    let revealed = card.isRevealed ? "revealed" : "available" 
+
     return (
         <>
-        <div className="mycard w-10 center" onClick={cardClicked} style={{ color: card.isRevealed ? revealedColor : availableColor }}>
-        <div className="content cardContent">
+        <div className="cardouter" onClick={cardClicked} >
+        <div className={`cardinner ${revealed}`}>
             {card.name}
         </div>
         </div>
         <ReactModal
         isOpen={isOpen}
         onRequestClose={closeModal}
-        contentLabel="My dialog"
+        contentLabel=""
         >
         <div>Card: {card.name}</div>
         <div>Action: {getAction(card.name)}</div>

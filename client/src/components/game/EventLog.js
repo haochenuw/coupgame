@@ -3,7 +3,7 @@ import '../styles/styles.css';
 
 export default function EventLog (props){
     return(
-        <div>
+        <div className="eventLog">
             {
                 props.logs.map((logEntry, index) => {
                     if (index === 0){

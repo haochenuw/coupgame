@@ -6,6 +6,7 @@ import '../styles/buttons.css';
 import CardModal from './CardModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoffee, faHeart } from '@fortawesome/free-solid-svg-icons'
+import ActionBanner  from './ActionBanner';
 
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
 
@@ -50,8 +51,7 @@ export default function MainGame(props) {
 
         let player = gameState.playerStates.find(state => state.friendlyName === props.myName);
         if (player.lifePoint === 0) {
-            console.log('player died');
-            setDead(true);
+            setRoundState("ELIMINATED"); 
         }
         if (!isMe(gameState)) {
             setRoundState("WAITING_FOR_OTHERS");
@@ -106,7 +106,6 @@ export default function MainGame(props) {
     function actionPanel() {
         return (
             <div className="selection">
-                <h2> Choose an action</h2>
                 <button className="btn btn-info" onClick={() => onActionSelected('Income')}>Income</button>
                 <button className="btn btn-info" disabled={coupDisable} onClick={() => onActionSelected('Coup')}>Coup</button>
                 <button className="btn btn-info" onClick={() => onActionSelected('Tax')}>Tax</button>
@@ -206,19 +205,15 @@ export default function MainGame(props) {
                     hearts.push(heartIcon); 
                 }
 
-                
-
-
                 return <div className={me}>
                     <div className={playerState.lifePoint === 0 ? "terminated-player" : "alive-player"}>
                     {playerState.friendlyName} 
                     <span>{hearts} {tokens} </span>
                     </div>
-                    <div class="cards">{/* <div className="card-deck centered"> */}
+                    <div class="cards">
                         {playerState.cards.map((card) => {
                             return (
                                 <CardModal card={card}/>
-                                // renderCard(card)
                             )
                         })}
                     </div>
@@ -227,29 +222,12 @@ export default function MainGame(props) {
         )
     }
 
-    const revealedColor = "red";
-    const availableColor = "green";
-
-    function renderCard(card) {
-        return (
-            <div className="mycard w-10" onClick={() => cardClicked(card.name)} style={{ color: card.isRevealed ? revealedColor : availableColor }}>
-                <div className="content">
-                    {card.name}
-                </div>
-            </div>
-        )
-    }
-
-
-    function cardClicked(name) {
-        console.log(`card clicked with name = ${name}`)
-    }
 
     // Display an array of buttons, given by the "options" arra,y. 
     function selectTargetPanel(action, options) {
         return (
             <div className="selection">
-                <h2>Please select a target to {action} </h2>
+                <h2>Choose a target to {action} </h2>
                 {options.map((item) => {
                     return (<span>
                         <button class="btn btn-warning" onClick={() => onTargetSelected(action, item)}>{item}</button>
@@ -289,7 +267,7 @@ export default function MainGame(props) {
 
         return (
             <div className="selection">
-                <h2>Please select {numToKeep} cards to keep </h2>
+                <h2>Choose {numToKeep} cards to keep </h2>
                 {cards.map((item) => {
                     // if(playerState.lifePoint > 0){
                     return (<span>
@@ -430,20 +408,12 @@ export default function MainGame(props) {
 
     return (
         <div>
-            {/* {<h2>Round state = {roundState} </h2>} */}
             {hasError && <h2 className="error">There's an error</h2>}
             {playerStatePanel()}
-            {
-                dead && <h2>You have been eliminated</h2>
-            }
-            {
-                roundState === "WAITING_FOR_OTHERS" && <h2>Waiting for others...</h2>
-            }
-            {
-                roundState === "PENDING_SERVER" && <h2>Pending server response...</h2>
-            }
             {hasError && <h3 className="error">Not enough Tokens</h3>}
+            {localGameState !== null && <EventLog logs={localGameState.logs} />}
             <div className="footer">
+            {localGameState !== null && <ActionBanner roundState={roundState} logs={localGameState.logs}/>}
             {
                 roundState === "WAIT_FOR_ACTION" && actionPanel()
             }
@@ -457,7 +427,6 @@ export default function MainGame(props) {
             {roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK" && doXOrSkipPanel(['Challenge', 'Block'])}
             {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
             </div>
-            {localGameState !== null && <EventLog logs={localGameState.logs} />}
             {/* {localGameState !== null && gameStateDebugPanel()} */}
         </div>
     )
