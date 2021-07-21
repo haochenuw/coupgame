@@ -23,8 +23,8 @@
 }
 
 .selection{
-    padding-top: 50px;
-    padding-bottom: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .cards{
@@ -32,7 +32,8 @@
     display: block; 
 }
 
-.mycard{
+.cardouter {
+    position: relative;
     display: inline-flex;
     flex-direction: column;
     margin-left: 10px;
@@ -41,17 +42,28 @@
     margin-bottom: 10px;
     height: 50px;
     width: 150px;
-    background-color: beige;
+    background-color: #f0f0f0;
     border-radius: 5px;
-    text-align: center
-}
+    text-align: center;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  }
 
-.content{
+/* .content{
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1em;
-}
+} */
+
+.cardinner {
+    position: absolute;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 500;
+  }
 
 .readyAndStart{
     margin-top: 20px;
@@ -105,8 +117,19 @@
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: beige;
     text-align: center;
   }
 
+.eventLog{
+    padding-bottom: 120px;
+    padding-top: 60px; 
+}
 
+.revealed{
+    color: gray;
+}
+
+
+.available{
+    color: black;
+}
