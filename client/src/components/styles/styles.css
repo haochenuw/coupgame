@@ -8,9 +8,9 @@ body {
    color: black;
 }
 
-.me {
+/* .me {
     color: rgb(137, 167, 57);
-}
+} */
 
 .error {
     color: red; 
@@ -21,14 +21,9 @@ body {
     font-family: 'Chakra Petch', sans-serif;
 }
 
-.log .newest{
-    font-size: large;
-    font-family: 'Chakra Petch', sans-serif;
-}
-
 .selection{
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 0px;
+    padding-bottom: 5px;
 }
 
 .cards{
@@ -138,3 +133,13 @@ body {
 .available{
     color: black;
 }
+
+.banner{
+    text-align: center;
+    font-weight: 500;
+    font-size: 32px; 
+    padding-top:5px;
+    padding-bottom: 5px;
+}
+
+.selection{}

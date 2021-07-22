@@ -21,23 +21,23 @@ export default function ActionBanner(props) {
     let computeBanner = () => {
         switch (props.roundState){
             case "WAITING_FOR_OTHERS": 
-                return <h2>Waiting for others...</h2>
+                return "Waiting for others..."
             case "PENDING_SERVER": 
-                return <h2>Pending server response...</h2>
+                return "Pending server response..."
             case "WAIT_FOR_ACTION":
-                return <h2>Choose an action</h2>
+                return "Choose an action"
             case "WAIT_FOR_SURRENDER": 
-                return <h2>Choose a card to surrender</h2>
+                return "Choose a card to surrender"
             case "WAIT_FOR_CHALLENGE":
-                return <h2>{computeLastActionInLog()}</h2>
+                return computeLastActionInLog()
             case "WAIT_FOR_BLOCK":
-                return <h2>{computeLastActionInLog()}</h2>
+                return computeLastActionInLog()
             case "WAIT_FOR_CHALLENGE_OR_BLOCK":
-                return <h2>{computeLastActionInLog()}</h2>
+                return computeLastActionInLog()
             case "WAIT_FOR_REVEAL":
-                return <h2>{computeLastActionInLog()}</h2>
+                return computeLastActionInLog()
             case "ELIMINATED": 
-                return <h2>You have been eliminated</h2>
+                return "You have been eliminated"
             default: 
                 return null; 
         }

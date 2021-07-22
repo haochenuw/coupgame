@@ -186,9 +186,8 @@ function PlayersPanel(props){
             <div className="readyUnitContainer">
             {props.players.map((item,index) => {
                 let ready = null
-                let meColor = '#E46258'
-                let otherColor = '#73C373'
-
+                let notReadyColor = '#E46258'
+                let readyColor = '#73C373'
 
                 if(item.isReady) {
                     ready = <b>Ready!</b>
@@ -196,7 +195,7 @@ function PlayersPanel(props){
                     ready = <b>Not Ready</b>
                 }
                 return(
-                    <div style={{backgroundColor: item.name === props.name ? meColor : otherColor}} key={index}>
+                    <div style={{backgroundColor: item.isReady ? readyColor : notReadyColor}} key={index}>
                             <p >{index+1}. {item.name} {ready}</p>
                     </div>
                 )
