@@ -1,3 +1,7 @@
+body {
+    padding-bottom: 120px; 
+}
+
 .roomName {
    /* background-color: bisque; */
    font-size: 24px; 
@@ -118,11 +122,12 @@
     bottom: 0;
     width: 100%;
     text-align: center;
+    z-index:1;
+    background: beige;
   }
 
 .eventLog{
-    padding-bottom: 120px;
-    padding-top: 60px; 
+    padding-top: 30px; 
 }
 
 .revealed{
