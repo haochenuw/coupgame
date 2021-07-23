@@ -405,7 +405,7 @@ const main = async () => {
         let gameInProgress = false; 
         let gameState = null; 
         socket.on('connection', client => {
-            console.log('id: ' + client.id + ' connected');
+            console.log(`id: ${client.id} connected to namespace ${namespace}`);
 
             if (players.length >= constants.MAX_PLAYERS){
                 logError("too many players")

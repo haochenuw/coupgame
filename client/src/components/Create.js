@@ -1,4 +1,4 @@
-import React, {useState } from 'react'
+import React, {useState, useEffect} from 'react'
 import {withRouter} from "react-router-dom";
 
 const axios = require('axios');
@@ -15,9 +15,9 @@ export const Create = withRouter(({history}) => {
 
     const handleChange = (e) => setName(e.target.value);
 
-    function createParty(event){
+    function createParty(){
         // console.log('create button clicked'); 
-        event.preventDefault();
+        // event.preventDefault();
         setDisabled(true)
         axios.get(`/createRoom`)
         .then(function (res) {
@@ -29,11 +29,17 @@ export const Create = withRouter(({history}) => {
         })
     }
 
+    useEffect(()=>{
+        createParty(); 
+    }, []); 
+
     return (
-        <div className="createHome">
-            {/* <input type="text" value={name} onChange={handleChange} placeholder="Your name" /> */}
-            <button className="createButton btn-primary" onClick={createParty} disabled={disabled}>Create</button>
-        </div>
+        // <div className="createHome">
+        //     {/* <input type="text" value={name} onChange={handleChange} placeholder="Your name" /> */}
+        //     <button className="createButton btn-primary" onClick={createParty} disabled={disabled}>Create</button>
+        // </div>
+        <>
+        </>
     )
 }); 
 

@@ -8,17 +8,17 @@ import {
 
 import Create from "./Create"; 
 import Join from "./Join"; 
-import MainGame from "./game/MainGame"; 
 import Room from "./Room"; 
+
+import './styles/styles.css';
 
 const linkStyle = {
     margin: "1rem",
-    textDecoration: "none",
-    color: "green"
-  };
+};
+
 
 function Heading(){
-    return <h1>Multiplayer Coup</h1>; 
+    return <div className="heading">Multiplayer Coup</div>; 
 }
 
 function Home(){
@@ -26,8 +26,8 @@ function Home(){
         <div className="Home">
         <Heading />
         
-        <Link style={linkStyle} to="/create">Create</Link>
-        <Link style={linkStyle} to="/join">Join</Link>
+        <Link className="btn btn-primary" style={linkStyle} to="/create">Create</Link>
+        <Link className="btn btn-primary" style={linkStyle}  to="/join">Join</Link>
         </div>
     )
 }
@@ -46,9 +46,6 @@ export default class LandingPage extends Component {
                     </Route>
                     <Route exact path="/">
                         <Home />
-                    </Route>
-                    <Route exact path="/game">
-                        <MainGame />
                     </Route>
                     <Route exact path="/room/:name" component={Room} />
                 </Switch>

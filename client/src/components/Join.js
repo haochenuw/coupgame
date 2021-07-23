@@ -45,7 +45,7 @@ export const Join = withRouter(({history}) => {
         {roomDNE &&
             <h1>Error: Room {code} does not exist</h1> 
         }
-        <button onClick={join}>Join</button>
+        <button className="btn btn-primary" onClick={join}>Join</button>
         <input id='input' onChange={handleChange} type="text" placeholder="Game code"/>
         </div>
     )

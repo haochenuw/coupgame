@@ -13,10 +13,8 @@ code {
 }
 
 .Home {
-    position: absolute;
-    width: 90VW; 
     text-align: center;
-    top: 10VH; 
+    margin-top: 10VH; 
 }
 
 .createHome {
