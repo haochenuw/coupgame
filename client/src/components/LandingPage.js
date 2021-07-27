@@ -9,6 +9,7 @@ import {
 import Create from "./Create"; 
 import Join from "./Join"; 
 import Room from "./Room"; 
+import RulesModal from "./RulesModal"; 
 
 import './styles/styles.css';
 
@@ -50,6 +51,7 @@ export default class LandingPage extends Component {
                     <Route exact path="/room/:name" component={Room} />
                 </Switch>
             </Router>
+            <RulesModal/>
             </div>
         )
     }

@@ -264,10 +264,14 @@ into c/s for block. However, the "skip" button still looks pressed.
 
 
 - (TODO) End of July, wechat roll-out 
-    - Improve UI 
+    - Improve UI [x]
     - Allow up to 6 players 
+    - Must coup after coin reaches 10 
+    - Rules Panel 
 
 - (TODO) Mid August, twitter roll-out V0
+    - Reconnection 
+    - SSL Certificate 
 
-- (TODO) End of Year, V1
+- (TODO) End of 2021, V1
     - reformation extension (alliance, inquisitor, embezzlement)
