@@ -150,4 +150,24 @@ body {
     padding-bottom: 5px;
 }
 
-.selection{}
+.infoIcon{
+    margin-top: 2px;
+    margin-right: 5px;
+}
+
+.rules{
+    text-align: center; 
+}
+
+.showRulesBtn {
+   margin: 10px;   
+}
+
+.showRulesBtnSmall{
+    display: inline; 
+}
+
+.roomName{
+    display: inline-block; 
+    margin: 5px; 
+}

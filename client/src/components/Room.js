@@ -3,6 +3,7 @@ import MainGame from "./game/MainGame"
 import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
+import RulesModal from "./RulesModal"; 
 
 export const SocketContext = React.createContext()
 
@@ -138,6 +139,7 @@ export default function Room({history, match, location}) {
     return(
             <div className="roomHome">
                 <div className="roomName"> ROOM {match.params.name} </div>
+                <RulesModal style="small"/>
                 <div className="readyAndStart">
                 {
                     roomStatus === 'ROOM_FULL' &&

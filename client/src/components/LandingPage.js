@@ -29,8 +29,12 @@ function Home(){
         
         <Link className="btn btn-primary" style={linkStyle} to="/create">Create</Link>
         <Link className="btn btn-primary" style={linkStyle}  to="/join">Join</Link>
+
+        <RulesModal/>
+
         </div>
     )
+    
 }
 
 export default class LandingPage extends Component {
@@ -51,7 +55,6 @@ export default class LandingPage extends Component {
                     <Route exact path="/room/:name" component={Room} />
                 </Switch>
             </Router>
-            <RulesModal/>
             </div>
         )
     }

@@ -1,22 +1,24 @@
 import ReactModal from "react-modal";
 import React, { useState } from 'react'
 import './styles/styles.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInfo } from '@fortawesome/free-solid-svg-icons'
+
 
 const GENERAL_RULES = [
     "Supports 2-6 player. The deck contains 15 cartds, 3 of each character.", 
     "The game starts with each player having two random cards from the deck and two coins. Each player can see its own cards but not others cards. The last player who still has a card(influence) wins",  
-    "At each turn, a player choose an action granted by its cards truthfully, or lie and claim an action it does not posess", 
-    "Other players may challenge or block the action", 
+    "At each turn, a player can choose any action, regardless of whether it has such ability. Other players might challenge or block the action", 
     "When a player loses an influence, it selects a card to surrender. That card becomes visible to all players and is out of the game."
 ]; 
 
 const ACTIONS = [
-    "Income: get one coin", 
+    "Income: get 1 coin", 
     "Coup: pay 7 coins; select on player to lose an influence", 
-    "Foreign Aid: get two coins",
+    "Foreign Aid: get 2 coins",
     "Tax: get 3 coins", 
     "Assasinate: select a player, pay 3 coins and that player loses an influence", 
-    "Exchange: draw 2 cards from the deck and return 2 cards to the deck secretly. Card in hand can be returned as well as the newly drawn cards.", 
+    "Exchange: draw 2 cards from the deck and return 2 cards to the deck secretly.", 
     "Steal: select a player and take 2 coins from them" 
 ]
 
@@ -33,23 +35,25 @@ const CHARACTER_ABILITIES = [
 const CHALLENGES = [
     "When a player claims an action (except Income, Coup or Foreign Aid), all other players can start a challenge",
     "During a challenge, if the player has a card the claimed ability, the player can reveal that card. The challenger loses an influence.", 
-    "Otherwise, the challenge succeeds and the chalengee will lose an influence. The action is canceled.", 
+    "Otherwise, the challenge succeeds and the chalengee lose an influence. The action is canceled.", 
 ]
 
 const BLOCKS = [
     "Certain characters has abilities to block actions, effectively cancelling the action.",
     "Only the player(s) affected by an action can attempt to block", 
-    "If an action can be both challenged and blocked, then the challenges will be resolved before blocks", 
-    "Note: block can also be challenged", 
+    "If an action can be both challenged and blocked, then the challenges are resolved first", 
+    "Block can also be challenged", 
 ]
 
 const SPECIAL_RULES = [
-    "If a player has 10 coins or more when then it must select the coup action", 
-    "If a", 
+    "If a player starts its turn with 10 coins or more, then it must select the coup action", 
+    "If Assasination is successfuly challenged, then the player does not pay 3 coins. However, if it is blocked, then the coins are paid.", 
 ]
 
 export default function RulesModal(props) {
     const [isOpen, setIsOpen] = useState(false);
+
+    console.log(props.style)
 
     function rulesContainer(heading, rules){
         return (
@@ -66,6 +70,9 @@ export default function RulesModal(props) {
         )
     }
 
+    const infoIcon = <FontAwesomeIcon className="infoIcon" icon={faInfo} />
+
+
 
     function closeModal() {
         setIsOpen(false)
@@ -75,11 +82,28 @@ export default function RulesModal(props) {
         setIsOpen(true)
     }
 
+    function renderButton(){
+        if (props.style === "small"){
+            return (
+                <div className="btn btn-primary showRulesBtnSmall" onClick={openModal}>
+                {infoIcon}
+                </div>
+            )
+        } else{
+            return(
+                <div className="rules">
+                <div className="btn btn-primary showRulesBtn" onClick={openModal}>
+                {infoIcon}
+                <span>Show rules</span>
+                </div>
+                </div>
+            )
+        }
+    }
+
     return (
         <>
-        <div className="rules">
-            <button  onClick={openModal}>Show rules</button>
-        </div>
+        {renderButton()}
         <ReactModal
         isOpen={isOpen}
         onRequestClose={closeModal}
@@ -87,6 +111,7 @@ export default function RulesModal(props) {
         >
         <button onClick={closeModal}>x</button>
         {rulesContainer("General Rules", GENERAL_RULES)}
+        {rulesContainer("Actions", ACTIONS)}
         {rulesContainer("Character Abilities", CHARACTER_ABILITIES)}
         {rulesContainer("Challenges", CHALLENGES)}
         {rulesContainer("Blocks", BLOCKS)}
