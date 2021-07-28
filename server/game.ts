@@ -181,7 +181,7 @@ export function commitAction(gameState: GameState): GameState{
                 // if everyone other than the actor skips, then execute action. 
                 logInfo("all relevant players skipped challenge");
                 // if there is a pending block then handle it
-                   // 3. player can't block if it is died. 
+                // 3. player can't block if it is died.
                 let shouldConsiderBlock = computeShouldConsiderBlock(gameState); 
                 console.log(`should consider block = ${shouldConsiderBlock}`)
 
@@ -214,6 +214,9 @@ export function commitAction(gameState: GameState): GameState{
         case Action.Block: 
             sourceIndex = computeIndex(gameState, action.source);
             logDebug(`player ${gameState.playerStates[sourceIndex].friendlyName} blocks`); 
+            if(gameState.pendingActions[0].name === Action.Assasinate){
+                gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
+            }
             gameState.pendingActions.shift(); 
             break; 
 
@@ -323,8 +326,10 @@ export function commitAction(gameState: GameState): GameState{
         case Action.Assasinate: 
             targetIndex = computeIndexFromName(gameState, action.target);
             if (targetIndex < 0){
-                logError(`target ${action.target} not found`); 
+                logError(`target ${action.target} not found`);
+                break;  
             }
+            gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
             gameState = handleLifeLost(gameState, targetIndex, SurrenderReason.Assasinate); 
             break;     
 
@@ -578,9 +583,9 @@ export function computePlayersAbleToBlock(gameState: GameState, action: PlayerAc
 export function handleAction(gameState, action: PlayerAction): GameState {
     console.log(`got action ${JSON.stringify(action)}`); 
     // Handle special case. If it is assasinate, then deduct tokens right away 
-    if(action.name as Action === Action.Assasinate){
-        gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
-    }
+    // if(action.name as Action === Action.Assasinate){
+    //     gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
+    // }
 
     let sourceName = gameState.playerStates.find(state => state.socket_id === action.source).friendlyName; 
 

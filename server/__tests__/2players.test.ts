@@ -189,7 +189,7 @@ describe('assasinate tests', ()=>{
     
         expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
         expect(state.playerStates[1].lifePoint).toEqual(1); 
-        expect(state.playerStates[0].tokens).toEqual(0); 
+        expect(state.playerStates[0].tokens).toEqual(3); // not deducted yet.  
     
     }); 
 
@@ -205,7 +205,7 @@ describe('assasinate tests', ()=>{
         expect(state.roundState).toEqual(RoundState.WaitForAction); 
         expect(state.activePlayerIndex).toEqual(1); 
         expect(state.playerStates[0].lifePoint).toEqual(1); 
-        expect(state.playerStates[0].tokens).toEqual(0); 
+        expect(state.playerStates[0].tokens).toEqual(3); 
     }); 
 
     test('assBlockSkip', () =>{

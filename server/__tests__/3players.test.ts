@@ -366,7 +366,7 @@ describe('assasinate tests', ()=>{
         
         expect(state.roundState).toEqual(RoundState.WaitForAction); 
         expect(state.playerStates[0].lifePoint).toEqual(1); 
-        expect(state.playerStates[0].tokens).toEqual(0); 
+        expect(state.playerStates[0].tokens).toEqual(3);  
         expect(state.activePlayerIndex).toEqual(1); 
     }); 
     
