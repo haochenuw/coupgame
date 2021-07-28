@@ -7,6 +7,7 @@ import CardModal from './CardModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoffee, faHeart } from '@fortawesome/free-solid-svg-icons'
 import ActionBanner  from './ActionBanner';
+import {ActionPanel, ACTIONS} from './ActionPanel';
 
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
 
@@ -406,6 +407,25 @@ export default function MainGame(props) {
         return players.map(state => state.friendlyName);
     }
 
+    function computeDisabledActions(gameState){
+        let result = []; 
+        if(gameState == null){
+            return []; 
+        }
+        let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens;
+        if (playerTokens >= 10){
+            return ACTIONS.filter(action => action !== 'Coup'); 
+        } else{
+            if (playerTokens < COUP_COST){
+                result.push('Coup')
+            }
+            if (playerTokens < ASSASINATE_COST){
+                result.push('Assasinate'); 
+            }
+        }
+        return result; 
+    }
+
     return (
         <div>
             {hasError && <h2 className="error">There's an error</h2>}
@@ -415,7 +435,7 @@ export default function MainGame(props) {
             <div className="footer">
             {localGameState !== null && <ActionBanner roundState={roundState} logs={localGameState.logs}/>}
             {
-                roundState === "WAIT_FOR_ACTION" && actionPanel()
+                roundState === "WAIT_FOR_ACTION" && <ActionPanel onAction={onActionSelected} disabledActions={computeDisabledActions(localGameState)}/>
             }
             {
                 roundState === "WAIT_FOR_SURRENDER" && selectAliveCardsPanel('Surrender')

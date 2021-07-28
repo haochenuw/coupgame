@@ -27,7 +27,7 @@ export default function ActionBanner(props) {
             case "WAIT_FOR_ACTION":
                 return "Choose an action"
             case "WAIT_FOR_SURRENDER": 
-                return "Choose a card to surrender"
+                return null
             case "WAIT_FOR_CHALLENGE":
                 return computeLastActionInLog()
             case "WAIT_FOR_BLOCK":
