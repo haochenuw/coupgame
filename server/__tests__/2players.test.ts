@@ -174,6 +174,7 @@ describe('assasinate tests', ()=>{
         expect(state.roundState).toEqual(RoundState.WaitForSurrender); 
         expect(state.surrenderReason).toEqual(SurrenderReason.Assasinate); 
         expect(state.surrenderingPlayerIndex).toEqual(1); 
+        expect(state.playerStates[0].tokens).toEqual(0); 
     }); 
     
     // Test assasinate challenged 
