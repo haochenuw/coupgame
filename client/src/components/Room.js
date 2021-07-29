@@ -11,7 +11,7 @@ export const SocketContext = React.createContext()
 
 let socket = null; 
 
-const MAX_PLAYERS = 4; 
+const MAX_PLAYERS = 6; 
 const MIN_PLAYERS = 2; 
 
 export default function Room({history, match, location}) {

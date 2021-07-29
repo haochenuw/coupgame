@@ -59,5 +59,5 @@ export const FgGreen = "\x1b[32m"
 export const FgCyan = "\x1b[36m"
 // FgWhite = "\x1b[37m"
 
-export const MAX_PLAYERS: number = 4; 
+export const MAX_PLAYERS: number = 6; 
 export const MIN_PLAYERS: number = 2; 
