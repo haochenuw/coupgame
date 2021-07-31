@@ -2,7 +2,7 @@ import ReactModal from "react-modal";
 import React, { useState } from 'react'
 import './styles/styles.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInfo } from '@fortawesome/free-solid-svg-icons'
+import { faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 
 const GENERAL_RULES = [
@@ -70,7 +70,7 @@ export default function RulesModal(props) {
         )
     }
 
-    const infoIcon = <FontAwesomeIcon className="infoIcon" icon={faInfo} />
+    const infoIcon = <FontAwesomeIcon className="infoIcon" icon={faInfoCircle} />
 
 
 
@@ -85,7 +85,7 @@ export default function RulesModal(props) {
     function renderButton(){
         if (props.style === "small"){
             return (
-                <div className="btn btn-primary showRulesBtnSmall" onClick={openModal}>
+                <div className="showRulesBtnSmall" onClick={openModal}>
                 {infoIcon}
                 </div>
             )

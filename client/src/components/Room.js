@@ -138,8 +138,10 @@ export default function Room({history, match, location}) {
 
     return(
             <div className="roomHome">
-                <div className="roomName"> ROOM {match.params.name} </div>
-                <RulesModal style="small"/>
+                <div class="roomHeader">
+                    <div className="roomName"> ROOM {match.params.name} </div>
+                    <RulesModal style="small"/>
+                </div>
                 <div className="readyAndStart">
                 {
                     roomStatus === 'ROOM_FULL' &&

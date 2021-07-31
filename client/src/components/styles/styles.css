@@ -2,11 +2,7 @@ body {
     padding-bottom: 120px; 
 }
 
-.roomName {
-   /* background-color: bisque; */
-   font-size: 24px; 
-   color: black;
-}
+
 
 .heading{
     text-align: center;
@@ -164,10 +160,21 @@ body {
 }
 
 .showRulesBtnSmall{
-    display: inline; 
+    display: inline-block; 
+    margin: 5px; 
 }
 
 .roomName{
     display: inline-block; 
     margin: 5px; 
+    font-size: 24px; 
+}
+
+.infoIcon{
+    font-size: 24px; 
+    color:gray
+}
+
+.roomHeader{
+    text-align: center;
 }
