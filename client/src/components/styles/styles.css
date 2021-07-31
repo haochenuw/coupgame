@@ -171,6 +171,10 @@ body {
 }
 
 .infoIcon{
+    font-size: 18px; 
+}
+
+.infoIconInline{
     font-size: 24px; 
     color:gray
 }

@@ -70,7 +70,6 @@ export default function RulesModal(props) {
         )
     }
 
-    const infoIcon = <FontAwesomeIcon className="infoIcon" icon={faInfoCircle} />
 
 
 
@@ -86,14 +85,15 @@ export default function RulesModal(props) {
         if (props.style === "small"){
             return (
                 <div className="showRulesBtnSmall" onClick={openModal}>
-                {infoIcon}
+                <FontAwesomeIcon className="infoIconInline" icon={faInfoCircle} />
+
                 </div>
             )
         } else{
             return(
                 <div className="rules">
                 <div className="btn btn-primary showRulesBtn" onClick={openModal}>
-                {infoIcon}
+                <FontAwesomeIcon className="infoIcon" icon={faInfoCircle} />
                 <span>Show rules</span>
                 </div>
                 </div>
