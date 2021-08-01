@@ -265,9 +265,9 @@ into c/s for block. However, the "skip" button still looks pressed.
 
 - (TODO) End of July, wechat roll-out 
     - Improve UI [x]
-    - Allow up to 6 players 
-    - Must coup after coin reaches 10 
-    - Rules Panel 
+    - Allow up to 6 players [x]
+    - Must coup after coin reaches 10 [x] 
+    - Rules Panel [x]
 
 - (TODO) Mid August, twitter roll-out V0
     - Reconnection 
