@@ -270,8 +270,12 @@ into c/s for block. However, the "skip" button still looks pressed.
     - Rules Panel [x]
 
 - (TODO) Mid August, twitter roll-out V0
-    - Reconnection 
-    - SSL Certificate 
+    - Reconnection ?? This needs solving especially for many players.
+    - SSL Certificate [x]
 
 - (TODO) End of 2021, V1
+    - reconnection
     - reformation extension (alliance, inquisitor, embezzlement)
+
+- (TODO) End of Q1 2022, V2
+    - 

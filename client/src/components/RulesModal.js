@@ -6,9 +6,9 @@ import { faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 
 const GENERAL_RULES = [
-    "Supports 2-6 player. The deck contains 15 cartds, 3 of each character.", 
-    "The game starts with each player having two random cards from the deck and two coins. Each player can see its own cards but not others cards. The last player who still has a card(influence) wins",  
-    "At each turn, a player can choose any action, regardless of whether it has such ability. Other players might challenge or block the action", 
+    "Supports 2-6 player. The deck contains 15 cards, 3 of each character.", 
+    "The game starts with each player taking two random cards from the deck and two coins. Each player can see their own cards but not cards of others. The last player who still has a card(influence) wins",  
+    "At each turn, a player takes an action from the list of actions. Some actions can be challenged or blocked, in which case other players might challenge or block the action", 
     "When a player loses an influence, it selects a card to surrender. That card becomes visible to all players and is out of the game."
 ]; 
 
