@@ -277,5 +277,10 @@ into c/s for block. However, the "skip" button still looks pressed.
     - reconnection
     - reformation extension (alliance, inquisitor, embezzlement)
 
-- (TODO) End of Q1 2022, V2
-    - 
+## Reconnection design
+    - fix bug for immediately connecting when typing name [x]
+    - need to not mix up local state. Index by room name. [x]
+    - enforce player unique name. [x]
+    - Handle in-game disconnection. 
+        - Show a "disconnection" status. 
+        - When player reconnects, flush the status and send the gameState. 

@@ -12,7 +12,7 @@ export const Create = withRouter(({history}) => {
     const [name, setName] = useState(null)
 
     const [nameRegistered, setNameRegistered] = useStateWithLocalStorage(
-        'nameIsRegistered'
+        'nameIsRegistered', {isRegistered: false}
     );
 
 
@@ -31,7 +31,7 @@ export const Create = withRouter(({history}) => {
     }
 
     useEffect(()=>{
-        setNameRegistered(false); 
+        setNameRegistered({isRegistered: false}); 
         createParty(); 
     }, []); 
 

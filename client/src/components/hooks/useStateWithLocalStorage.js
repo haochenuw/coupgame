@@ -1,12 +1,12 @@
 import React from "react";
 
-export function useStateWithLocalStorage(localStorageKey) {
+export function useStateWithLocalStorage(localStorageKey, defaultValue) {
     const [value, setValue] = React.useState(
-      localStorage.getItem(localStorageKey) || ''
+      JSON.parse(localStorage.getItem(localStorageKey)) || defaultValue
     );
   
     React.useEffect(() => {
-      localStorage.setItem(localStorageKey, value);
+      localStorage.setItem(localStorageKey, JSON.stringify(value));
     }, [value]);
   
     return [value, setValue];

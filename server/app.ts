@@ -128,9 +128,16 @@ const main = async () => {
                 logDebug(`players = ${JSON.stringify(players)}`); 
                 let player = players.find(player => player.client_id === client.id)
                 if (player !== undefined){
-                    logDebug(`player ${player.client_id} set their name to be ${playerName}`); 
-                    player.name = playerName; 
-                    socket.emit('playersUpdate', players);
+                    // reject if name is duplicate 
+                    let nameExists = players.find(player => player.name === playerName); 
+                    if (nameExists !== undefined){
+                        logDebug("name is duplicate"); 
+                        client.emit('nameExists', playerName); 
+                    } else{
+                        logDebug(`player ${player.client_id} set their name to be ${playerName}`); 
+                        player.name = playerName; 
+                        socket.emit('playersUpdate', players);
+                    }
                 }
             });
 

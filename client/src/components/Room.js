@@ -4,7 +4,7 @@ import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
 import RulesModal from "./RulesModal";
-import {useStateWithLocalStorage} from "./hooks/useStateWithLocalStorage"
+import {useStateWithSessionStorage} from "./hooks/useStateWithSessionStorage"
 
 export const SocketContext = React.createContext()
 
@@ -17,19 +17,18 @@ const MIN_PLAYERS = 2;
 
 export default function Room({ history, match, location }) {
     // Connect through socket. 
-    console.log(`got room name = ${match.params.name}`);
+    const roomName = match.params.name; 
+    console.log(`Room name = ${match.params.name}`);
     if (socket === null) {
         console.log('connecting to socket.io...');
         socket = io(`/${match.params.name}`);
     }
 
     const [players, setPlayers] = useState(null);
+    const [nameError, setNameError] = useState(null);
     const [me, setMe] = useState('');
-    const [name, setName] = useStateWithLocalStorage(
-        'playerName'
-    );
-    const [nameRegistered, setNameRegistered] = useStateWithLocalStorage(
-        'nameIsRegistered'
+    const [nameState, setNameState] = useStateWithSessionStorage(
+        roomName, {name: '', isRegistered: false}
     );
     const [winner, setWinner] = useState(null);
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
@@ -38,9 +37,11 @@ export default function Room({ history, match, location }) {
     useEffect(() => {
         socket.on("connect", () => {
             setMe(socket.id);
-            if (nameRegistered){
+            if (nameState.isRegistered === true){
                 console.log("re-setting the name");
-                socket.emit('setName', name);
+                socket.emit('setName', nameState.name);
+            } else{
+                console.log("name is not registered yet"); 
             }
         });
 
@@ -72,6 +73,11 @@ export default function Room({ history, match, location }) {
             setWinner(winner);
             setRoomStatus("GAMEOVER");
         });
+
+        socket.on('nameExists', name => {
+            setNameState({ ...nameState, isRegistered: false}); 
+            setNameError(`name ${name} already in use`)
+        })
     }, []);
 
     function setReady() {
@@ -114,25 +120,32 @@ export default function Room({ history, match, location }) {
         return (
             <div>
                 <h2>Game over: winner is {winner}</h2>
-                {winner === name && (<h2>You won!</h2>)}
-                {winner !== name && (<h2>You lost!</h2>)}
+                {winner === nameState.name && (<h2>You won!</h2>)}
+                {winner !== nameState.name && (<h2>You lost!</h2>)}
             </div>
         )
     }
 
     function onSaveName(value) {
-        setName(value)
+        if (value === ""){
+            setNameError("name cannot be empty"); 
+            return; 
+        }
+        setNameState({...nameState, name: value})
         console.log(`Got player name = ${value}`);
         socket.emit('setName', value);
-        setNameRegistered(true); 
+        setNameState({...nameState, isRegistered: true}); 
     }
 
-    const onChange = event => setName(event.target.value);
+    const onChange = event => {
+        setNameState({...nameState, name: event.target.value});
+    }
 
     function setNamePanel() {
         return (
             <div className="joinHome">
-                <input id='inputName' value={name} type="text" placeholder="Your Name" onChange={onChange} />
+                {nameError !== null && <h3>Error: {nameError}</h3>}
+                <input id='inputName' value={nameState.name} type="text" placeholder="Your Name" onChange={onChange} />
                 <button className="btn btn-info" onClick={() => onSaveName(document.getElementById('inputName').value)}>Save</button>
             </div>
         )
@@ -142,13 +155,13 @@ export default function Room({ history, match, location }) {
         return isAllPlayersReady() && isPlayerNumberAllowed() && isCreator() === true
     }
 
-    if (name === "" || nameRegistered === false) {
+    if (nameState.name === '' || nameState.isRegistered === false) {
         return setNamePanel()
     }
 
     return (
         <div className="roomHome">
-            <div class="roomHeader">
+            <div className="roomHeader">
                 <div className="roomName"> ROOM {match.params.name} </div>
                 <RulesModal style="small" />
             </div>
@@ -175,11 +188,11 @@ export default function Room({ history, match, location }) {
                 roomStatus === 'STARTED' &&
                 initialState !== null &&
                 <SocketContext.Provider value={socket}>
-                    <MainGame me={me} myName={name} initialState={initialState} />
+                    <MainGame me={me} myName={nameState.name} initialState={initialState} />
                 </SocketContext.Provider>
             }
             {
-                roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayersPanel players={players} me={me} name={name} />
+                roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayersPanel players={players} me={me} name={nameState.name} />
             }
             {
                 roomStatus === 'GAMEOVER' && gameOverPanel()

@@ -62,7 +62,7 @@ export default function RulesModal(props) {
                 <ul>
                 {
                     rules.map((rule, index) => {
-                    return ( <li>{rule}</li> )
+                    return ( <li key={index}>{rule}</li> )
                     })
                 }
                 </ul>
