@@ -91,8 +91,10 @@ const main = async () => {
         let gameInProgress = false; 
         let gameState = null; 
         socket.on('connection', client => {
-            console.log(`id: ${client.id} connected to namespace ${namespace}`);
-
+            
+            logInfo(`id: ${client.id} connected to namespace ${namespace}`);
+            logInfo(`query = ${JSON.stringify(client.handshake.query)}`);
+            
             if (players.length >= constants.MAX_PLAYERS){
                 logError("too many players")
                 socket.emit('roomFull'); 
@@ -100,33 +102,41 @@ const main = async () => {
             }
 
             if (gameInProgress){
+                // check if player name is in the list of disconnected ones. 
                 logError("game has already started"); 
-                socket.emit('gameInProgress'); 
+                client.emit('gameInProgress'); 
                 return; 
             }
 
             players.push({
-                "client_id": `${client.id}`,
-                "isReady": false
+                "socket_id": `${client.id}`,
+                "isReady": false, 
+                "connected": true 
             })
             client.join(namespace);
 
             client.on('disconnect', () => {
-                console.log(`socket ${client.id} disconnected`);
+                const index = players.findIndex(player => player.socket_id === client.id)
+                logInfo(`socket ${client.id} disconnected`);
+                logDebug(`playerstates = ${JSON.stringify(gameState.playerStates)}`);
+                logDebug(`players = ${JSON.stringify(players)}`);
+                if (index === -1){
+                    logError("Client Not found"); 
+                    return; 
+                }
                 if (gameInProgress){
-                    socket.emit('error', 'some player disconnected'); 
+                       logInfo("Setting connected to false"); 
+                       gameState.playerStates[index].connected = false; 
+                       sendMaskedGameStates(socket, gameState, 'gameState'); 
                 } else {
-                    const index = players.findIndex(player => player.client_id === client.id)
-                    if (index > -1){
-                        // remove player from list
-                        players.splice(index, 1); 
-                    }
+                    // remove from list of players 
+                    players.splice(index, 1); 
                 }
             });
             
             client.on('setName', playerName => {
                 logDebug(`players = ${JSON.stringify(players)}`); 
-                let player = players.find(player => player.client_id === client.id)
+                let player = players.find(player => player.socket_id === client.id)
                 if (player !== undefined){
                     // reject if name is duplicate 
                     let nameExists = players.find(player => player.name === playerName); 
@@ -134,7 +144,7 @@ const main = async () => {
                         logDebug("name is duplicate"); 
                         client.emit('nameExists', playerName); 
                     } else{
-                        logDebug(`player ${player.client_id} set their name to be ${playerName}`); 
+                        logDebug(`player ${player.socket_id} set their name to be ${playerName}`); 
                         player.name = playerName; 
                         socket.emit('playersUpdate', players);
                     }
@@ -144,7 +154,7 @@ const main = async () => {
             client.on('playerReady', () => {
                 console.log(`${client.id} is ready`)
                 players.forEach(player => {
-                    if (player.client_id === client.id){
+                    if (player.socket_id === client.id){
                         player.isReady = true; 
                     }
                 })

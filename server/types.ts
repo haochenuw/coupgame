@@ -109,11 +109,8 @@ export function isBlockable(action: Action) {
     }
 }
 
-
-
-
 export type GameState = {
-    activePlayerIndex: number,  // the player(s) responsible for making the next action
+    activePlayerIndex: number,  // the player responsible for making the next action
     challengingPlayerIndex: number | null | undefined, 
     surrenderingPlayerIndex: number | null | undefined, 
     playerStates: Array<PlayerState>,
@@ -131,5 +128,6 @@ export type PlayerState = {
     cards: Array<Card>,
     tokens: number, 
     friendlyName: string | null, 
-    socket_id: string 
+    socket_id: string, 
+    connected: boolean
 }

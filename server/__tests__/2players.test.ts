@@ -9,12 +9,12 @@ import lodash from 'lodash';
 const twoPlayers = 
     [
         {
-            client_id: "0", 
+            socket_id: "0", 
             isReady: true,
             name: "A", 
         }, 
         {
-            client_id: "1", 
+            socket_id: "1", 
             isReady: true,
             name: "B", 
         }, 

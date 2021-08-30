@@ -4,7 +4,7 @@ import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
 import RulesModal from "./RulesModal";
-import {useStateWithSessionStorage} from "./hooks/useStateWithSessionStorage"
+import { useStateWithSessionStorage } from "./hooks/useStateWithSessionStorage"
 
 export const SocketContext = React.createContext()
 
@@ -17,18 +17,22 @@ const MIN_PLAYERS = 2;
 
 export default function Room({ history, match, location }) {
     // Connect through socket. 
-    const roomName = match.params.name; 
+    const roomName = match.params.name;
     console.log(`Room name = ${match.params.name}`);
     if (socket === null) {
         console.log('connecting to socket.io...');
-        socket = io(`/${match.params.name}`);
+        socket = io(`/${match.params.name}`, {
+            query: {
+                "my-key": "my-value"
+            }
+        });
     }
 
     const [players, setPlayers] = useState(null);
     const [nameError, setNameError] = useState(null);
     const [me, setMe] = useState('');
     const [nameState, setNameState] = useStateWithSessionStorage(
-        roomName, {name: '', isRegistered: false}
+        roomName, { name: '', isRegistered: false }
     );
     const [winner, setWinner] = useState(null);
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
@@ -37,11 +41,11 @@ export default function Room({ history, match, location }) {
     useEffect(() => {
         socket.on("connect", () => {
             setMe(socket.id);
-            if (nameState.isRegistered === true){
+            if (nameState.isRegistered === true) {
                 console.log("re-setting the name");
                 socket.emit('setName', nameState.name);
-            } else{
-                console.log("name is not registered yet"); 
+            } else {
+                console.log("name is not registered yet");
             }
         });
 
@@ -75,7 +79,7 @@ export default function Room({ history, match, location }) {
         });
 
         socket.on('nameExists', name => {
-            setNameState({ ...nameState, isRegistered: false}); 
+            setNameState({ ...nameState, isRegistered: false });
             setNameError(`name ${name} already in use`)
         })
     }, []);
@@ -83,7 +87,7 @@ export default function Room({ history, match, location }) {
     function setReady() {
         setPlayers(
             players.map(item =>
-                item.client_id === me
+                item.socket_id === me
                     ? { ...item, isReady: true }
                     : item
             ));
@@ -127,18 +131,18 @@ export default function Room({ history, match, location }) {
     }
 
     function onSaveName(value) {
-        if (value === ""){
-            setNameError("name cannot be empty"); 
-            return; 
+        if (value === "") {
+            setNameError("name cannot be empty");
+            return;
         }
-        setNameState({...nameState, name: value})
+        setNameState({ ...nameState, name: value })
         console.log(`Got player name = ${value}`);
         socket.emit('setName', value);
-        setNameState({...nameState, isRegistered: true}); 
+        setNameState({ ...nameState, isRegistered: true });
     }
 
     const onChange = event => {
-        setNameState({...nameState, name: event.target.value});
+        setNameState({ ...nameState, name: event.target.value });
     }
 
     function setNamePanel() {

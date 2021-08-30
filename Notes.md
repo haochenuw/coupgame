@@ -275,6 +275,7 @@ into c/s for block. However, the "skip" button still looks pressed.
 
 - (TODO) End of 2021, V1
     - reconnection
+    - back buttons from create and join page 
     - reformation extension (alliance, inquisitor, embezzlement)
 
 ## Reconnection design
@@ -282,5 +283,14 @@ into c/s for block. However, the "skip" button still looks pressed.
     - need to not mix up local state. Index by room name. [x]
     - enforce player unique name. [x]
     - Handle in-game disconnection. 
-        - Show a "disconnection" status. 
-        - When player reconnects, flush the status and send the gameState. 
+        - Show a "disconnection" status. [x]
+        - When player reconnects, flush the status and send the gameState.  
+
+### How to recognize a player? 
+
+By name -- it's okay, since name is unique. Can we eliminate attacks? 
+We can give each player an access token for a room. The token is granted when the player first joins/creates, 
+and is paired with player name. ROOM_NAME: playerName -> token. 
+Then, store the token in local storage (for debug, can store it in session storage). 
+If a player lost connection and comes back, it should be able to present its token. Server checks the token and lets the player in if it passes. 
+

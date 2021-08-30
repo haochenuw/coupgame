@@ -27,8 +27,9 @@ export function initGame(players): GameState {
             lifePoint: 2,
             cards: [shuffled_deck.pop(), shuffled_deck.pop()],
             tokens: constants.INITIAL_TOKENS,
-            socket_id: player.client_id, 
-            friendlyName: player.name
+            socket_id: player.socket_id, 
+            friendlyName: player.name,
+            connected: player.connected
         }
     }); 
 

@@ -210,6 +210,8 @@ export default function MainGame(props) {
                     <div className={playerState.lifePoint === 0 ? "terminated-player" : "alive-player"}>
                     {playerState.friendlyName} 
                     <span>{hearts} {tokens} </span>
+                    {playerState.connected === true &&<span>connected</span>}
+                    {playerState.connected === false &&<span>disconnected...</span>}
                     </div>
                     <div class="cards">
                         {playerState.cards.map((card) => {

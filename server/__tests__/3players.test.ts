@@ -10,17 +10,17 @@ import lodash from 'lodash';
 const threePlayers = 
     [
         {
-            client_id: "0", 
+            socket_id: "0", 
             isReady: true,
             name: "A", 
         }, 
         {
-            client_id: "1", 
+            socket_id: "1", 
             isReady: true,
             name: "B", 
         }, 
         {
-            client_id: "2", 
+            socket_id: "2", 
             isReady: true,
             name: "C", 
         }, 
