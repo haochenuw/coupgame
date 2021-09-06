@@ -9,23 +9,23 @@ import lodash from 'lodash';
 const twoPlayers = 
     [
         {
-            socket_id: "0", 
+            socket_id: "A", 
             isReady: true,
             name: "A", 
         }, 
         {
-            socket_id: "1", 
+            socket_id: "B", 
             isReady: true,
             name: "B", 
         }, 
     ];
 
-const assAction = {source: "0", name: Action.Assasinate, target: "B"}; 
-const b_challenge_a = {source: "1", name: Action.Challenge, target: "A"}; 
-const a_reveal_ass = {source: "0", name: Action.Reveal, target: "Assassin"}; 
-const a_reveal_duke = {source: "0", name: Action.Reveal, target: "Duke"}; 
-const b_blocks_a = {source: "1", name: Action.Block, target: "A"}; 
-const a_skip = {source: "0", name: Action.Skip, target: null}; 
+const assAction = {source: "A", name: Action.Assasinate, target: "B"}; 
+const b_challenge_a = {source: "B", name: Action.Challenge, target: "A"}; 
+const a_reveal_ass = {source: "A", name: Action.Reveal, target: "Assassin"}; 
+const a_reveal_duke = {source: "A", name: Action.Reveal, target: "Duke"}; 
+const b_blocks_a = {source: "B", name: Action.Block, target: "A"}; 
+const a_skip = {source: "A", name: Action.Skip, target: null}; 
 
 
 function setActivePlayer(gameState, index): GameState{
@@ -52,7 +52,7 @@ test('incomeAction', () => {
     state = setActivePlayer(state, 0); 
 
     // income action 
-    let incomeAction: PlayerAction = {source: "0", target: null, name: Action.Income}; 
+    let incomeAction: PlayerAction = {source: "A", target: null, name: Action.Income}; 
     state.pendingActions.splice(0,0, incomeAction);
     state = game.commitAction(state); 
     expect(state.playerStates[0].tokens).toEqual(INITIAL_TOKENS + INCOME_RATE); 
@@ -68,7 +68,7 @@ test('coupAction', ()=> {
     state = setActivePlayer(state, 1); 
     // coup action
     state = setTokenForPlayer(state, 1, COUP_COST); 
-    const coupAction: PlayerAction = {source: "1", target: "A", name: Action.Coup}; 
+    const coupAction: PlayerAction = {source: "B", target: "A", name: Action.Coup}; 
     state.pendingActions.splice(0,0, coupAction);
     state = game.commitAction(state); 
     
@@ -89,7 +89,7 @@ test('surrenderAfterCoup', () => {
     state.surrenderingPlayerIndex = 0; 
     state.surrenderReason = SurrenderReason.Coup; 
     const cardName = state.playerStates[0].cards[0].name; 
-    const surrenderAction = {source: "0", name: Action.Surrender, target: cardName}; 
+    const surrenderAction = {source: "A", name: Action.Surrender, target: cardName}; 
     state.pendingActions.splice(0,0, surrenderAction); 
     state = game.commitAction(state); 
     expect(state.activePlayerIndex).toEqual(1); 
@@ -99,12 +99,12 @@ test('surrenderAfterCoup', () => {
 test('taxChallenge', ()=>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
-    const taxAction = {source: "0", name: Action.Tax, target: null}; 
+    const taxAction = {source: "A", name: Action.Tax, target: null}; 
     state.pendingActions.splice(0,0, taxAction); 
     state.roundState = RoundState.WaitForChallenge; 
 
 
-    const challengeAction = {source: "1", name: Action.Challenge, target: null}; 
+    const challengeAction = {source: "B", name: Action.Challenge, target: null}; 
     state.pendingActions.splice(0,0, challengeAction); 
     state = game.commitAction(state); 
 
@@ -118,12 +118,12 @@ test('taxLegitReveal', ()=>{
     let state = game.initGame(twoPlayers); 
     state = setActivePlayer(state, 0); 
     state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[0]); 
-    const taxAction = {source: "0", name: Action.Tax, target: null}; 
+    const taxAction = {source: "A", name: Action.Tax, target: null}; 
     state.pendingActions.splice(0,0, taxAction); 
     state.challengingPlayerIndex = 1; // 1 is challenging 0. 
     state.roundState = RoundState.WaitForReveal;
 
-    const revealAction = {source: "0", name: Action.Reveal, target: "Duke"}; 
+    const revealAction = {source: "A", name: Action.Reveal, target: "Duke"}; 
     state.pendingActions.splice(0,0, revealAction); 
     state = game.commitAction(state); 
 
@@ -138,12 +138,12 @@ test('taxFalseReveal', ()=>{
     state = setActivePlayer(state, 0); 
     state.playerStates[0].cards[0] = lodash.cloneDeep(CARD_TYPES[1]); 
     console.log(state.playerStates[0].cards); 
-    const taxAction = {source: "0", name: Action.Tax, target: null}; 
+    const taxAction = {source: "A", name: Action.Tax, target: null}; 
     state.pendingActions.splice(0,0, taxAction); 
     state.challengingPlayerIndex = 1; // 1 is challenging 0. 
     state.roundState = RoundState.WaitForReveal;
 
-    const revealAction = {source: "0", name: Action.Reveal, target: "Assassin"}; 
+    const revealAction = {source: "A", name: Action.Reveal, target: "Assassin"}; 
     state.pendingActions.splice(0,0, revealAction); 
     state = game.commitAction(state); 
 
@@ -165,7 +165,7 @@ describe('assasinate tests', ()=>{
     }); 
 
     test('2pAssasinateSkip', () => {
-        const skipAction = {source: "1", name:Action.Skip, target: null}; 
+        const skipAction = {source: "B", name:Action.Skip, target: null}; 
         state.pendingActions.splice(0,0, skipAction); 
     
         state = game.commitAction(state); 
