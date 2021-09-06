@@ -22,7 +22,12 @@ export default function MainGame(props) {
     const [assDisable, setAssDisable] = React.useState(false);
     const [roundState, setRoundState] = useState("")
 
-    const [localGameState, setLocalGameState] = useState(null);
+    // console.log("initial state = ", JSON.stringify(props.initialState))
+
+    const [localGameState, setLocalGameState] = useState(props.initialState);
+
+    // console.log("local state = ", JSON.stringify(localGameState))
+
 
     const [currentAction, setCurrentAction] = useState(null);
 
@@ -31,9 +36,6 @@ export default function MainGame(props) {
     const [dead, setDead] = useState(false);
 
     useEffect(() => {
-        console.log('I am ', props.me)
-        console.log('props', props);
-        handleGameState(props.initialState);
 
         socket.on('clientError', () => {
             setHasError(true);
@@ -41,22 +43,43 @@ export default function MainGame(props) {
         });
 
         socket.on('gameState', gameState => {
-            handleGameState(gameState);
+            handleRegularGameState(gameState);
         });
+
+        setHasError(false);
+        computerDerivedState(localGameState)
     }, []);
 
-    function handleGameState(gameState) {
-        console.log(`got game state, ${JSON.stringify(gameState)}`)
-        setHasError(false);
-        setLocalGameState(gameState)
 
+
+    useEffect(() => {
+        setHasError(false);
+        setLocalGameState(props.initialState)
+        computerDerivedState(localGameState)
+    }, [props.initialState]); 
+
+    // function handleInitialState(gameState){
+    //     console.log("got initial state"); 
+    //     handleGameState(gameState); 
+    // }
+
+    function handleRegularGameState(gameState){
+        console.log(`Got regular game state from server: ${JSON.stringify(gameState)}`)
+        setLocalGameState(gameState)
+        computerDerivedState(gameState)
+    }
+
+    function computerDerivedState(gameState){
+        console.log("computing derived state...")
         let player = gameState.playerStates.find(state => state.friendlyName === props.myName);
         if (player.lifePoint === 0) {
             setRoundState("ELIMINATED"); 
         }
         if (!isMe(gameState)) {
+            console.log("is me is false")
             setRoundState("WAITING_FOR_OTHERS");
         } else {
+            console.log("is me : true")
             switch (gameState.roundState) {
                 case "WAIT_FOR_SURRENDER":
                     console.log('wait for surrender...');
@@ -95,12 +118,12 @@ export default function MainGame(props) {
     }
 
     function isCoupDisabled(gameState) {
-        let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens;
+        let playerTokens = gameState.playerStates.find(state => state.friendlyName === props.myName).tokens;
         return playerTokens < COUP_COST;
     }
 
     function isAssDisabled(gameState) {
-        let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens;
+        let playerTokens = gameState.playerStates.find(state => state.friendlyName === props.myName).tokens;
         return playerTokens < ASSASINATE_COST;
     }
 
@@ -119,12 +142,13 @@ export default function MainGame(props) {
     }
 
     function onActionSelected(action) {
-        console.log('select action called')
+        console.log(`Action ${action} selected`)
         setCurrentAction(action)
         if (requiresTarget(action)) {
             setRoundState('SELECT_TARGET')
         } else {
-            socket.emit('action', { source: props.me, name: action, target: null })
+            socket.emit('action', { source: props.myName, name: action, target: null })
+            setRoundState("WAITING_FOR_OTHERS")
         }
     }
 
@@ -146,16 +170,18 @@ export default function MainGame(props) {
     }
 
     function isMe(gameState) {
+        console.log('me = ', props.myName); 
+        console.log('roundstate = ', gameState.roundState); 
         // return false if player died? should allow for surrender. 
-        if (gameState.playerStates.find(state => state.socket_id === props.me).lifePoint === 0) {
+        if (gameState.playerStates.find(state => state.friendlyName === props.myName).lifePoint === 0) {
             console.log('player already died');
             return false;
         }
-        if (gameState.playerStates[gameState.activePlayerIndex].socket_id === props.me
+        if (gameState.playerStates[gameState.activePlayerIndex].friendlyName === props.myName
             && (gameState.roundState === "WAIT_FOR_ACTION" || gameState.roundState === "WAIT_FOR_EXCHANGE")) {
             return true;
         } else if (gameState.surrenderingPlayerIndex !== null
-            && gameState.playerStates[gameState.surrenderingPlayerIndex].socket_id === props.me
+            && gameState.playerStates[gameState.surrenderingPlayerIndex].friendlyName === props.myName
             && gameState.roundState === "WAIT_FOR_SURRENDER") {
             return true;
         } else if (gameState.pendingActions.length > 0
@@ -164,19 +190,19 @@ export default function MainGame(props) {
             && !gameState.pendingActions[0].playersWhoSkippedBlock.includes(props.myName)) {
             return true;
         } else if (gameState.pendingActions.length > 0
-            && gameState.pendingActions[0].source !== props.me
+            && gameState.pendingActions[0].source !== props.myName
             && gameState.roundState === "WAIT_FOR_CHALLENGE"
             && !gameState.pendingActions[0].playersWhoSkippedChallenge.includes(props.myName)) {
             return true;
         } else if (gameState.pendingActions.length > 0
-            && gameState.pendingActions[0].source !== props.me
+            && gameState.pendingActions[0].source !== props.myName
             && gameState.roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK"
             && !gameState.pendingActions[0].playersWhoSkippedChallenge.includes(props.myName)
             && !gameState.pendingActions[0].playersWhoSkippedBlock.includes(props.myName)) {
             return true;
         }
         else if (gameState.pendingActions.length > 0
-            && gameState.pendingActions[0].source === props.me
+            && gameState.pendingActions[0].source === props.myName
             && gameState.roundState === "WAIT_FOR_REVEAL") {
             return true;
         }
@@ -192,7 +218,7 @@ export default function MainGame(props) {
             localGameState.playerStates.map((playerState) => {
                 let me = "";
                 // if me, use special color. 
-                if (playerState.socket_id === props.me) {
+                if (playerState.friendlyName === props.myName) {
                     me = "me";
                 }
 
@@ -213,7 +239,7 @@ export default function MainGame(props) {
                     {playerState.connected === true &&<span>connected</span>}
                     {playerState.connected === false &&<span>disconnected...</span>}
                     </div>
-                    <div class="cards">
+                    <div className="cards">
                         {playerState.cards.map((card) => {
                             return (
                                 <CardModal card={card}/>
@@ -244,11 +270,11 @@ export default function MainGame(props) {
 
     function onTargetSelected(action, item) {
         console.log(`target ${item} selected`);
-        socket.emit('action', { source: props.me, name: action, target: item });
+        socket.emit('action', { source: props.myName, name: action, target: item });
     }
 
     function selectAliveCardsPanel(name) {
-        let cards = localGameState.playerStates.filter(state => state.socket_id === props.me)[0].cards;
+        let cards = localGameState.playerStates.filter(state => state.friendlyName === props.myName)[0].cards;
         console.log(`cards = ${JSON.stringify(cards)}`);
         return (
             selectTargetPanel(name, cards.filter(card => card.isRevealed === false).map(card => card.name))
@@ -256,7 +282,7 @@ export default function MainGame(props) {
     }
 
     function selectPlayerTarget(action) {
-        let options = localGameState.playerStates.filter(state => state.socket_id !== props.me && state.lifePoint > 0).map(state => state.friendlyName);
+        let options = localGameState.playerStates.filter(state => state.friendlyName !== props.myName && state.lifePoint > 0).map(state => state.friendlyName);
         return (
             selectTargetPanel(action, options)
         )
@@ -289,7 +315,7 @@ export default function MainGame(props) {
 
             if (cardsToKeep.length === numToKeep) {
                 // already selected everything
-                socket.emit('action', { source: props.me, name: "ExchangeResponse", target: null, additionalData: cardsToKeep });
+                socket.emit('action', { source: props.myName, name: "ExchangeResponse", target: null, additionalData: cardsToKeep });
                 setRoundState("WAITING_FOR_OTHERS")
             }
         }
@@ -299,7 +325,7 @@ export default function MainGame(props) {
     function gameStateDebugPanel() {
         return (
             <div>
-                <p> I am {props.me} </p>
+                <p> I am {props.myName} </p>
                 <pre>
                     {JSON.stringify(localGameState, null, 2)}
                 </pre>
@@ -355,7 +381,7 @@ export default function MainGame(props) {
         if (alreadySkipedChallenge() || localGameState.pendingActions.length === 0) {
             return null;
         }
-        const name = getNameById(localGameState.pendingActions[0].source);
+        const name = localGameState.pendingActions[0].source;
         return (
             <div className="selection">
                 <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Challenge')}>Challenge {name}</button>
@@ -370,7 +396,7 @@ export default function MainGame(props) {
         } else if (alreadyMadeDecisionOnChallengeOrBlock()) {
             return null
         }
-        const name = getNameById(localGameState.pendingActions[0].source);
+        const name = localGameState.pendingActions[0].source; 
         return (
             <div className="selection">
                 {actions.map(action => {
@@ -391,16 +417,16 @@ export default function MainGame(props) {
 
     function onBlockOrChallengeDecision(action) {
         console.log('Block or Challenge decision chosen');
-        socket.emit('action', { source: props.me, name: action, target: null })
+        socket.emit('action', { source: props.myName, name: action, target: null })
     }
 
-    function getNameById(id) {
-        return localGameState.playerStates.find(state => state.socket_id === id).friendlyName;
-    }
+    // function getNameById(id) {
+    //     return localGameState.playerStates.find(state => state.socket_id === id).friendlyName;
+    // }
 
     function computePlayersAbleToBlock(gameState) {
         const action = gameState.pendingActions[0];
-        let players = gameState.playerStates.filter(state => state.socket_id !== action.source && state.lifePoint > 0);
+        let players = gameState.playerStates.filter(state => state.friendlyName !== action.source && state.lifePoint > 0);
         if (action.target !== null) {
             // only target can block
             players = players.filter(state => state.friendlyName === action.target);
@@ -414,7 +440,7 @@ export default function MainGame(props) {
         if(gameState == null){
             return []; 
         }
-        let playerTokens = gameState.playerStates.find(player => player.socket_id === props.me).tokens;
+        let playerTokens = gameState.playerStates.find(player => player.friendlyName === props.myName).tokens;
         if (playerTokens >= 10){
             return ACTIONS.filter(action => action !== 'Coup'); 
         } else{

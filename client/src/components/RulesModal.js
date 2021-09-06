@@ -53,8 +53,6 @@ const SPECIAL_RULES = [
 export default function RulesModal(props) {
     const [isOpen, setIsOpen] = useState(false);
 
-    console.log(props.style)
-
     function rulesContainer(heading, rules){
         return (
             <div>

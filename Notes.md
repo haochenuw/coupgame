@@ -294,3 +294,11 @@ and is paired with player name. ROOM_NAME: playerName -> token.
 Then, store the token in local storage (for debug, can store it in session storage). 
 If a player lost connection and comes back, it should be able to present its token. Server checks the token and lets the player in if it passes. 
 
+
+## Reconnection woes 
+
+Seems for safari, it would randomly fail if I refresh the page. And if I close and open the page again, it would 
+show "no players have connected". But server actually shows reconnection is happening. 
+
+THis seems not a problem for chrome...why? But if I close and open on chrome, then safari suddenly works. Interesting. Might be because that safari is throttling socket.io again...
+

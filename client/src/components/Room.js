@@ -5,6 +5,7 @@ import './styles/styles.css';
 import io from "socket.io-client";
 import RulesModal from "./RulesModal";
 import { useStateWithSessionStorage } from "./hooks/useStateWithSessionStorage"
+import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
 
 export const SocketContext = React.createContext()
 
@@ -16,14 +17,17 @@ const MAX_PLAYERS = 6;
 const MIN_PLAYERS = 2;
 
 export default function Room({ history, match, location }) {
-    // Connect through socket. 
     const roomName = match.params.name;
-    console.log(`Room name = ${match.params.name}`);
+    const [nameState, setNameState] = useStateWithLocalStorage(
+        roomName, { name: '', isRegistered: false }
+    );
+    // Connect through socket. 
+    console.log(`Room name = ${roomName}`);
     if (socket === null) {
         console.log('connecting to socket.io...');
-        socket = io(`/${match.params.name}`, {
+        socket = io(`/${roomName}`, {
             query: {
-                "my-key": "my-value"
+                name: nameState.name
             }
         });
     }
@@ -31,9 +35,6 @@ export default function Room({ history, match, location }) {
     const [players, setPlayers] = useState(null);
     const [nameError, setNameError] = useState(null);
     const [me, setMe] = useState('');
-    const [nameState, setNameState] = useStateWithSessionStorage(
-        roomName, { name: '', isRegistered: false }
-    );
     const [winner, setWinner] = useState(null);
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     const [initialState, setInitialState] = useState(null);
@@ -56,6 +57,13 @@ export default function Room({ history, match, location }) {
         socket.on("gameInProgress", () => {
             setRoomStatus("GAME_IN_PROGRESS");
         });
+
+        socket.on("reconnectInGame", (currentState) => {
+            console.log("reconnect in game"); 
+            console.log(`setting the state to ${JSON.stringify(currentState)}`); 
+            setInitialState(currentState);
+            setRoomStatus("STARTED");
+        }); 
 
         socket.on("playersUpdate", (players) => {
             console.log('got players update', players);
@@ -136,7 +144,7 @@ export default function Room({ history, match, location }) {
             return;
         }
         setNameState({ ...nameState, name: value })
-        console.log(`Got player name = ${value}`);
+        console.log(`Client set player name to be ${value}`);
         socket.emit('setName', value);
         setNameState({ ...nameState, isRegistered: true });
     }

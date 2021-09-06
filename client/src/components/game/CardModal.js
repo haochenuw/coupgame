@@ -37,13 +37,9 @@ const getBlock = (card) => {
 }; 
 
 export default function CardModal(props) {
-    console.log(`props = ${JSON.stringify(props)}`)
-
     const [isOpen, setIsOpen] = useState(false);
 
     const card = props.card; 
-    const revealedColor = "red";
-    const availableColor = "black";
 
     function closeModal() {
         setIsOpen(false)

@@ -1,5 +1,5 @@
 
-import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable, SurrenderReason, isChallengeable, PlayerActionWithStatus} from "./types";
+import { GameState, RoundState, Card, Action, PlayerAction, PlayerState, isBlockable, SurrenderReason, isChallengeable, PlayerActionWithStatus, EventType} from "./types";
 import * as constants from "./constants"; 
 import {logDebug, logError, logInfo, renderLog} from "./utils"; 
 import lodash from 'lodash';
@@ -46,6 +46,7 @@ export function initGame(players): GameState {
         surrenderReason: null, 
         pendingBlock: null, 
         logs: [], 
+        eventType: EventType.Initial
     }
 }
 
@@ -192,7 +193,7 @@ export function commitAction(gameState: GameState): GameState{
                         gameState.pendingActions.splice(0,0, block); 
                         gameState.pendingBlock = null; 
                         // block is challengeable
-                        gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+                        gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.friendlyName === block.source).friendlyName, block.name, block.target)); 
 
                         gameState.roundState = RoundState.WaitForChallenge;
                         return gameState; 
@@ -288,7 +289,7 @@ export function commitAction(gameState: GameState): GameState{
                         gameState.pendingActions.splice(0,0, block); 
                         gameState.pendingBlock = null; 
                         // block is challengeable
-                        gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.socket_id === block.source).friendlyName, block.name, block.target)); 
+                        gameState.logs.splice(0, 0, renderLog(gameState.playerStates.find(state => state.friendlyName === block.source).friendlyName, block.name, block.target)); 
                         gameState.roundState = RoundState.WaitForChallenge;
                         return gameState; 
                     } 
@@ -424,7 +425,7 @@ function isAbsoluteAction(action:Action) : boolean{
 }
 
 function computeIndex(gameState:GameState, target: string) {
-    return gameState.playerStates.map(state => state.socket_id).indexOf(target); 
+    return gameState.playerStates.map(state => state.friendlyName).indexOf(target); 
 }
 
 function computeIndexFromName(gameState:GameState, target: string) {
@@ -446,12 +447,16 @@ function isValidCost(action: PlayerAction, clientId: string, state: GameState): 
 export function isValidAction(action: PlayerAction, clientId: string, state: GameState){
     if (
         state.roundState === RoundState.WaitForAction 
-        && 
-        clientId === state.playerStates[state.activePlayerIndex].socket_id){
+    ) {
+        if (clientId === state.playerStates[state.activePlayerIndex].socket_id){
         // Check the cost 
-        let validCost = isValidCost(action, clientId, state);
-        logDebug(`isValid cost? ${validCost}`); 
-        return validCost; 
+            let validCost = isValidCost(action, clientId, state);
+            logDebug(`isValid cost? ${validCost}`); 
+            return validCost; 
+        } else{
+            logError("client not found");
+            return false 
+        }
     } else if (
         state.roundState === RoundState.WaitForSurrender 
         && 
@@ -548,7 +553,7 @@ function handleLifeLost(gameState: GameState, index: number, surrenderReason: Su
         gameState.logs.splice(0, 0, player.friendlyName + " lost an influence"); 
         if (surrenderReason === SurrenderReason.FalseReveal){
             // in case of false reveal, craft a surrender with the card being revealed
-            let surrenderAction = {name: Action.Surrender, source: player.socket_id, target: cardRevealed}; 
+            let surrenderAction = {name: Action.Surrender, source: player.friendlyName, target: cardRevealed}; 
             gameState.pendingActions.splice(0, 0, surrenderAction); 
             gameState = commitAction(gameState); 
         }
@@ -559,7 +564,7 @@ function handleLifeLost(gameState: GameState, index: number, surrenderReason: Su
         // find the only card the player has live
         let onlyCard = player.cards.filter(card => card.isRevealed === false)[0].name;
         // craft a surrender action from the server side and commit it. 
-        let surrenderAction = {name: Action.Surrender, source: player.socket_id, target: onlyCard}; 
+        let surrenderAction = {name: Action.Surrender, source: player.friendlyName, target: onlyCard}; 
         gameState.pendingActions.splice(0, 0, surrenderAction); 
         gameState = commitAction(gameState); 
     }
@@ -572,7 +577,7 @@ export function computePlayersAbleToBlock(gameState: GameState, action: PlayerAc
     if (isBlockable(action.name) === false){
         return result; 
     } 
-    let players = gameState.playerStates.filter(state => state.socket_id !== action.source && state.lifePoint > 0); 
+    let players = gameState.playerStates.filter(state => state.friendlyName !== action.source && state.lifePoint > 0); 
     if (action.target !== null){
         // only target can block
         players = players.filter(state => state.friendlyName === action.target); 
@@ -588,13 +593,14 @@ export function handleAction(gameState, action: PlayerAction): GameState {
     //     gameState.playerStates[gameState.activePlayerIndex].tokens -= constants.ASSASINATE_COST; 
     // }
 
-    let sourceName = gameState.playerStates.find(state => state.socket_id === action.source).friendlyName; 
+    let sourceName = gameState.playerStates.find(state => state.friendlyName === action.source).friendlyName; 
 
     // If action is challenge => assign targe. 
     if (action.target === null && action.name as Action === Action.Challenge){
         let source = gameState.pendingActions[0].source;
-        let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
-        action.target = name; 
+        // let name = gameState.playerStates.find(state => state.socket_id === source).friendlyName; 
+        // action.target = name; 
+        action.target = source; 
     }    
 
     let isActionChallengeable = isChallengeable(action.name as Action); 

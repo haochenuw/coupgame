@@ -109,7 +109,15 @@ export function isBlockable(action: Action) {
     }
 }
 
+export enum EventType {
+    Regular = "regular", 
+    Initial = "initial", 
+    Disconnect = "disconnect",
+    Reconnect = "reconnect", 
+}
+
 export type GameState = {
+    eventType: EventType, 
     activePlayerIndex: number,  // the player responsible for making the next action
     challengingPlayerIndex: number | null | undefined, 
     surrenderingPlayerIndex: number | null | undefined, 

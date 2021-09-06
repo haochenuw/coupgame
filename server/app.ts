@@ -1,10 +1,10 @@
 // require("dotenv-safe").config();
-import express from "express";
+import express, { query } from "express";
 import { join } from "path";
 import cors from "cors";
 import {Socket, Namespace} from "socket.io"; 
 import {makeid, logInfo, logError, logDebug, renderLog}  from "./utils"; 
-import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable} from "./types";
+import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable, EventType} from "./types";
 import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers, handleAction} from "./game"; 
 import { parse } from "path/posix";
 import * as constants from "./constants"; 
@@ -89,44 +89,66 @@ const main = async () => {
     function openSocket(socket, namespace) {
         let players = []; 
         let gameInProgress = false; 
-        let gameState = null; 
+        let gameState: GameState = null; 
         socket.on('connection', client => {
             
-            logInfo(`id: ${client.id} connected to namespace ${namespace}`);
-            logInfo(`query = ${JSON.stringify(client.handshake.query)}`);
-            
-            if (players.length >= constants.MAX_PLAYERS){
-                logError("too many players")
-                socket.emit('roomFull'); 
-                return; 
-            }
+            logInfo(`Client ${client.id} connected to namespace ${namespace}`);
+            const clientQuery = client.handshake.query; 
+            logInfo(`query = ${JSON.stringify(clientQuery)}`);
+            if (clientQuery.name !== undefined && clientQuery.name !== ''){
+                logDebug(`client ${clientQuery.name} trying to reconnect...`); 
+                if (gameInProgress){
+                    const playerByName = gameState.playerStates.find(player => player.friendlyName === clientQuery.name);
+                    if (playerByName !== undefined){
+                        client.join(namespace);
+                        playerByName.socket_id = client.id; 
+                        playerByName.connected = true; 
+                        logInfo(`Client ${clientQuery.name} reconnected!`)
+                        gameState.eventType = EventType.Reconnect; 
+                        sendMaskedGameStates(socket, gameState, 'reconnectInGame'); 
+                    } else {
+                        logError(`Reconnecting client ${clientQuery.name} does not exist`); 
+                        client.emit('gameInProgress'); 
+                        return; 
+                    }
+                }
+            } else{     
+                if(!gameInProgress){
+                    if (players.length >= constants.MAX_PLAYERS){
+                        logError("too many players")
+                        client.emit('roomFull'); 
+                        return; 
+                    }
 
-            if (gameInProgress){
-                // check if player name is in the list of disconnected ones. 
-                logError("game has already started"); 
-                client.emit('gameInProgress'); 
-                return; 
+                    players.push({
+                        "socket_id": `${client.id}`,
+                        "isReady": false, 
+                        "connected": true 
+                    })
+                    client.join(namespace);
+                } else{
+                    logError("game already started")
+                    return; 
+                }
             }
-
-            players.push({
-                "socket_id": `${client.id}`,
-                "isReady": false, 
-                "connected": true 
-            })
-            client.join(namespace);
 
             client.on('disconnect', () => {
-                const index = players.findIndex(player => player.socket_id === client.id)
-                logInfo(`socket ${client.id} disconnected`);
-                logDebug(`playerstates = ${JSON.stringify(gameState.playerStates)}`);
-                logDebug(`players = ${JSON.stringify(players)}`);
+                let index; 
+                if (gameInProgress){
+                    index = gameState.playerStates.findIndex(player => player.socket_id === client.id)
+                } else{
+                    index = players.findIndex(player => player.socket_id === client.id)
+                }
+                logInfo(`client ${client.id} disconnected`);
+                logDebug(`on Disconnect: players = ${JSON.stringify(players)}`);
                 if (index === -1){
                     logError("Client Not found"); 
                     return; 
                 }
                 if (gameInProgress){
-                       logInfo("Setting connected to false"); 
+                       logDebug("disconnection within game"); 
                        gameState.playerStates[index].connected = false; 
+                       gameState.eventType = EventType.Disconnect; 
                        sendMaskedGameStates(socket, gameState, 'gameState'); 
                 } else {
                     // remove from list of players 
@@ -135,7 +157,7 @@ const main = async () => {
             });
             
             client.on('setName', playerName => {
-                logDebug(`players = ${JSON.stringify(players)}`); 
+                logDebug(`On set name: players = ${JSON.stringify(players)}`); 
                 let player = players.find(player => player.socket_id === client.id)
                 if (player !== undefined){
                     // reject if name is duplicate 
@@ -152,13 +174,13 @@ const main = async () => {
             });
 
             client.on('playerReady', () => {
-                console.log(`${client.id} is ready`)
+                logInfo(`Client ${client.id} is ready!`)
                 players.forEach(player => {
                     if (player.socket_id === client.id){
                         player.isReady = true; 
                     }
                 })
-                socket.emit('playersUpdate', players) ;
+                socket.emit('playersUpdate', players);
             })
 
             client.on('startGame', () => {
@@ -167,9 +189,10 @@ const main = async () => {
                     socket.emit('error', 'Wrong number of players'); 
                     return; 
                 } 
-                console.log(`${client.id} starts game for room ${namespace}`)
+                logInfo(`Client ${client.id} starts game for room ${namespace}`)
                 gameInProgress = true; 
                 gameState = initGame(players); 
+
                 sendMaskedGameStates(socket, gameState, 'startGameResponse'); 
             })
 
@@ -194,6 +217,8 @@ const main = async () => {
                 }
                 logDebug(`Changed Round state TO ${JSON.stringify(gameState.roundState)}`)
                 logDebug(`Active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
+                gameState.eventType = EventType.Regular; 
+                logDebug(`sending gameState...`)
                 sendMaskedGameStates(socket, gameState, 'gameState'); 
             }); 
 

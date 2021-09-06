@@ -8,9 +8,9 @@ export function ActionPanel(props){
     return (
         <div className="selection">
             {
-                ACTIONS.map(action => {
+                ACTIONS.map((action, index) => {
                     let disabled = props.disabledActions.includes(action); 
-                    return (<button className="btn btn-info" disabled={disabled} onClick={() => props.onAction(action)}>{action}</button>)
+                    return (<button key={index} className="btn btn-info" disabled={disabled} onClick={() => props.onAction(action)}>{action}</button>)
                 })
             }
             {/* <button className="btn btn-info" onClick={() => props.onAction('Income')}>Income</button>

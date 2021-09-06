@@ -12,7 +12,7 @@ export function makeid(length) {
  }
 
  export function logInfo(msg: string){
-     console.log(constants.FgGreen, msg); 
+     console.log(constants.FgGreen, "INFO: "+msg); 
  }
 
  export function logError(msg: string){
@@ -20,7 +20,7 @@ export function makeid(length) {
  }
 
  export function logDebug(msg: string){
-     console.log(constants.FgCyan, msg); 
+     console.log(constants.FgCyan, "DEBUG: "+msg); 
  }
 
  export function renderLog(sourceName: string, action: string, target: string | null){
