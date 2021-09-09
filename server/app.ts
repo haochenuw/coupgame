@@ -3,10 +3,9 @@ import express, { query } from "express";
 import { join } from "path";
 import cors from "cors";
 import {Socket, Namespace} from "socket.io"; 
-import {makeid, logInfo, logError, logDebug, renderLog}  from "./utils"; 
+import {makeid, logInfo, logError, logDebug, renderLog, emptyGameState}  from "./utils"; 
 import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerAction, isChallengeable, isBlockable, EventType} from "./types";
 import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers, handleAction} from "./game"; 
-import { parse } from "path/posix";
 import * as constants from "./constants"; 
 
 
@@ -16,6 +15,11 @@ let roomNameToRematchRequests = {};
 let allRooms: Array<string> = []; 
 const clientToRoomMapping = {};  
 let states: Record<string, GameState> = {}; 
+
+enum ConnectionResult {
+    Success,
+    Fail
+}
 
 const main = async () => {
     const app = express();
@@ -85,62 +89,93 @@ const main = async () => {
         res.json({doesRoomExist: (req.query.roomName as string) in namespaces})
     })
 
-    // React: handle socket
-    function openSocket(socket, namespace) {
-        let players = []; 
-        let gameInProgress = false; 
-        let gameState: GameState = null; 
-        socket.on('connection', client => {
-            
-            logInfo(`Client ${client.id} connected to namespace ${namespace}`);
-            const clientQuery = client.handshake.query; 
-            logInfo(`query = ${JSON.stringify(clientQuery)}`);
-            if (clientQuery.name !== undefined && clientQuery.name !== ''){
-                logDebug(`client ${clientQuery.name} trying to reconnect...`); 
-                if (gameInProgress){
-                    const playerByName = gameState.playerStates.find(player => player.friendlyName === clientQuery.name);
-                    if (playerByName !== undefined){
-                        client.join(namespace);
-                        playerByName.socket_id = client.id; 
-                        playerByName.connected = true; 
-                        logInfo(`Client ${clientQuery.name} reconnected!`)
-                        gameState.eventType = EventType.Reconnect; 
-                        sendMaskedGameStates(socket, gameState, 'reconnectInGame'); 
-                    } else {
-                        logError(`Reconnecting client ${clientQuery.name} does not exist`); 
-                        client.emit('gameInProgress'); 
-                        return; 
-                    }
-                }
-            } else{     
-                if(!gameInProgress){
-                    if (players.length >= constants.MAX_PLAYERS){
-                        logError("too many players")
-                        client.emit('roomFull'); 
-                        return; 
-                    }
+    function handleInGameConnection(socket, namespace:string, client, gameState): GameState | null {
+        const clientQuery = client.handshake.query; 
+        logInfo(`query = ${JSON.stringify(clientQuery)}`);
+        if (clientQuery.name !== undefined && clientQuery.name !== ''){
+            logDebug(`client ${clientQuery.name} trying to connect in game...`); 
+            const playerByName = gameState.playerStates.find(player => player.friendlyName === clientQuery.name);
+            if (playerByName !== undefined){
+                client.join(namespace);
+                playerByName.socket_id = client.id; 
+                playerByName.connected = true; 
+                logInfo(`Client ${clientQuery.name} reconnected!`)
+                gameState.eventType = EventType.Reconnect; 
+                return gameState; 
+            } else {
+                logError(`Reconnecting client ${clientQuery.name} does not exist`); 
+                return null; 
+            }
+        } else { // no name is saved 
+            logError(`Cannot join new client in-game`); 
+            return null; 
+        }
+    }
 
-                    players.push({
-                        "socket_id": `${client.id}`,
-                        "isReady": false, 
-                        "connected": true 
-                    })
-                    client.join(namespace);
-                } else{
-                    logError("game already started")
+    // return success status 
+    function handleBeforeGameConnection(socket, namespace, client, players: Array<PlayerState>) : Array<PlayerState> | null {
+        const clientQuery = client.handshake.query; 
+        logInfo(`query = ${JSON.stringify(clientQuery)}`);
+        if (players.length >= constants.MAX_PLAYERS){
+            logError("Room is already full")
+            client.emit('roomFull'); 
+            return null; 
+        }    
+        let newp: PlayerState = {
+            "socket_id": `${client.id}`,
+            "isReady": false, 
+            "connected": true, 
+            "friendlyName": null,  
+            "tokens": undefined, 
+            "lifePoint": undefined, 
+            "cards": undefined, 
+        }; 
+
+        if (clientQuery.name !== undefined && clientQuery.name !== ''){
+            logDebug(`client ${clientQuery.name} trying to connect...`); 
+            newp.friendlyName = clientQuery.name; 
+            players.push(newp); 
+            client.join(namespace);
+            return players; 
+        } else {
+            logError("client does not have a name"); 
+            return null; 
+        }
+    }
+
+    // handle socket
+    function openSocket(socket, namespace) {
+        let gameInProgress = false; 
+        let gameState: GameState = emptyGameState(); 
+
+        socket.on('connection', client => {
+            logInfo(`Client ${client.id} connecting to namespace ${namespace}`);
+
+            if (gameInProgress) {
+                let newGameState = handleInGameConnection(socket, namespace, client, gameState); 
+                if (newGameState !== null){
+                    sendMaskedGameStates(socket, gameState, 'reconnectInGame'); 
+                } else {
+                    // error 
+                    client.emit('gameInProgress');
+                    return;     
+                }
+            } else {
+                let newPlayerStates = handleBeforeGameConnection(socket, namespace, client, gameState.playerStates); 
+                if (newPlayerStates === null) {
+                    logError("connection before game fails"); 
                     return; 
+                } else{
+                    logInfo("connection success!"); 
+                    gameState.playerStates = newPlayerStates; 
+                    socket.emit('playersUpdate', gameState.playerStates);
                 }
             }
-
+            
             client.on('disconnect', () => {
-                let index; 
-                if (gameInProgress){
-                    index = gameState.playerStates.findIndex(player => player.socket_id === client.id)
-                } else{
-                    index = players.findIndex(player => player.socket_id === client.id)
-                }
+                let index = gameState.playerStates.findIndex(player => player.socket_id === client.id)
                 logInfo(`client ${client.id} disconnected`);
-                logDebug(`on Disconnect: players = ${JSON.stringify(players)}`);
+                logDebug(`on Disconnect: players = ${JSON.stringify(gameState.playerStates)}`);
                 if (index === -1){
                     logError("Client Not found"); 
                     return; 
@@ -151,47 +186,47 @@ const main = async () => {
                        gameState.eventType = EventType.Disconnect; 
                        sendMaskedGameStates(socket, gameState, 'gameState'); 
                 } else {
-                    // remove from list of players 
-                    players.splice(index, 1); 
+                    // remove the player from list of players 
+                    gameState.playerStates.splice(index, 1); 
                 }
             });
             
             client.on('setName', playerName => {
-                logDebug(`On set name: players = ${JSON.stringify(players)}`); 
-                let player = players.find(player => player.socket_id === client.id)
+                logDebug(`On set name: players = ${JSON.stringify(gameState.playerStates)}`); 
+                let player = gameState.playerStates.find(player => player.socket_id === client.id)
                 if (player !== undefined){
                     // reject if name is duplicate 
-                    let nameExists = players.find(player => player.name === playerName); 
+                    let nameExists = gameState.playerStates.find(player => player.friendlyName === playerName); 
                     if (nameExists !== undefined){
                         logDebug("name is duplicate"); 
                         client.emit('nameExists', playerName); 
                     } else{
                         logDebug(`player ${player.socket_id} set their name to be ${playerName}`); 
-                        player.name = playerName; 
-                        socket.emit('playersUpdate', players);
+                        player.friendlyName = playerName; 
+                        socket.emit('playersUpdate', gameState.playerStates);
                     }
                 }
             });
 
             client.on('playerReady', () => {
                 logInfo(`Client ${client.id} is ready!`)
-                players.forEach(player => {
+                gameState.playerStates.forEach(player => {
                     if (player.socket_id === client.id){
                         player.isReady = true; 
                     }
                 })
-                socket.emit('playersUpdate', players);
+                socket.emit('playersUpdate', gameState.playerStates);
             })
 
             client.on('startGame', () => {
-                if(players.length < constants.MIN_PLAYERS || players.length > constants.MAX_PLAYERS){
+                if(gameState.playerStates.length < constants.MIN_PLAYERS || gameState.playerStates.length > constants.MAX_PLAYERS){
                     logError('number of players too small or too large'); 
                     socket.emit('error', 'Wrong number of players'); 
                     return; 
                 } 
                 logInfo(`Client ${client.id} starts game for room ${namespace}`)
                 gameInProgress = true; 
-                gameState = initGame(players); 
+                gameState = initGame(gameState.playerStates); 
 
                 sendMaskedGameStates(socket, gameState, 'startGameResponse'); 
             })

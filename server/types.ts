@@ -132,10 +132,11 @@ export type GameState = {
 }
 
 export type PlayerState = {
-    lifePoint: number, 
-    cards: Array<Card>,
-    tokens: number, 
     friendlyName: string | null, 
     socket_id: string, 
     connected: boolean
+    lifePoint: number | undefined, 
+    cards: Array<Card> | undefined,
+    tokens: number | undefined,
+    isReady: boolean 
 }

@@ -58,10 +58,6 @@ export default function MainGame(props) {
         computerDerivedState(localGameState)
     }, [props.initialState]); 
 
-    // function handleInitialState(gameState){
-    //     console.log("got initial state"); 
-    //     handleGameState(gameState); 
-    // }
 
     function handleRegularGameState(gameState){
         console.log(`Got regular game state from server: ${JSON.stringify(gameState)}`)

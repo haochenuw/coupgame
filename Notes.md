@@ -302,3 +302,18 @@ show "no players have connected". But server actually shows reconnection is happ
 
 THis seems not a problem for chrome...why? But if I close and open on chrome, then safari suddenly works. Interesting. Might be because that safari is throttling socket.io again...
 
+## Another strange issue 
+
+When user leaves and reconnects, and then game ends, the player info is lost, and no option to re-start the game
+
+| Platform  | refresh before game start  | reopen tab before game start | refres in game   | reopen tab in game   | 
+|---|---|---|---|---|---|
+|  Chrome |  Good |  Good |   |   |   |
+| Safari  | 
+
+
+## Notes
+ 
+Having the set player during bpth connection and setName is too error-prone. 
+
+How to distinguish between another browser trying to set the same name and "the same browser opening two tabs"?? 

@@ -1,5 +1,5 @@
-import { Socket } from "dgram";
 import * as constants from "./constants";
+import { EventType, RoundState } from "./types";
 
 export function makeid(length) {
     var result           = '';
@@ -38,4 +38,21 @@ export function makeid(length) {
         return action + 'd'; 
     }
     return action + "ed"; 
+ }
+
+ export function emptyGameState(){
+     return {
+        activePlayerIndex: 0, 
+        challengingPlayerIndex: null, 
+        surrenderingPlayerIndex:  null,
+        playerStates: [],
+        deckState: [],
+        roundState: RoundState.WaitForAction, 
+        pendingActions: [],
+        pendingExchangeCards: null, 
+        surrenderReason: null, 
+        pendingBlock: null, 
+        logs: [], 
+        eventType: EventType.Initial
+    }
  }

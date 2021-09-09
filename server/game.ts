@@ -4,7 +4,7 @@ import * as constants from "./constants";
 import {logDebug, logError, logInfo, renderLog} from "./utils"; 
 import lodash from 'lodash';
 
-export function initGame(players): GameState {
+export function initGame(players: Array<PlayerState>): GameState {
     // logDebug(`initial deck = ${JSON.stringify(constants.INITIAL_DECK)}`); 
     let initial_deck = [
     ];
@@ -28,8 +28,9 @@ export function initGame(players): GameState {
             cards: [shuffled_deck.pop(), shuffled_deck.pop()],
             tokens: constants.INITIAL_TOKENS,
             socket_id: player.socket_id, 
-            friendlyName: player.name,
-            connected: player.connected
+            friendlyName: player.friendlyName,
+            connected: player.connected, 
+            isReady: true 
         }
     }); 
 

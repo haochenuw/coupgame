@@ -18,19 +18,10 @@ const MIN_PLAYERS = 2;
 
 export default function Room({ history, match, location }) {
     const roomName = match.params.name;
+
     const [nameState, setNameState] = useStateWithLocalStorage(
         roomName, { name: '', isRegistered: false }
     );
-    // Connect through socket. 
-    console.log(`Room name = ${roomName}`);
-    if (socket === null) {
-        console.log('connecting to socket.io...');
-        socket = io(`/${roomName}`, {
-            query: {
-                name: nameState.name
-            }
-        });
-    }
 
     const [players, setPlayers] = useState(null);
     const [nameError, setNameError] = useState(null);
@@ -38,16 +29,29 @@ export default function Room({ history, match, location }) {
     const [winner, setWinner] = useState(null);
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     const [initialState, setInitialState] = useState(null);
+    const [isHost, setIsHost] = useState(false) 
 
     useEffect(() => {
+        console.log(`This block`);
+        console.log(`Room name = ${roomName}`);
+        if (socket === null && nameState.name !== '') {
+            console.log('connecting to socket.io...');
+            socket = io(`/${roomName}`, {
+                query: {
+                    name: nameState.name
+                }
+            });
+        } else {
+            console.log("not executed!"); 
+            console.log(`name = ${nameState.name}`)
+        }
+    }, [nameState]); 
+
+    useEffect(() => {
+        if (socket !== null) { 
         socket.on("connect", () => {
-            setMe(socket.id);
-            if (nameState.isRegistered === true) {
-                console.log("re-setting the name");
-                socket.emit('setName', nameState.name);
-            } else {
-                console.log("name is not registered yet");
-            }
+            console.log("connected to socket!")
+            setNameState({...nameState, isRegistered: true})
         });
 
         socket.on("roomFull", () => {
@@ -68,6 +72,9 @@ export default function Room({ history, match, location }) {
         socket.on("playersUpdate", (players) => {
             console.log('got players update', players);
             setPlayers(players);
+            if (players.length > 0){
+                setIsHost(players[0].socket_id === socket.id); 
+            }
         });
 
         socket.on('startGameResponse', (initialStateFromServer) => {
@@ -82,6 +89,7 @@ export default function Room({ history, match, location }) {
 
         socket.on("gameOver", winner => {
             console.log('game over: winner is', winner);
+            console.log("players = ", players)
             setWinner(winner);
             setRoomStatus("GAMEOVER");
         });
@@ -90,7 +98,8 @@ export default function Room({ history, match, location }) {
             setNameState({ ...nameState, isRegistered: false });
             setNameError(`name ${name} already in use`)
         })
-    }, []);
+        }
+    });
 
     function setReady() {
         setPlayers(
@@ -143,10 +152,10 @@ export default function Room({ history, match, location }) {
             setNameError("name cannot be empty");
             return;
         }
+        
         setNameState({ ...nameState, name: value })
         console.log(`Client set player name to be ${value}`);
-        socket.emit('setName', value);
-        setNameState({ ...nameState, isRegistered: true });
+        // socket.emit('setName', value);
     }
 
     const onChange = event => {
@@ -157,14 +166,15 @@ export default function Room({ history, match, location }) {
         return (
             <div className="joinHome">
                 {nameError !== null && <h3>Error: {nameError}</h3>}
-                <input id='inputName' value={nameState.name} type="text" placeholder="Your Name" onChange={onChange} />
+                <input id='inputName' type="text" placeholder="Your Name"/>
+                {/* <input id='inputName' value={nameState.name} type="text" placeholder="Your Name" onChange={onChange} /> */}
                 <button className="btn btn-info" onClick={() => onSaveName(document.getElementById('inputName').value)}>Save</button>
             </div>
         )
     }
 
     function canStartGame() {
-        return isAllPlayersReady() && isPlayerNumberAllowed() && isCreator() === true
+        return isAllPlayersReady() && isPlayerNumberAllowed() && isHost
     }
 
     if (nameState.name === '' || nameState.isRegistered === false) {
@@ -192,7 +202,7 @@ export default function Room({ history, match, location }) {
                 }
                 {
                     roomStatus !== 'STARTED' &&
-                    isCreator() === true &&
+                    isHost &&
                     <button className="btn btn-success" disabled={!canStartGame()} onClick={startGame}>Start Game</button>
                 }
             </div>
@@ -234,7 +244,7 @@ function PlayersPanel(props) {
                     }
                     return (
                         <div style={{ backgroundColor: item.isReady ? readyColor : notReadyColor }} key={index}>
-                            <p >{index + 1}. {item.name} {ready}</p>
+                            <p >{index + 1}. {item.friendlyName} {ready}</p>
                         </div>
                     )
                 })
