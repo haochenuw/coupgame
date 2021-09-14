@@ -32,9 +32,9 @@ export default function Room({ history, match, location }) {
     const [isHost, setIsHost] = useState(false) 
 
     useEffect(() => {
-        console.log(`This block`);
-        console.log(`Room name = ${roomName}`);
-        if (socket === null && nameState.name !== '') {
+        console.log(`Effect block gets executed`);
+        // if ( (socket === null || nameState.isRegistered === false) && nameState.name !== '') {
+        if (nameState.name !== '' && nameState.isRegistered === false){
             console.log('connecting to socket.io...');
             socket = io(`/${roomName}`, {
                 query: {
@@ -51,8 +51,11 @@ export default function Room({ history, match, location }) {
         if (socket !== null) { 
         socket.on("connect", () => {
             console.log("connected to socket!")
-            setNameState({...nameState, isRegistered: true})
         });
+
+        socket.on("nameRegisterSuccess", () => {
+            setNameState({...nameState, isRegistered: true})
+        })
 
         socket.on("roomFull", () => {
             setRoomStatus("ROOM_FULL");
@@ -95,7 +98,6 @@ export default function Room({ history, match, location }) {
         });
 
         socket.on('nameExists', name => {
-            setNameState({ ...nameState, isRegistered: false });
             setNameError(`name ${name} already in use`)
         })
         }

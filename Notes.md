@@ -317,3 +317,27 @@ When user leaves and reconnects, and then game ends, the player info is lost, an
 Having the set player during bpth connection and setName is too error-prone. 
 
 How to distinguish between another browser trying to set the same name and "the same browser opening two tabs"?? 
+
+## Thursday, September 9, 2021
+
+Major refactoring for connection. 
+- do not emit setName anymore, merge that with first query 
+- TODO: need to check the duplicate names. 
+- TOOD: test it out for chrome and safari (can use incognito to get a separate instance with own local storage)
+
+Things to test (Chrome): 
+- wait in the lobby for a long time 
+- close and reopen page in lobby [x]
+- refresh page in lobby [x]
+- reopen in game [x]
+- refresh in game [x]
+- wait in game for long period of time (> 5min) [x]
+
+Things to test (Safari)
+- wait in the lobby for a long time 
+- close and reopen page in lobby [x]
+- refresh page in lobby [x]
+- reopen in game [x]
+- refresh in game [x]
+- wait in game for long period of time (> 5min) [x]
+

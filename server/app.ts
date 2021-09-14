@@ -132,6 +132,12 @@ const main = async () => {
         }; 
 
         if (clientQuery.name !== undefined && clientQuery.name !== ''){
+            if (players.find(player => player.friendlyName === clientQuery.name) !== undefined){
+                // name already exists 
+                logError("name already in use")
+                client.emit('nameExists', clientQuery.name); 
+                return null; 
+            }
             logDebug(`client ${clientQuery.name} trying to connect...`); 
             newp.friendlyName = clientQuery.name; 
             players.push(newp); 
@@ -163,11 +169,15 @@ const main = async () => {
             } else {
                 let newPlayerStates = handleBeforeGameConnection(socket, namespace, client, gameState.playerStates); 
                 if (newPlayerStates === null) {
-                    logError("connection before game fails"); 
+                    logError("connection before game fails..."); 
+                    // disconnect the client. 
+                    // client.disconnect(true); 
                     return; 
                 } else{
                     logInfo("connection success!"); 
                     gameState.playerStates = newPlayerStates; 
+                    client.emit('nameRegisterSuccess');
+
                     socket.emit('playersUpdate', gameState.playerStates);
                 }
             }
