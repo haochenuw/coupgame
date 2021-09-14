@@ -34,7 +34,10 @@ export default function Room({ history, match, location }) {
     useEffect(() => {
         console.log(`Effect block gets executed`);
         // if ( (socket === null || nameState.isRegistered === false) && nameState.name !== '') {
-        if (nameState.name !== '' && nameState.isRegistered === false){
+        let shouldConnect = socket === null && nameState.name != ''; 
+        shouldConnect |= nameState.name !== '' && nameState.isRegistered === false; 
+        
+        if (shouldConnect){
             console.log('connecting to socket.io...');
             socket = io(`/${roomName}`, {
                 query: {

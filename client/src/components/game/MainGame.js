@@ -5,11 +5,13 @@ import EventLog from "./EventLog"
 import '../styles/buttons.css';
 import CardModal from './CardModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoffee, faHeart } from '@fortawesome/free-solid-svg-icons'
+import { faUnlink, faHeart } from '@fortawesome/free-solid-svg-icons'
 import ActionBanner  from './ActionBanner';
 import {ActionPanel, ACTIONS} from './ActionPanel';
 
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
+const linkSlashIcon = <FontAwesomeIcon icon= {faUnlink} />
+
 
 export default function MainGame(props) {
     const COUP_COST = 7;
@@ -232,7 +234,7 @@ export default function MainGame(props) {
                     <div className={playerState.lifePoint === 0 ? "terminated-player" : "alive-player"}>
                     {playerState.friendlyName} 
                     <span>{hearts} {tokens} </span>
-                    {playerState.connected === true &&<span>connected</span>}
+                    {playerState.connected === false &&<span>{linkSlashIcon}</span>}
                     {playerState.connected === false &&<span>disconnected...</span>}
                     </div>
                     <div className="cards">
@@ -415,10 +417,6 @@ export default function MainGame(props) {
         console.log('Block or Challenge decision chosen');
         socket.emit('action', { source: props.myName, name: action, target: null })
     }
-
-    // function getNameById(id) {
-    //     return localGameState.playerStates.find(state => state.socket_id === id).friendlyName;
-    // }
 
     function computePlayersAbleToBlock(gameState) {
         const action = gameState.pendingActions[0];
