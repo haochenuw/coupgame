@@ -43,7 +43,7 @@ body {
     margin-right: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
-    height: 50px;
+    height: 100px;
     width: 150px;
     background-color: #f0f0f0;
     border-radius: 5px;
@@ -60,11 +60,11 @@ body {
 } */
 
 .cardinner {
-    position: absolute;
+    /* position: absolute;
     justify-content: center;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); */
     font-weight: 500;
   }
 

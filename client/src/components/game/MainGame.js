@@ -214,10 +214,10 @@ export default function MainGame(props) {
 
         return (
             localGameState.playerStates.map((playerState) => {
-                let me = "";
+                let me = "otherPlayerState";
                 // if me, use special color. 
                 if (playerState.friendlyName === props.myName) {
-                    me = "me";
+                    me = "myPlayerState";
                 }
 
                 const tokens = []; 
@@ -240,7 +240,7 @@ export default function MainGame(props) {
                     <div className="cards">
                         {playerState.cards.map((card) => {
                             return (
-                                <CardModal card={card}/>
+                                <CardModal card={card} className={me}/>
                             )
                         })}
                     </div>

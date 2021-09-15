@@ -322,7 +322,7 @@ How to distinguish between another browser trying to set the same name and "the 
 
 Major refactoring for connection. 
 - do not emit setName anymore, merge that with first query 
-- TODO: need to check the duplicate names. 
+- ~~TODO: need to check the duplicate names.~~  
 - TOOD: test it out for chrome and safari (can use incognito to get a separate instance with own local storage)
 
 Things to test (Chrome): 
@@ -341,3 +341,15 @@ Things to test (Safari)
 - refresh in game [x]
 - wait in game for long period of time (> 5min) [x]
 
+## Tuesday, September 14, 2021
+
+disconnect icon [x]
+
+- Add cypress test to automate the testing process 
+- improve button styles 
+- Add card ability onto player cards 
+- Make other player's card have a limited view. something like a small box view 
+
+## Wednesday, September 15, 2021
+
+- Make material UI buttons more reusable 
