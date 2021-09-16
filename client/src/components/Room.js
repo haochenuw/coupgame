@@ -9,6 +9,7 @@ import { createTheme, withStyles, makeStyles, ThemeProvider } from '@material-ui
 import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
 import Button from "@material-ui/core/Button";
 import { green, purple } from '@material-ui/core/colors';
+import TextField from "@material-ui/core/TextField";
 
 
 export const SocketContext = React.createContext()
@@ -19,9 +20,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ColorButton = withStyles((theme) => ({
+const ColorButton = withStyles(() => ({
     root: {
-        // color: theme.palette.getContrastText(purple[500]),
+        backgroundColor: "#347dc9",
         // backgroundColor: purple[500],
         // '&:hover': {
         // backgroundColor: purple[700],
@@ -196,8 +197,11 @@ export default function Room({ history, match, location }) {
         return (
             <div className="joinHome">
                 {nameError !== null && <h3>Error: {nameError}</h3>}
-                <input id='inputName' type="text" placeholder="Your Name"/>
-                <ColorButton variant="contained" color="primary" className={classes.margin} onClick={() => onSaveName(document.getElementById('inputName').value)}>Save</ColorButton>
+                <TextField
+                    id="textfield-input"
+                    label="Your Name" variant="outlined"
+                />
+                <ColorButton variant="contained" color="primary" className={classes.margin} onClick={() => onSaveName(document.getElementById('textfield-input').value)}>Save</ColorButton>
                 {/* <input id='inputName' value={nameState.name} type="text" placeholder="Your Name" onChange={onChange} /> */}
                 {/* <button className="btn btn-info" onClick={() => onSaveName(document.getElementById('inputName').value)}>Save</button> */}
             </div>

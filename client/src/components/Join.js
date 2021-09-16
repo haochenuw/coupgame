@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { withRouter} from "react-router-dom";
+import TextField from "@material-ui/core/TextField";
 
 const axios = require('axios');
 // const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
@@ -17,8 +18,7 @@ export const Join = withRouter(({history}) => {
         setRoomDNE(false)
     }
 
-    function join(event) {
-        // Otherwise, show error log. 
+    function handleJoin(event) {
         let data = {
             roomName: code
         }
@@ -37,16 +37,20 @@ export const Join = withRouter(({history}) => {
             setError(true)
         })
         // clear input.
-        document.querySelector('#input').value = ''
+        document.querySelector('#roomcode-input').value = ''
     }
 
     return (
         <div className="joinHome">
         {roomDNE &&
-            <h1>Error: Room {code} does not exist</h1> 
+            <h2>Error: Room {code} does not exist</h2> 
         }
-        <button className="btn btn-primary" onClick={join}>Join</button>
-        <input id='input' onChange={handleChange} type="text" placeholder="Game code"/>
+        <button className="btn btn-primary" onClick={handleJoin}>Join</button>
+        <TextField
+                    id="roomcode-input"
+                    label="Room Code" variant="outlined"
+                    onChange={handleChange}
+        />
         </div>
     )
 }); 

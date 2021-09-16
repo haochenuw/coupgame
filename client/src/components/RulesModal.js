@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import './styles/styles.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import Button from "@material-ui/core/Button";
+import {withStyles} from '@material-ui/core/styles';
 
 
 const GENERAL_RULES = [
@@ -50,6 +52,20 @@ const SPECIAL_RULES = [
     "If Assasination is successfuly challenged, then the player does not pay 3 coins. However, if it is blocked, then the coins are paid.", 
 ]
 
+const ColorButton = withStyles(() => ({
+    root: {
+        backgroundColor: "#347dc9",
+        color: "#ffffff", 
+        // backgroundColor: purple[500],
+        '&:hover': {
+            backgroundColor: "#197de6",
+        },
+        padding: "6px 16px", 
+        margin: "16px", 
+    },
+}))(Button);
+
+
 export default function RulesModal(props) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -82,19 +98,18 @@ export default function RulesModal(props) {
     function renderButton(){
         if (props.style === "small"){
             return (
-                <div className="showRulesBtnSmall" onClick={openModal}>
+                <Button onClick={openModal}>
                 <FontAwesomeIcon className="infoIconInline" icon={faInfoCircle} />
-
-                </div>
+                </Button>
             )
         } else{
             return(
-                <div className="rules">
-                <div className="btn btn-primary showRulesBtn" onClick={openModal}>
+                // <div className="rules">
+                <ColorButton onClick={openModal}>
                 <FontAwesomeIcon className="infoIcon" icon={faInfoCircle} />
                 <span>Show rules</span>
-                </div>
-                </div>
+                </ColorButton>
+                // </div>
             )
         }
     }

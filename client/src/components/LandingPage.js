@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles} from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 
 import {
@@ -17,18 +17,32 @@ import RulesModal from "./RulesModal";
 import './styles/styles.css';
 
 
-const useStyles = makeStyles({
+const ColorButton = withStyles(() => ({
     root: {
-        backgroundColor: 'blue', 
-        color: 'white', 
-        margin: "1rem", 
-        height: "30px", 
-        padding: "5px 5px", 
+        backgroundColor: "#347dc9",
+        color: "#ffffff", 
+        // backgroundColor: purple[500],
         '&:hover': {
-            backgroundColor: '#0062cc',
+            backgroundColor: "#197de6",
         },
+        padding: "6px 16px", 
+        margin: "16px", 
     },
-  });
+}))(Button);
+
+
+// const useStyles = makeStyles({
+//     root: {
+//         backgroundColor: 'blue', 
+//         color: 'white', 
+//         margin: "1rem", 
+//         height: "30px", 
+//         padding: "5px 5px", 
+//         '&:hover': {
+//             backgroundColor: '#0062cc',
+//         },
+//     },
+//   });
 
 
 function Heading(){
@@ -36,13 +50,13 @@ function Heading(){
 }
 
 function Home(){
-    const classes = useStyles(); 
+    // const classes = useStyles(); 
     return(
         <div className="Home">
         <Heading />
         
-        <Link to="/create"><Button className={classes.root}>Create</Button></Link>
-        <Link to="/join"><Button className={classes.root}>Join</Button></Link>
+        <Link to="/create"><ColorButton>Create</ColorButton></Link>
+        <Link to="/join"><ColorButton>Join</ColorButton></Link>
 
         <RulesModal/>
 
