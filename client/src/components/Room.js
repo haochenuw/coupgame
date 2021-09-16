@@ -208,6 +208,11 @@ export default function Room({ history, match, location }) {
         return isAllPlayersReady() && isPlayerNumberAllowed() && isHost
     }
 
+    function handleLeave() {
+        console.log("leave")
+        history.push('/')
+    }
+
     if (nameState.name === '' || nameState.isRegistered === false) {
         return setNamePanel()
     }
@@ -235,6 +240,10 @@ export default function Room({ history, match, location }) {
                     roomStatus !== 'STARTED' &&
                     isHost &&
                     <button className="btn btn-success" disabled={!canStartGame()} onClick={startGame}>Start Game</button>
+                }
+                {
+                    roomStatus !== 'STARTED' &&
+                    <button className="btn btn-success" onClick={handleLeave}>Leave</button>
                 }
             </div>
             {
