@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import { makeStyles, withStyles} from '@material-ui/core/styles';
-import Button from "@material-ui/core/Button";
 
 import {
     BrowserRouter as Router,
@@ -13,22 +11,9 @@ import Create from "./Create";
 import Join from "./Join"; 
 import Room from "./Room"; 
 import RulesModal from "./RulesModal"; 
+import {ColorButton} from "./ColorButton"
 
 import './styles/styles.css';
-
-
-const ColorButton = withStyles(() => ({
-    root: {
-        backgroundColor: "#347dc9",
-        color: "#ffffff", 
-        // backgroundColor: purple[500],
-        '&:hover': {
-            backgroundColor: "#197de6",
-        },
-        padding: "6px 16px", 
-        margin: "16px", 
-    },
-}))(Button);
 
 const footerStyle = {
     // backgroundColor: "#F8F8F8",

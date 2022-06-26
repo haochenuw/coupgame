@@ -353,3 +353,8 @@ disconnect icon [x]
 ## Wednesday, September 15, 2021
 
 - Make material UI buttons more reusable 
+
+## Saturday, June 25, 2022 
+
+- [x] add footer in homepage 
+- []  add "back" button in create and join pages

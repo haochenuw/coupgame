@@ -5,12 +5,13 @@ import './styles/styles.css';
 import io from "socket.io-client";
 import RulesModal from "./RulesModal";
 import { createTheme, withStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
-// import { useStateWithSessionStorage } from "./hooks/useStateWithSessionStorage"
 import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
 import Button from "@material-ui/core/Button";
 import { green, purple } from '@material-ui/core/colors';
 import TextField from "@material-ui/core/TextField";
-
+import {
+    Link
+} from "react-router-dom";
 
 export const SocketContext = React.createContext()
 
@@ -196,14 +197,13 @@ export default function Room({ history, match, location }) {
     function setNamePanel() {
         return (
             <div className="joinHome">
+                <Link to="/"><ColorButton>Back Home</ColorButton></Link>
                 {nameError !== null && <h3>Error: {nameError}</h3>}
                 <TextField
                     id="textfield-input"
                     label="Your Name" variant="outlined"
                 />
                 <ColorButton variant="contained" color="primary" className={classes.margin} onClick={() => onSaveName(document.getElementById('textfield-input').value)}>Save</ColorButton>
-                {/* <input id='inputName' value={nameState.name} type="text" placeholder="Your Name" onChange={onChange} /> */}
-                {/* <button className="btn btn-info" onClick={() => onSaveName(document.getElementById('inputName').value)}>Save</button> */}
             </div>
         )
     }
@@ -269,6 +269,16 @@ export default function Room({ history, match, location }) {
     )
 }
 
+const playerStyle = {
+    // backgroundColor: "#F8F8F8",
+    // borderTop: "1px solid #E7E7E7",
+    textAlign: "center",
+    padding: "20px",
+    left: "0",
+    bottom: "0",
+    fontSize: "25px", 
+    width: "100%"
+  };
 
 function PlayersPanel(props) {
     if (props.players === null) {
@@ -287,8 +297,8 @@ function PlayersPanel(props) {
                         ready = <b>Not Ready</b>
                     }
                     return (
-                        <div style={{ backgroundColor: item.isReady ? readyColor : notReadyColor }} key={index}>
-                            <p >{index + 1}. {item.friendlyName} {ready}</p>
+                        <div style={{textAlign: "center", backgroundColor: item.isReady ? readyColor : notReadyColor }} key={index}>
+                            <p style={playerStyle}>{index + 1}. {item.friendlyName} {ready}</p>
                         </div>
                     )
                 })

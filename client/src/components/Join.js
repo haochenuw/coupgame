@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { withRouter} from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
+import {
+    Link
+  } from "react-router-dom";
 
+import {ColorButton} from "./ColorButton"
 const axios = require('axios');
 // const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
 
@@ -43,7 +47,7 @@ export const Join = withRouter(({history}) => {
     return (
         <div className="joinHome">
         {roomDNE &&
-            <h2>Error: Room {code} does not exist</h2> 
+            <h2 className="error">Room {code} not found</h2> 
         }
         <button className="btn btn-primary" onClick={handleJoin}>Join</button>
         <TextField
@@ -51,6 +55,7 @@ export const Join = withRouter(({history}) => {
                     label="Room Code" variant="outlined"
                     onChange={handleChange}
         />
+        <Link to="/"><ColorButton>Back Home</ColorButton></Link>
         </div>
     )
 }); 
