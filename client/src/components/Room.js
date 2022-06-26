@@ -12,7 +12,7 @@ import TextField from "@material-ui/core/TextField";
 import {
     Link
 } from "react-router-dom";
-
+import { PlayerList } from './PlayerList';
 export const SocketContext = React.createContext()
 
 const useStyles = makeStyles((theme) => ({
@@ -258,7 +258,7 @@ export default function Room({ history, match, location }) {
                 </SocketContext.Provider>
             }
             {
-                roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayersPanel players={players} me={me} name={nameState.name} />
+                roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayerList players={players} me={me} name={nameState.name} />
             }
             {
                 roomStatus === 'GAMEOVER' && gameOverPanel()
@@ -268,46 +268,6 @@ export default function Room({ history, match, location }) {
 
     )
 }
-
-const playerStyle = {
-    // backgroundColor: "#F8F8F8",
-    // borderTop: "1px solid #E7E7E7",
-    textAlign: "center",
-    padding: "20px",
-    left: "0",
-    bottom: "0",
-    fontSize: "25px", 
-    width: "100%"
-  };
-
-function PlayersPanel(props) {
-    if (props.players === null) {
-        return (<div>No players have connected</div>)
-    } else {
-        return (
-            <div className="readyUnitContainer">
-                {props.players.map((item, index) => {
-                    let ready = null
-                    let notReadyColor = '#E46258'
-                    let readyColor = '#73C373'
-
-                    if (item.isReady) {
-                        ready = <b>Ready!</b>
-                    } else {
-                        ready = <b>Not Ready</b>
-                    }
-                    return (
-                        <div style={{textAlign: "center", backgroundColor: item.isReady ? readyColor : notReadyColor }} key={index}>
-                            <p style={playerStyle}>{index + 1}. {item.friendlyName} {ready}</p>
-                        </div>
-                    )
-                })
-                }
-            </div>
-        )
-    }
-}
-
 
 // const BootstrapButton = withStyles({
 //     root: {
