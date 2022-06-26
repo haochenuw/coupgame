@@ -30,7 +30,17 @@ const ColorButton = withStyles(() => ({
     },
 }))(Button);
 
-
+const footerStyle = {
+    // backgroundColor: "#F8F8F8",
+    // borderTop: "1px solid #E7E7E7",
+    textAlign: "center",
+    padding: "20px",
+    position: "fixed",
+    left: "0",
+    bottom: "0",
+    height: "60px",
+    width: "100%"
+  };
 // const useStyles = makeStyles({
 //     root: {
 //         backgroundColor: 'blue', 
@@ -46,7 +56,11 @@ const ColorButton = withStyles(() => ({
 
 
 function Heading(){
-    return <div className="heading">Multiplayer Coup</div>; 
+    return <div className="heading">Play Coup Online</div>; 
+}
+
+function Footer(){
+    return <div style={footerStyle}>Made by <a className="link" href="https://github.com/haochenuw">Hao Chen</a> </div>
 }
 
 function Home(){
@@ -59,6 +73,8 @@ function Home(){
         <Link to="/join"><ColorButton>Join</ColorButton></Link>
 
         <RulesModal/>
+
+        <Footer/>
 
         </div>
     )

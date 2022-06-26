@@ -2,7 +2,21 @@ body {
     padding-bottom: 120px; 
 }
 
+.link {
+    cursor: pointer;
+    text-decoration: none;
+    /* color: #000000; */
+    font-weight: 600;
+    /* background-color: #F2F2F2; */
+    border-radius: 5px;
+    padding: 5px;
+    transition-duration: 0.3s;
+  }
 
+  .link:hover{
+    color: #FFFFFF;
+    background-color: #A2A2A2;
+  }
 
 .heading{
     text-align: center;
