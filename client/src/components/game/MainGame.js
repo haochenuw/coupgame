@@ -24,12 +24,7 @@ export default function MainGame(props) {
     const [assDisable, setAssDisable] = React.useState(false);
     const [roundState, setRoundState] = useState("")
 
-    // console.log("initial state = ", JSON.stringify(props.initialState))
-
     const [localGameState, setLocalGameState] = useState(props.initialState);
-
-    // console.log("local state = ", JSON.stringify(localGameState))
-
 
     const [currentAction, setCurrentAction] = useState(null);
 
@@ -454,7 +449,7 @@ export default function MainGame(props) {
             {playerStatePanel()}
             {hasError && <h3 className="error">Not enough Tokens</h3>}
             {localGameState !== null && <EventLog logs={localGameState.logs} />}
-            <div className="footer">
+            <div className="in-game-footer">
             {localGameState !== null && <ActionBanner roundState={roundState} logs={localGameState.logs}/>}
             {
                 roundState === "WAIT_FOR_ACTION" && <ActionPanel onAction={onActionSelected} disabledActions={computeDisabledActions(localGameState)}/>

@@ -197,13 +197,13 @@ export default function Room({ history, match, location }) {
     function setNamePanel() {
         return (
             <div className="joinHome">
-                <Link to="/"><ColorButton>Back Home</ColorButton></Link>
                 {nameError !== null && <h3>Error: {nameError}</h3>}
                 <TextField
                     id="textfield-input"
                     label="Your Name" variant="outlined"
                 />
-                <ColorButton variant="contained" color="primary" className={classes.margin} onClick={() => onSaveName(document.getElementById('textfield-input').value)}>Save</ColorButton>
+                <ColorButton onClick={() => onSaveName(document.getElementById('textfield-input').value)}>Save</ColorButton>
+                <Link to="/"><ColorButton>Back Home</ColorButton></Link>
             </div>
         )
     }
@@ -224,8 +224,8 @@ export default function Room({ history, match, location }) {
     return (
         <div className="roomHome">
             <div className="roomHeader">
-                <div className="roomName"> ROOM {match.params.name} </div>
-                <RulesModal style="small" />
+                <div className="roomName"> Room: {match.params.name} </div>
+                {/* <RulesModal style="small" /> */}
             </div>
             <div className="readyAndStart">
                 {
@@ -258,7 +258,7 @@ export default function Room({ history, match, location }) {
                 </SocketContext.Provider>
             }
             {
-                roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayerList players={players} me={me} name={nameState.name} />
+                roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayerList players={players} me={me} myName={nameState.name} />
             }
             {
                 roomStatus === 'GAMEOVER' && gameOverPanel()

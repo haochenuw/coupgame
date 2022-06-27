@@ -357,4 +357,9 @@ disconnect icon [x]
 ## Saturday, June 25, 2022 
 
 - [x] add footer in homepage 
-- []  add "back" button in create and join pages
+- [x]  add "back" button in create and join pages
+
+## Monday, June 27, 2022
+
+[] add deploy link in github
+[] make buttons consistent 

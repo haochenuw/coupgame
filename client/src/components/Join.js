@@ -49,7 +49,7 @@ export const Join = withRouter(({history}) => {
         {roomDNE &&
             <h2 className="error">Room {code} not found</h2> 
         }
-        <button className="btn btn-primary" onClick={handleJoin}>Join</button>
+        <ColorButton onClick={handleJoin}>Join</ColorButton>
         <TextField
                     id="roomcode-input"
                     label="Room Code" variant="outlined"
