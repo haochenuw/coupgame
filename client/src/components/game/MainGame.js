@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUnlink, faHeart } from '@fortawesome/free-solid-svg-icons'
 import ActionBanner  from './ActionBanner';
 import {ActionPanel, ACTIONS} from './ActionPanel';
+import { WarningButton } from '../ColorButton';
 
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
 const linkSlashIcon = <FontAwesomeIcon icon= {faUnlink} />
@@ -252,7 +253,7 @@ export default function MainGame(props) {
                 <h2>Choose a target to {action} </h2>
                 {options.map((item) => {
                     return (<span>
-                        <button class="btn btn-warning" onClick={() => onTargetSelected(action, item)}>{item}</button>
+                        <WarningButton onClick={() => onTargetSelected(action, item)}>{item}</WarningButton>
                     </span>
                     )
                 }
@@ -291,9 +292,8 @@ export default function MainGame(props) {
             <div className="selection">
                 <h2>Choose {numToKeep} cards to keep </h2>
                 {cards.map((item) => {
-                    // if(playerState.lifePoint > 0){
                     return (<span>
-                        <button class="btn btn-warning" onClick={(event) => onKeepSelected(event, item)}>{item}</button>
+                        <WarningButton onClick={(event) => onKeepSelected(event, item)}>{item}</WarningButton>
                     </span>
                     )
                 }
@@ -344,8 +344,8 @@ export default function MainGame(props) {
         }
         return (
             <div className="selection">
-                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Block')}>Block</button>
-                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
+                <WarningButton onClick={() => onBlockOrChallengeDecision('Block')}>Block</WarningButton>
+                <WarningButton onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</WarningButton>
             </div>
         )
     }
@@ -377,8 +377,8 @@ export default function MainGame(props) {
         const name = localGameState.pendingActions[0].source;
         return (
             <div className="selection">
-                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Challenge')}>Challenge {name}</button>
-                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
+                <WarningButton onClick={() => onBlockOrChallengeDecision('Challenge')}>Challenge {name}</WarningButton>
+                <WarningButton onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</WarningButton>
             </div>
         )
     }
@@ -401,9 +401,9 @@ export default function MainGame(props) {
                             return null; // can't block 
                         }
                     }
-                    return <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision(action)}>{action} {name}</button>
+                    return <WarningButton onClick={() => onBlockOrChallengeDecision(action)}>{action} {name}</WarningButton>
                 })}
-                <button className="btn btn-warning" onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</button>
+                <WarningButton onClick={() => onBlockOrChallengeDecision('Skip')}>Skip</WarningButton>
             </div>
         )
     }

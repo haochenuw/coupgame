@@ -3,12 +3,11 @@ import MainGame from "./game/MainGame"
 import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
-import RulesModal from "./RulesModal";
 import { createTheme, withStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
-import Button from "@material-ui/core/Button";
 import { green, purple } from '@material-ui/core/colors';
 import TextField from "@material-ui/core/TextField";
+import { ColorButton, ActionButton, ErrorButton } from './ColorButton';
 import {
     Link
 } from "react-router-dom";
@@ -20,17 +19,6 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(2),
     },
 }));
-
-const ColorButton = withStyles(() => ({
-    root: {
-        backgroundColor: "#347dc9",
-        // backgroundColor: purple[500],
-        // '&:hover': {
-        // backgroundColor: purple[700],
-        // },
-    },
-}))(Button);
-
 
 const theme = createTheme({
     palette: {
@@ -238,16 +226,16 @@ export default function Room({ history, match, location }) {
                 }
                 {
                     roomStatus === 'NOT_READY_TO_START' &&
-                    <button className="btn btn-success" onClick={setReady}>Ready</button>
+                    <ActionButton onClick={setReady}>Ready</ActionButton>
                 }
                 {
                     roomStatus !== 'STARTED' &&
                     isHost &&
-                    <button className="btn btn-success" disabled={!canStartGame()} onClick={startGame}>Start Game</button>
+                    <ActionButton disabled={!canStartGame()} onClick={startGame}>Start Game</ActionButton>
                 }
                 {
                     roomStatus !== 'STARTED' &&
-                    <button className="btn btn-success" onClick={handleLeave}>Leave</button>
+                    <ErrorButton onClick={handleLeave}>Leave</ErrorButton>
                 }
             </div>
             {

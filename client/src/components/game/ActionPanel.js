@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { ColorButton } from '../ColorButton';
 import '../styles/styles.css';
 
 export const ACTIONS=["Income", "Coup", "Tax", "Assasinate", "Exchange", "Steal", "ForeignAid"]; 
@@ -10,7 +11,8 @@ export function ActionPanel(props){
             {
                 ACTIONS.map((action, index) => {
                     let disabled = props.disabledActions.includes(action); 
-                    return (<button key={index} className="btn btn-info" disabled={disabled} onClick={() => props.onAction(action)}>{action}</button>)
+                    return (<ColorButton key={index} disabled={disabled} onClick={() => props.onAction(action)}>{action}</ColorButton>)
+                    // return (<button key={index} className="btn btn-info" disabled={disabled} onClick={() => props.onAction(action)}>{action}</button>)
                 })
             }
             {/* <button className="btn btn-info" onClick={() => props.onAction('Income')}>Income</button>
