@@ -57,8 +57,8 @@ export default function CardModal(props) {
         <div className={`cardinner ${revealed}`}>
             {card.name}
         </div>
-        <div className="cardinner">Action: {getAction(card.name)} </div>
-        <div className="cardinner">Blocks: {getBlock(card.name)}  </div>
+        {/* <div className="cardinner">Action: {getAction(card.name)} </div> */}
+        {/* <div className="cardinner">Blocks: {getBlock(card.name)}  </div> */}
 
         </div>
         <ReactModal

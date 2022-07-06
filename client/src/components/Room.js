@@ -54,14 +54,14 @@ export default function Room({ history, match, location }) {
         shouldConnect |= nameState.name !== '' && nameState.isRegistered === false; 
         
         if (shouldConnect){
-            console.log('connecting to socket.io...');
+            console.log(`connecting to socket.io...`);
             socket = io(`/${roomName}`, {
                 query: {
                     name: nameState.name
                 }
             });
         } else {
-            console.log("not executed!"); 
+            console.log(`reconnection not executed!`); 
             console.log(`name = ${nameState.name}`)
         }
     }, [nameState]); 

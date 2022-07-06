@@ -26,9 +26,11 @@ export const Join = withRouter(({history}) => {
         let data = {
             roomName: code
         }
+        console.log(`join is clicked`)
 
         axios.get(`/checkRoom`, {params: data})   
         .then(function (res) {
+            console.log('check room get result')
             console.log(res)
             setRoomDNE(!res.data.doesRoomExist)
             if(res.data.doesRoomExist){
