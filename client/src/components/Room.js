@@ -49,8 +49,8 @@ export default function Room({ history, match, location }) {
 
     useEffect(() => {
         console.log(`Effect block gets executed`);
-        // if ( (socket === null || nameState.isRegistered === false) && nameState.name !== '') {
-        let shouldConnect = socket === null && nameState.name != ''; 
+        let shouldConnect = socket === null 
+        // && nameState.name != ''; 
         shouldConnect |= nameState.name !== '' && nameState.isRegistered === false; 
         
         if (shouldConnect){
@@ -61,8 +61,8 @@ export default function Room({ history, match, location }) {
                 }
             });
         } else {
-            console.log(`reconnection not executed!`); 
-            console.log(`name = ${nameState.name}`)
+            console.log(`reconnection not executed!, name = ${nameState.name}`)
+            socket.emit('playerCheck')
         }
     }, [nameState]); 
 

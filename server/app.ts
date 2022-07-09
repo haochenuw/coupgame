@@ -228,6 +228,11 @@ const main = async () => {
                 socket.emit('playersUpdate', gameState.playerStates);
             })
 
+            client.on('playerCheck', () => {
+                logInfo(`Client ${client.id} checks for players`)
+                socket.emit('playersUpdate', gameState.playerStates);
+            })
+
             client.on('startGame', () => {
                 if(gameState.playerStates.length < constants.MIN_PLAYERS || gameState.playerStates.length > constants.MAX_PLAYERS){
                     logError('number of players too small or too large'); 
