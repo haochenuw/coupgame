@@ -212,7 +212,7 @@ export default function Room({ history, match, location }) {
     return (
         <div className="roomHome">
             <div className="roomHeader">
-                <div className="roomName"> Room: {match.params.name} </div>
+                <div className="roomName"> Room: <span className="roomCode">{match.params.name} </span> </div>
                 {/* <RulesModal style="small" /> */}
             </div>
             <div className="readyAndStart">

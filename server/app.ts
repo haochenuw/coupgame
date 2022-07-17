@@ -8,7 +8,7 @@ import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerActi
 import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers, handleAction} from "./game"; 
 import * as constants from "./constants"; 
 
-
+const ROOM_CODE_LENGTH = 4; 
 let namespaces = {}; //AKA party rooms
 let roomNameToStatusMap = {}; 
 let roomNameToRematchRequests = {}; 
@@ -57,7 +57,7 @@ const main = async () => {
 
     app.get('/newgame', (_, res) => {
         console.log('got new game request'); 
-        let roomName = makeid(5); 
+        let roomName = makeid(ROOM_CODE_LENGTH); 
         allRooms.push(roomName); 
         let roomStatus: RoomStatus = {
             name: roomName, 
@@ -74,7 +74,7 @@ const main = async () => {
     app.get('/createRoom', function (req, res) { 
         let newRoom = '';
         while(newRoom === '' || (newRoom in namespaces)) {
-            newRoom = makeid(5); 
+            newRoom = makeid(ROOM_CODE_LENGTH); 
         }
         const newSocket: Namespace = io.of(`/${newRoom}`);
         openSocket(newSocket, `/${newRoom}`);
