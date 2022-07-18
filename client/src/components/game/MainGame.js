@@ -9,6 +9,7 @@ import { faUnlink, faHeart } from '@fortawesome/free-solid-svg-icons'
 import ActionBanner  from './ActionBanner';
 import {ActionPanel, ACTIONS} from './ActionPanel';
 import { WarningButton } from '../ColorButton';
+import ExchangeSelector from './ExchangeSelector';
 
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
 const linkSlashIcon = <FontAwesomeIcon icon= {faUnlink} />
@@ -291,19 +292,19 @@ export default function MainGame(props) {
         return (
             <div className="selection">
                 <h2>Choose {numToKeep} cards to keep </h2>
-                {cards.map((item) => {
-                    return (<span>
-                        <WarningButton onClick={(event) => onKeepSelected(event, item)}>{item}</WarningButton>
-                    </span>
+                {cards.map((item, key) => {
+                    return (
+                        <WarningButton onClick={(event) => onKeepSelected(event, key, item)}>{item}</WarningButton>
                     )
                 }
                 )}
             </div>
         )
 
-        function onKeepSelected(event, item) {
-            event.target.disabled = true;
-            console.log(`selected ${item} to keep`)
+        function onKeepSelected(event, key, item) {
+            console.log(`event = ${event.currentTarget}`)
+            event.currentTarget.disabled = true;
+            console.log(`user selected ${item} to keep`)
             cardsToKeep.push(item);
 
             if (cardsToKeep.length === numToKeep) {
@@ -443,6 +444,11 @@ export default function MainGame(props) {
         return result; 
     }
 
+    function exchangeCallback(){
+        console.log('called back')
+        setRoundState("WAITING_FOR_OTHERS")
+    }
+
     return (
         <div>
             {hasError && <h2 className="error">There's an error</h2>}
@@ -458,7 +464,7 @@ export default function MainGame(props) {
                 roundState === "WAIT_FOR_SURRENDER" && selectAliveCardsPanel('Surrender')
             }
             {roundState === "SELECT_TARGET" && selectPlayerTarget(currentAction)}
-            {roundState === "WAIT_FOR_EXCHANGE" && selectExchangeTarget()}
+            {roundState === "WAIT_FOR_EXCHANGE" && <ExchangeSelector cards = {localGameState.pendingExchangeCards.map(card => card.name)} exchangeCallback = {exchangeCallback} myName = {props.myName}/>}
             {roundState === "WAIT_FOR_BLOCK" && BlockOrSkipPanel()}
             {roundState === "WAIT_FOR_CHALLENGE" && ChallengeOrSkipPanel()}
             {roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK" && doXOrSkipPanel(['Challenge', 'Block'])}

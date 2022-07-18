@@ -54,7 +54,7 @@ export default function CardModal(props) {
     return (
         <>
         <div className="cardouter" onClick={cardClicked} >
-        <div className={`cardinner ${revealed}`}>
+        <div className={`cardinner ${revealed} ${card.name.toLowerCase()}`}>
             {card.name}
         </div>
         {/* <div className="cardinner">Action: {getAction(card.name)} </div> */}

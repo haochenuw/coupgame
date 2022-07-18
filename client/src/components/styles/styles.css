@@ -87,6 +87,27 @@ body {
     font-weight: 500;
 }
 
+.duke {
+    border-bottom: 5px solid purple;
+}
+
+.assassin {
+    border-bottom: 5px solid silver;
+}
+
+.ambassador {
+    border-bottom: 5px solid green;
+}
+
+.captain {
+    border-bottom: 5px solid blue;
+}
+
+.contessa {
+    border-bottom: 5px solid red;
+}
+
+
 .readyAndStart{
     margin-top: 20px;
     margin-bottom: 20px;
@@ -148,6 +169,8 @@ body {
 
 .eventLog{
     padding-top: 30px; 
+    overflow-y: scroll;
+    height: 20VH;
 }
 
 /* a revealed card */ 
