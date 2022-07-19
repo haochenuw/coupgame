@@ -227,8 +227,10 @@ export default function MainGame(props) {
                     hearts.push(heartIcon); 
                 }
 
+                let alive = playerState.lifePoint === 0 ? "terminated-player" : "alive-player"; 
+
                 return <div className={me}>
-                    <div className={playerState.lifePoint === 0 ? "terminated-player" : "alive-player"}>
+                    <div className={`${alive} ${me}`}>
                     {playerState.friendlyName} 
                     <span>{hearts} {tokens} </span>
                     {playerState.connected === false &&<span>{linkSlashIcon}</span>}

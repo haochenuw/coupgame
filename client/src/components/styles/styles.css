@@ -126,6 +126,14 @@ body {
     font-size: 25px;
 }
 
+.otherPlayerState {
+    font-weight: 400;
+}
+
+.myPlayerState {
+    font-weight: 600;
+}
+
 .cardContent{
     /* font-family: 'Bangers', cursive; */
     font-family: 'Chakra Petch', sans-serif;
@@ -162,13 +170,13 @@ body {
     width: 100%;
     text-align: center;
     z-index:1100;
-    padding-top: 20px;
-    border-top: 2px solid beige; 
+    /* padding-top: 5px; */
+    /* border-top: 2px solid beige;  */
     background: beige;
   }
 
 .eventLog{
-    padding-top: 30px; 
+    padding-top: 10px; 
     overflow-y: scroll;
     height: 20VH;
 }

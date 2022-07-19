@@ -31,11 +31,11 @@ export const ErrorButton = withStyles(() => ({
 
 export const WarningButton = withStyles(() => ({
     root: {
-        backgroundColor: "yellow",
+        backgroundColor: "#B10A2E",
         color: "#ffffff", 
         // backgroundColor: purple[500],
         '&:hover': {
-            backgroundColor: "green",
+            backgroundColor: "#C42021", 
         },
         padding: "6px 16px", 
         margin: "16px", 

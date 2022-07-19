@@ -230,7 +230,11 @@ const main = async () => {
 
             client.on('playerCheck', () => {
                 logInfo(`Client ${client.id} checks for players`)
-                socket.emit('playersUpdate', gameState.playerStates);
+                if (gameInProgress){
+                    client.emit('gameInProgress');
+                    return; 
+                }
+                client.emit('playersUpdate', gameState.playerStates);
             })
 
             client.on('startGame', () => {
