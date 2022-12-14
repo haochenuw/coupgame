@@ -1,4 +1,4 @@
-// require("dotenv-safe").config();
+require("dotenv").config();
 import express, { query } from "express";
 import { join } from "path";
 import cors from "cors";
@@ -8,20 +8,20 @@ import { RoomStatus,GameState, RoundState, PlayerState, Card, Action, PlayerActi
 import {initGame, shuffle, commitAction, isValidAction, checkForWinner, maskState, computeAlivePlayers, handleAction} from "./game"; 
 import * as constants from "./constants"; 
 
+import { MongoClient, ServerApiVersion } from 'mongodb';
+const DB_NAME = "coupgameDB"; 
+const COLLECTION_NAME = "gameMetrics"; 
+const mongoClient = new MongoClient(process.env.DB_CONNECTION_STRING);
+
 const ROOM_CODE_LENGTH = 4; 
 let namespaces = {}; //AKA party rooms
-let roomNameToStatusMap = {}; 
-let roomNameToRematchRequests = {}; 
-let allRooms: Array<string> = []; 
-const clientToRoomMapping = {};  
-let states: Record<string, GameState> = {}; 
-
-enum ConnectionResult {
-    Success,
-    Fail
-}
 
 const main = async () => {
+    await mongoClient.connect();
+    console.log('Connected successfully to mongoDB');
+    const db = mongoClient.db(DB_NAME);
+    const collection = db.collection(COLLECTION_NAME);
+
     const app = express();
     app.use(cors({ origin: "*" }));
     app.use(express.json());  // for parsing requests. 
@@ -35,9 +35,6 @@ const main = async () => {
       
     app.use(express.json())
 
-    // app.engine(engine.type, engine.render);
-    // app.set("view engine", engine.type);
-    // app.set("views", engine.dir);
     const http = require('http');
     const server = http.createServer(app);
     let io = require("socket.io")(server, {cors: {
@@ -51,25 +48,9 @@ const main = async () => {
 
     app.use(express.static(join(__dirname, '../../client/build')));
 
-    app.get('/', (req, res) => {
+    app.get('/', (_, res) => {
         res.sendFile(join(__dirname+'/../../client/build/index.html'));
     });
-
-    app.get('/newgame', (_, res) => {
-        console.log('got new game request'); 
-        let roomName = makeid(ROOM_CODE_LENGTH); 
-        allRooms.push(roomName); 
-        let roomStatus: RoomStatus = {
-            name: roomName, 
-            playerOneId: null, 
-            playerTwoId: null, 
-            numPlayers: 0, 
-        }
-        roomNameToStatusMap[roomName] = roomStatus; 
-        console.log("status = " + JSON.stringify(roomNameToStatusMap));
-        // redirect to room page. 
-        res.redirect('/rooms/' + roomName); 
-    })
 
     app.get('/createRoom', function (req, res) { 
         let newRoom = '';
@@ -78,7 +59,7 @@ const main = async () => {
         }
         const newSocket: Namespace = io.of(`/${newRoom}`);
         openSocket(newSocket, `/${newRoom}`);
-        namespaces[newRoom] = null;
+        namespaces[newRoom] = 1; // created
         console.log(newRoom + " CREATED")
         res.json({room: newRoom});
     })
@@ -154,7 +135,7 @@ const main = async () => {
         let gameInProgress = false; 
         let gameState: GameState = emptyGameState(); 
 
-        socket.on('connection', client => {
+        socket.on('connection', async (client) => {
             logInfo(`Client ${client.id} connecting to namespace ${namespace}`);
 
             if (gameInProgress) {
@@ -237,7 +218,7 @@ const main = async () => {
                 client.emit('playersUpdate', gameState.playerStates);
             })
 
-            client.on('startGame', () => {
+            client.on('startGame', async () => {
                 if(gameState.playerStates.length < constants.MIN_PLAYERS || gameState.playerStates.length > constants.MAX_PLAYERS){
                     logError('number of players too small or too large'); 
                     socket.emit('error', 'Wrong number of players'); 
@@ -246,11 +227,12 @@ const main = async () => {
                 logInfo(`Client ${client.id} starts game for room ${namespace}`)
                 gameInProgress = true; 
                 gameState = initGame(gameState.playerStates); 
-
                 sendMaskedGameStates(socket, gameState, 'startGameResponse'); 
+                // log starting of games to mongodb
+                const _ = await collection.insertOne({ event: "game_start" });
             })
 
-            client.on('action', (action) => {
+            client.on('action', async (action) => {
                 logInfo(`Got action = ${JSON.stringify(action)} from player ${client.id}`); 
 
                 if (!isValidAction(action, client.id, gameState)){
@@ -262,12 +244,15 @@ const main = async () => {
                 logInfo(`Round state = ${gameState.roundState}`); 
 
                 gameState = handleAction(gameState, action as PlayerAction); 
+
                 logDebug('gameState after handling action...'); 
 
                 let winner = checkForWinner(gameState);
                 if (winner !== null){
                     gameInProgress = false; 
                     socket.emit('gameOver', winner); 
+                    // log game completion to mongodb
+                    const _ = await collection.insertOne({event: "game_complete" }); 
                 }
                 logDebug(`Changed Round state TO ${JSON.stringify(gameState.roundState)}`)
                 logDebug(`Active player index = ${JSON.stringify(gameState.activePlayerIndex)}`)
@@ -277,12 +262,23 @@ const main = async () => {
             }); 
 
         })
-
+        let checkEmptyInterval = setInterval(() => {
+            let strippedNamespace = namespace.substring[1]
+            if(Object.keys(socket['sockets']).length == 0) {
+                delete io.nsps[namespace];
+                if(namespaces[strippedNamespace] != null) {
+                    delete namespaces[strippedNamespace]
+                }
+                clearInterval(checkEmptyInterval)
+                console.log(namespace 
+                    + 'deleted')
+            }
+        }, 10000)    
     }
 
     app.get('/rooms/:code', (req, res) => {
         const roomName = req.params.code; 
-        if (allRooms.includes(roomName)){
+        if (namespaces[roomName] != null){
             res.render("room", {
                 roomName: roomName, 
             });
