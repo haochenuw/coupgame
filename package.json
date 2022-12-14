@@ -10,7 +10,8 @@
         "build-server": "cd server && npm install && npm run build-ts",
         "build-client": "cd client && npm install && npm run build;",
         "start": "cd server && npm start", 
-        "all-in-one": "npm run build-server && npm run build-client && npm run start"
+        "all-in-one": "npm run build-server && npm run build-client && npm run start", 
+        "build": "npm run build-server && npm run build-client"
     },
     "dependencies": {
         "mongodb": "^4.12.1"
