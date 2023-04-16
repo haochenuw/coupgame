@@ -5,7 +5,6 @@ export const ColorButton = withStyles(() => ({
     root: {
         backgroundColor: "#347dc9",
         color: "#ffffff", 
-        // backgroundColor: purple[500],
         '&:hover': {
             backgroundColor: "#197de6",
         },
@@ -33,7 +32,6 @@ export const WarningButton = withStyles(() => ({
     root: {
         backgroundColor: "#B10A2E",
         color: "#ffffff", 
-        // backgroundColor: purple[500],
         '&:hover': {
             backgroundColor: "#C42021", 
         },
@@ -46,7 +44,6 @@ const useStyles = props => makeStyles( () => ({
     root: {
         backgroundColor: props.backgroundColor,
         color: props.color, 
-        // backgroundColor: purple[500],
         '&:hover': {
             backgroundColor: props.hoverBackGroundColor,
         },

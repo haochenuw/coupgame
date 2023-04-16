@@ -65,30 +65,3 @@ export const Join = withRouter(({history}) => {
 
 
 export default Join; 
-
-// export default class Join extends Component {
-
-//     constructor(props) {
-//         super(props)
-    
-//         this.state = {
-//             roomCode: '',
-//         }
-//     }
-
-//     handleChange = (event) => {
-//         this.setState({ roomCode: event.target.value });
-//     }
-
-//     render() {
-//         return (
-//             <>
-//             <div>
-//             <button onClick={this.join}>Join</button>
-//             <input onChange={this.handleChange} type="text" placeholder="Game code"/>
-//             </div>
-//            </>
-           
-//         )
-//     }
-// }
