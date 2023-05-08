@@ -51,7 +51,7 @@ const main = async () => {
     app.use(express.static(join(__dirname, '../../client/build')));
 
     app.get('/ads.txt', (req, res) => {
-        const filePath = join(__dirname, 'ads.txt')
+        const filePath = join(__dirname, '../ads.txt')
         res.sendFile(filePath)
     })
 
