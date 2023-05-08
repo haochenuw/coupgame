@@ -4,7 +4,7 @@
   "description": "",
   "main": "node out/app.js",
   "engines": {
-    "node": "14.x"
+    "node": "16.20.0"
   },
   "scripts": {
     "test": "jest",

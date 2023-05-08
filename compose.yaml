@@ -1,0 +1,31 @@
+services:
+  frontend:
+    build:
+      context: client
+      target: development
+    ports:
+      - 3000:3000
+    stdin_open: true
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: always
+    networks:
+      - react-express
+    depends_on:
+      - backend
+
+  backend:
+    restart: always
+    build:
+      context: server
+      target: development
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - react-express
+    expose:
+      - 3000
+networks:
+  react-express:
