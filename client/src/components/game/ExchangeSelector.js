@@ -42,9 +42,5 @@ export default function ExchangeSelector(props) {
         }))
         console.log(`user selected ${item} to keep`)
         setCardsToKeep(cardsToKeep => [...cardsToKeep, item]);
-
-        // console.log(`selected ${cardsToKeep.length} cards`)
-
-
     }
 }

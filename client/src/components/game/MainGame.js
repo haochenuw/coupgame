@@ -122,20 +122,6 @@ export default function MainGame(props) {
         return playerTokens < ASSASINATE_COST;
     }
 
-    function actionPanel() {
-        return (
-            <div className="selection">
-                <button className="btn btn-info" onClick={() => onActionSelected('Income')}>Income</button>
-                <button className="btn btn-info" disabled={coupDisable} onClick={() => onActionSelected('Coup')}>Coup</button>
-                <button className="btn btn-info" onClick={() => onActionSelected('Tax')}>Tax</button>
-                <button className="btn btn-info" disabled={assDisable} onClick={() => onActionSelected('Assasinate')}>Assasinate</button>
-                <button className="btn btn-info" onClick={() => onActionSelected('Exchange')}>Exchange</button>
-                <button className="btn btn-info" onClick={() => onActionSelected('Steal')}>Steal</button>
-                <button className="btn btn-info" onClick={() => onActionSelected('ForeignAid')}>ForeignAid</button>
-            </div>
-        )
-    }
-
     function onActionSelected(action) {
         console.log(`Action ${action} selected`)
         setCurrentAction(action)
@@ -233,8 +219,7 @@ export default function MainGame(props) {
                     <div className={`${alive} ${me}`}>
                     {playerState.friendlyName} 
                     <span>{hearts} {tokens} </span>
-                    {playerState.connected === false &&<span>{linkSlashIcon}</span>}
-                    {playerState.connected === false &&<span>disconnected...</span>}
+                    {playerState.connected === false &&<span>{linkSlashIcon} disconnected...</span>}
                     </div>
                     <div className="cards">
                         {playerState.cards.map((card) => {
@@ -472,7 +457,6 @@ export default function MainGame(props) {
             {roundState === "WAIT_FOR_CHALLENGE_OR_BLOCK" && doXOrSkipPanel(['Challenge', 'Block'])}
             {roundState === "WAIT_FOR_REVEAL" && selectAliveCardsPanel('Reveal')}
             </div>
-            {/* {localGameState !== null && gameStateDebugPanel()} */}
         </div>
     )
 }

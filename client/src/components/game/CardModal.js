@@ -53,13 +53,10 @@ export default function CardModal(props) {
 
     return (
         <>
-        <div className="cardouter" onClick={cardClicked} >
-        <div className={`cardinner ${revealed} ${card.name.toLowerCase()}`}>
+        <div className={`cardouter ${revealed} ${card.name.toLowerCase()}`} onClick={cardClicked} >
+        {/* <div className={`cardinner ${revealed}`}>
             {card.name}
-        </div>
-        {/* <div className="cardinner">Action: {getAction(card.name)} </div> */}
-        {/* <div className="cardinner">Blocks: {getBlock(card.name)}  </div> */}
-
+        </div> */}
         </div>
         <ReactModal
         isOpen={isOpen}

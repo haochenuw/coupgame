@@ -36,7 +36,7 @@ export const CARD_TYPES = [
 export const DUKE: Card = CARD_TYPES[0]; 
 
 export const MaskedCard = {
-    name: "???", 
+    name: "unknown", 
     action:  null, 
     blocksAction: null, 
     isRevealed: false // if card is already revealed. 

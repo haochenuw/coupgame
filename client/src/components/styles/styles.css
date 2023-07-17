@@ -62,21 +62,45 @@ body {
     margin-right: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
-    height: 100px;
-    width: 150px;
+    height: 300px;
+    width: 200px;
     background-color: #f0f0f0;
-    border-radius: 5px;
+    border-radius: 15px;
     text-align: center;
     vertical-align: middle;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
   }
 
-/* .content{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1em;
-} */
+.unknown {
+    background-image: url("../../assets/unknowncard.png");
+    background-size: cover; 
+}
+
+.duke {
+    background-image: url("../../assets/duke.png");
+    background-size: cover; 
+}
+
+.ambassador {
+    background-image: url("../../assets/ambassador.png");
+    background-size: cover; 
+}
+
+.assassin {
+
+    background-image: url("../../assets/assassin.png");
+    background-size: cover; 
+}
+
+.contessa {
+    background-image: url("../../assets/contessa.png");
+    background-size: cover; 
+}
+
+.captain {
+    background-image: url("../../assets/captain.png");
+    background-size: cover; 
+}
 
 .cardinner {
     position: absolute;
@@ -86,27 +110,6 @@ body {
     transform: translate(-50%, -50%);
     font-weight: 500;
 }
-
-.duke {
-    border-bottom: 5px solid purple;
-}
-
-.assassin {
-    border-bottom: 5px solid silver;
-}
-
-.ambassador {
-    border-bottom: 5px solid green;
-}
-
-.captain {
-    border-bottom: 5px solid blue;
-}
-
-.contessa {
-    border-bottom: 5px solid red;
-}
-
 
 .readyAndStart{
     margin-top: 20px;
@@ -183,13 +186,12 @@ body {
 
 /* a revealed card */ 
 .revealed{
-    color: gray;
-    text-decoration: line-through;
+    opacity: 0.2
 }
 
 
 .available{
-    color: black;
+    opacity: 1
 }
 
 .banner{

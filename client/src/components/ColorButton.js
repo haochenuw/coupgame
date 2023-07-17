@@ -62,5 +62,3 @@ const ColorButtonBase = (props) => {
     const classes = useStyles(params); 
     return <Button className = {classes.root}></Button>
 }
-
-// export const ColorButton = () => <ColorButtonBase color = "#ffffff" backgroundColor = "#347dc9" hoverBackGroundColor = "#197de6"/>
