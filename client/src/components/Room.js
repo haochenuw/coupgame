@@ -161,9 +161,7 @@ export default function Room({ history, match, location }) {
     function gameOverPanel() {
         return (
             <div>
-                <h2>Game over: winner is {winner}</h2>
-                {winner === nameState.name && (<h2>You won!</h2>)}
-                {winner !== nameState.name && (<h2>You lost!</h2>)}
+                <h2>Winner is {winner}!</h2>
             </div>
         )
     }

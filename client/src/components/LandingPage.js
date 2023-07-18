@@ -54,8 +54,8 @@ function Home(){
         <div className="Home">
         <Heading />
         
-        <Link to="/create"><ColorButton>Create</ColorButton></Link>
-        <Link to="/join"><ColorButton>Join</ColorButton></Link>
+        <Link to="/create"><ColorButton>Create Room</ColorButton></Link>
+        <Link to="/join"><ColorButton>Join Room</ColorButton></Link>
 
         <CardsDisplay />
 
