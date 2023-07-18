@@ -54,22 +54,47 @@ body {
     display: block; 
 }
 
-.cardouter {
-    position: relative;
-    display: inline-flex;
-    flex-direction: column;
+
+.cardcontainer {
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
     height: 300px;
     width: 200px;
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
     background-color: #f0f0f0;
     border-radius: 15px;
     text-align: center;
     vertical-align: middle;
+    transform-style: preserve-3d;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
-  }
+}
+
+@keyframes flippedAnimation {
+    0% { transform: rotateY(0); }
+    30% { transform: rotateY(180deg); }
+    70% { transform: rotateY(180deg); }
+    100% { transform: rotateY(0); }
+}
+
+.flipped {
+    animation: flippedAnimation linear 2s; 
+}
+
+
+.cardface {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.cardback{
+    transform: rotateY(180deg);
+}
 
 .unknown {
     background-image: url("../../assets/unknowncard.png");
@@ -103,12 +128,20 @@ body {
 }
 
 .cardinner {
-    position: absolute;
+    display: flex;
     justify-content: center;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     font-weight: 500;
+    align-items: center;
+    font-family: 'Pirata One', cursive;
+    font-size: x-large;
+}
+
+.cardback {
+    display: flex;
+    transform: rotateY(180deg);
+    align-items: center;
+    justify-content: center;
+
 }
 
 .readyAndStart{

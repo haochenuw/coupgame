@@ -12,7 +12,7 @@ import Join from "./Join";
 import Room from "./Room"; 
 import RulesModal from "./RulesModal"; 
 import {ColorButton} from "./ColorButton"
-
+import {CardsDisplay} from './CardsDisplay';
 import './styles/styles.css';
 
 const footerStyle = {
@@ -56,6 +56,8 @@ function Home(){
         
         <Link to="/create"><ColorButton>Create</ColorButton></Link>
         <Link to="/join"><ColorButton>Join</ColorButton></Link>
+
+        <CardsDisplay />
 
         <RulesModal/>
 
