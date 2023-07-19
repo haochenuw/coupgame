@@ -9,6 +9,7 @@ import { faUnlink, faHeart } from '@fortawesome/free-solid-svg-icons'
 import ActionBanner  from './ActionBanner';
 import {ActionPanel, ACTIONS} from './ActionPanel';
 import { WarningButton } from '../ColorButton';
+import LoadingCircle from './LoadingCircle';
 import ExchangeSelector from './ExchangeSelector';
 
 const heartIcon = <FontAwesomeIcon icon={faHeart} />
@@ -190,6 +191,10 @@ export default function MainGame(props) {
         return false;
     }
 
+    function isCurrentlyActive(name) {
+        return name == localGameState.playerStates[localGameState.activePlayerIndex].friendlyName
+    }
+
     function playerStatePanel() {
         if (localGameState === null) {
             return null
@@ -217,6 +222,7 @@ export default function MainGame(props) {
 
                 return <div className={me}>
                     <div className={`${alive} ${me}`}>
+                    {isCurrentlyActive(playerState.friendlyName) && <LoadingCircle />}
                     {playerState.friendlyName} 
                     <span>{hearts} {tokens} </span>
                     {playerState.connected === false &&<span>{linkSlashIcon} disconnected...</span>}
@@ -224,7 +230,7 @@ export default function MainGame(props) {
                     <div className="cards">
                         {playerState.cards.map((card) => {
                             return (
-                                <CardModal card={card} className={me}/>
+                                <CardModal card={card} revealed={card.isRevealed} className={me}/>
                             )
                         })}
                     </div>

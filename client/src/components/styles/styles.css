@@ -1,5 +1,5 @@
 body {
-    padding-bottom: 120px; 
+    padding-bottom: 120px;
 }
 
 .roomCode {
@@ -15,43 +15,43 @@ body {
     border-radius: 5px;
     padding: 5px;
     transition-duration: 0.3s;
-  }
+}
 
-  .link:hover{
+.link:hover {
     color: #FFFFFF;
     background-color: #A2A2A2;
-  }
+}
 
-.heading{
+.heading {
     text-align: center;
     font-family: 'Chakra Petch', sans-serif;
-    display: block; 
+    display: block;
     font-size: 36px;
 }
 
 .error {
-    color: rgb(211, 7, 7); 
-    font-size: 20px; 
+    color: rgb(211, 7, 7);
+    font-size: 20px;
 }
 
 .log {
     color: black;
     font-family: 'Chakra Petch', sans-serif;
-    font-size: 20px; 
+    font-size: 20px;
 }
 
-#newest{
-    font-size: 24px; 
+#newest {
+    font-size: 24px;
 }
 
-.selection{
+.selection {
     padding-top: 0px;
     padding-bottom: 5px;
 }
 
-.cards{
-    text-align:center; 
-    display: flex; 
+.cards {
+    text-align: center;
+    display: flex;
     flex-direction: row;
     justify-content: center;
 }
@@ -76,14 +76,25 @@ body {
 }
 
 @keyframes flippedAnimation {
-    0% { transform: rotateY(0); }
-    30% { transform: rotateY(180deg); }
-    70% { transform: rotateY(180deg); }
-    100% { transform: rotateY(0); }
+    0% {
+        transform: rotateY(0);
+    }
+
+    30% {
+        transform: rotateY(180deg);
+    }
+
+    70% {
+        transform: rotateY(180deg);
+    }
+
+    100% {
+        transform: rotateY(0);
+    }
 }
 
 .flipped {
-    animation: flippedAnimation linear 2s; 
+    animation: flippedAnimation linear 2s;
 }
 
 
@@ -94,39 +105,39 @@ body {
     backface-visibility: hidden;
 }
 
-.cardback{
+.cardback {
     transform: rotateY(180deg);
 }
 
 .unknown {
     background-image: url("../../assets/unknowncard.png");
-    background-size: cover; 
+    background-size: cover;
 }
 
 .duke {
     background-image: url("../../assets/duke.png");
-    background-size: cover; 
+    background-size: cover;
 }
 
 .ambassador {
     background-image: url("../../assets/ambassador.png");
-    background-size: cover; 
+    background-size: cover;
 }
 
 .assassin {
 
     background-image: url("../../assets/assassin.png");
-    background-size: cover; 
+    background-size: cover;
 }
 
 .contessa {
     background-image: url("../../assets/contessa.png");
-    background-size: cover; 
+    background-size: cover;
 }
 
 .captain {
     background-image: url("../../assets/captain.png");
-    background-size: cover; 
+    background-size: cover;
 }
 
 .cardinner {
@@ -146,21 +157,21 @@ body {
 
 }
 
-.readyAndStart{
+.readyAndStart {
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-.with-border{
+.with-border {
     border: 5px solid red;
 }
 
-.terminated-player{
+.terminated-player {
     text-decoration: line-through;
     font-size: 25px;
 }
 
-.alive-player{
+.alive-player {
     font-size: 25px;
 }
 
@@ -172,33 +183,33 @@ body {
     font-weight: 600;
 }
 
-.cardContent{
+.cardContent {
     /* font-family: 'Bangers', cursive; */
     font-family: 'Chakra Petch', sans-serif;
-    font-size: 20px; 
+    font-size: 20px;
 }
 
-.tokenImg{
-    height: 20px; 
+.tokenImg {
+    height: 20px;
     width: 20px;
     margin-left: 2.5px;
     margin-right: 2.5px;
 }
 
-.fa-heart{
+.fa-heart {
     color: hsl(342, 90%, 50%);
-    height: 20px; 
+    height: 20px;
     width: 20px;
     margin-left: 2.5px;
-    margin-right: 2.5px; 
+    margin-right: 2.5px;
 }
 
-.btn-info{
-    margin: 5px; 
+.btn-info {
+    margin: 5px;
 }
 
-.btn-warning{
-    margin: 5px; 
+.btn-warning {
+    margin: 5px;
 }
 
 .in-game-footer {
@@ -207,70 +218,94 @@ body {
     bottom: 0;
     width: 100%;
     text-align: center;
-    z-index:1100;
+    z-index: 1100;
     /* padding-top: 5px; */
     /* border-top: 2px solid beige;  */
     background: beige;
-  }
+}
 
-.eventLog{
-    padding-top: 10px; 
+.eventLog {
+    padding-top: 10px;
     overflow-y: scroll;
     height: 20VH;
 }
 
-/* a revealed card */ 
-.revealed{
+/* a revealed card */
+.revealed {
     opacity: 0.2
 }
 
 
-.available{
+.available {
     opacity: 1
 }
 
-.banner{
+.banner {
     text-align: center;
     font-weight: 500;
-    font-size: 32px; 
-    padding-top:5px;
+    font-size: 32px;
+    padding-top: 5px;
     padding-bottom: 5px;
 }
 
-.infoIcon{
+.infoIcon {
     margin-top: 2px;
     margin-right: 5px;
 }
 
-.rules{
-    text-align: center; 
+.rules {
+    text-align: center;
 }
 
 .showRulesBtn {
-   margin: 10px;   
+    margin: 10px;
 }
 
-.showRulesBtnSmall{
-    display: inline-block; 
-    margin: 5px; 
+.showRulesBtnSmall {
+    display: inline-block;
+    margin: 5px;
 }
 
-.roomName{
+.roomName {
     /* display: inline-block;  */
-    margin: 5px; 
-    font-size: 30px; 
+    margin: 5px;
+    font-size: 30px;
     /* border-bottom: 1px solid #B2B2B2; */
 }
 
-.infoIcon{
-    font-size: 18px; 
+.infoIcon {
+    font-size: 18px;
 }
 
-.infoIconInline{
-    font-size: 24px; 
-    color:gray
+.infoIconInline {
+    font-size: 24px;
+    color: gray
 }
 
-.roomHeader{
+.roomHeader {
     text-align: center;
+}
+
+
+/* loading circle */
+.loading {
+    animation: rotate 3s linear infinite;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px dotted;
+    display: inline-block;
+    margin-right: 2px;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+
+    100% {
+        transform: rotate(360deg);
+    }
+
 }

@@ -45,22 +45,9 @@ export default function CardModal(props) {
 
     return (
         <>
-        <CardDisplay card={card.name.toLowerCase()}/>
+        <CardDisplay card={card.name.toLowerCase()} revealed={props.revealed}/>
         <div className={`cardouter ${revealed} ${card.name.toLowerCase()}`}>
         </div>
-        {/* <div className={`cardinner ${revealed}`}>
-            {card.name}
-        </div> */}
-        {/* <ReactModal
-        isOpen={isOpen}
-        onRequestClose={closeModal}
-        contentLabel=""
-        >
-        <div>Card: {card.name}</div>
-        <div>Action: {getAction(card.name)}</div>
-        <div>Blocks: {getBlock(card.name)}</div>
-        <button onClick={closeModal}>x</button>
-        </ReactModal > */}
         </>
     )
 

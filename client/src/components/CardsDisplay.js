@@ -18,6 +18,7 @@ export function CardsDisplay(props) {
 export function CardDisplay(props) {
     const card = props.card;
     const [flipped, setFlipped] = useState(false);
+    const revealed = props.revealed ? 'revealed' : ''; 
 
     const name = flipped ? 'flipped' : '';
 
@@ -30,7 +31,7 @@ export function CardDisplay(props) {
 
     return (
         <div className={`cardcontainer ${name}`}>
-            <div className={`cardface cardfront ${card}`} onClick={handleClick}></div>
+            <div className={`cardface cardfront ${card} ${revealed}`} onClick={handleClick}></div>
             <div className="cardface cardback">
                 <div className={`cardinner`}>{card.toUpperCase()}</div>
             </div>
