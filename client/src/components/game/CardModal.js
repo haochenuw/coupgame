@@ -1,6 +1,7 @@
 import ReactModal from "react-modal";
 import React, { useState } from 'react'
 import '../styles/styles.css';
+import { CardDisplay } from "../CardsDisplay";
 
 const getAction = (card) => {
     switch (card) {
@@ -37,28 +38,20 @@ const getBlock = (card) => {
 }; 
 
 export default function CardModal(props) {
-    const [isOpen, setIsOpen] = useState(false);
 
     const card = props.card; 
-
-    function closeModal() {
-        setIsOpen(false)
-    }
-
-    function cardClicked(){
-        setIsOpen(true)
-    }
 
     let revealed = card.isRevealed ? "revealed" : "available" 
 
     return (
         <>
-        <div className={`cardouter ${revealed} ${card.name.toLowerCase()}`} onClick={cardClicked} >
+        <CardDisplay card={card.name.toLowerCase()}/>
+        <div className={`cardouter ${revealed} ${card.name.toLowerCase()}`}>
+        </div>
         {/* <div className={`cardinner ${revealed}`}>
             {card.name}
         </div> */}
-        </div>
-        <ReactModal
+        {/* <ReactModal
         isOpen={isOpen}
         onRequestClose={closeModal}
         contentLabel=""
@@ -67,7 +60,7 @@ export default function CardModal(props) {
         <div>Action: {getAction(card.name)}</div>
         <div>Blocks: {getBlock(card.name)}</div>
         <button onClick={closeModal}>x</button>
-        </ReactModal >
+        </ReactModal > */}
         </>
     )
 

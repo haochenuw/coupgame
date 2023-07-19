@@ -209,8 +209,8 @@ export default function Room({ history, match, location }) {
 
     return (
         <div className="roomHome">
-            <div className="roomHeader">
-                <div className="roomName"> Room: <span className="roomCode">{match.params.name} </span> </div>
+            <div>
+                <div className="roomName"> Coup Game | Room <span className="roomCode">{match.params.name} </span> </div>
             </div>
             <div className="readyAndStart">
                 {

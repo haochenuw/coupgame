@@ -51,7 +51,9 @@ body {
 
 .cards{
     text-align:center; 
-    display: block; 
+    display: flex; 
+    flex-direction: row;
+    justify-content: center;
 }
 
 
@@ -257,7 +259,7 @@ body {
     /* display: inline-block;  */
     margin: 5px; 
     font-size: 30px; 
-    border-bottom: 1px solid #B2B2B2;
+    /* border-bottom: 1px solid #B2B2B2; */
 }
 
 .infoIcon{

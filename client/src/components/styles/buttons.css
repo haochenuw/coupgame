@@ -1,8 +1,8 @@
 body {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #dee2e6 !important;
 }
+
 .true-center {
   position: absolute;
   top: 0;
