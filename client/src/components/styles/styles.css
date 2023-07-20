@@ -17,6 +17,10 @@ body {
     transition-duration: 0.3s;
 }
 
+.ads {
+    position: relative;
+}
+
 .link:hover {
     color: #FFFFFF;
     background-color: #A2A2A2;

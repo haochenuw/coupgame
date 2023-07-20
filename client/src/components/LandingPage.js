@@ -5,14 +5,15 @@ import {
     Switch,
     Route,
     Link
-  } from "react-router-dom";
+} from "react-router-dom";
 
-import Create from "./Create"; 
-import Join from "./Join"; 
-import Room from "./Room"; 
-import RulesModal from "./RulesModal"; 
-import {ColorButton} from "./ColorButton"
-import {CardsDisplay} from './CardsDisplay';
+import Create from "./Create";
+import Join from "./Join";
+import Room from "./Room";
+import RulesModal from "./RulesModal";
+import { ColorButton } from "./ColorButton"
+import { CardsDisplay } from './CardsDisplay';
+import { AmazonCoupAds } from './Ads';
 import './styles/styles.css';
 
 const footerStyle = {
@@ -25,7 +26,7 @@ const footerStyle = {
     bottom: "0",
     height: "60px",
     width: "100%"
-  };
+};
 // const useStyles = makeStyles({
 //     root: {
 //         backgroundColor: 'blue', 
@@ -40,52 +41,53 @@ const footerStyle = {
 //   });
 
 
-function Heading(){
-    return <div className="heading">Play Coup Online</div>; 
+function Heading() {
+    return <div className="heading">Play Coup Online</div>;
 }
 
-function Footer(){
+function Footer() {
     return <div style={footerStyle}>Made by <a className="link" href="https://github.com/haochenuw">Hao Chen</a> </div>
 }
 
-function Home(){
+function Home() {
     // const classes = useStyles(); 
-    return(
+    return (
         <div className="Home">
-        <Heading />
-        
-        <Link to="/create"><ColorButton>Create Room</ColorButton></Link>
-        <Link to="/join"><ColorButton>Join Room</ColorButton></Link>
+            <Heading />
+            <AmazonCoupAds />
 
-        <CardsDisplay />
+            <Link to="/create"><ColorButton>Create Room</ColorButton></Link>
+            <Link to="/join"><ColorButton>Join Room</ColorButton></Link>
 
-        <RulesModal/>
+            <CardsDisplay />
 
-        <Footer/>
+            <RulesModal />
+
+            <Footer />
 
         </div>
     )
-    
+
 }
 
 export default class LandingPage extends Component {
     render() {
         return (
             <div className="App">
-            <Router>
-                <Switch>
-                    <Route exact path="/create">
-                        <Create />
-                    </Route>
-                    <Route exact path="/join">
-                        <Join />
-                    </Route>
-                    <Route exact path="/">
-                        <Home />
-                    </Route>
-                    <Route exact path="/room/:name" component={Room} />
-                </Switch>
-            </Router>
+                <Router>
+                    <Switch>
+                        <Route exact path="/create">
+                            <Create />
+                        </Route>
+                        <Route exact path="/join">
+                            <Join />
+                        </Route>
+                        <Route exact path="/">
+                            <Home />
+                        </Route>
+                        <Route exact path="/room/:name" component={Room} />
+                    </Switch>
+                </Router>
             </div>
         )
     }

@@ -12,6 +12,7 @@ import {
     Link
 } from "react-router-dom";
 import { PlayerList } from './PlayerList';
+import { AmazonCoupAds } from './Ads';
 export const SocketContext = React.createContext()
 
 const useStyles = makeStyles((theme) => ({
@@ -151,17 +152,11 @@ export default function Room({ history, match, location }) {
         socket.emit('startGame')
     }
 
-    function isCreator() {
-        if (location.state !== undefined && location.state.data !== undefined) {
-            return location.state.data
-        }
-        return false;
-    }
-
     function gameOverPanel() {
         return (
             <div>
                 <h2>Winner is {winner}!</h2>
+                <AmazonCoupAds/>
             </div>
         )
     }
@@ -174,10 +169,6 @@ export default function Room({ history, match, location }) {
         setNameState({ ...nameState, name: value })
         console.log(`Client set player name to be ${value}`);
         // socket.emit('setName', value);
-    }
-
-    const onChange = event => {
-        setNameState({ ...nameState, name: event.target.value });
     }
 
     function setNamePanel() {
