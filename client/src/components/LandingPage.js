@@ -13,7 +13,7 @@ import Room from "./Room";
 import RulesModal from "./RulesModal";
 import { ColorButton } from "./ColorButton"
 import { CardsDisplay } from './CardsDisplay';
-import { AmazonCoupAds } from './Ads';
+import { AdsPanel} from './Ads';
 import './styles/styles.css';
 
 const footerStyle = {
@@ -27,19 +27,6 @@ const footerStyle = {
     height: "60px",
     width: "100%"
 };
-// const useStyles = makeStyles({
-//     root: {
-//         backgroundColor: 'blue', 
-//         color: 'white', 
-//         margin: "1rem", 
-//         height: "30px", 
-//         padding: "5px 5px", 
-//         '&:hover': {
-//             backgroundColor: '#0062cc',
-//         },
-//     },
-//   });
-
 
 function Heading() {
     return <div className="heading">Play Coup Online</div>;
@@ -50,12 +37,10 @@ function Footer() {
 }
 
 function Home() {
-    // const classes = useStyles(); 
     return (
         <div className="Home">
             <Heading />
-            <AmazonCoupAds />
-
+            <AdsPanel />
             <Link to="/create"><ColorButton>Create Room</ColorButton></Link>
             <Link to="/join"><ColorButton>Join Room</ColorButton></Link>
 

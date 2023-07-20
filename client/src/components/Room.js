@@ -12,7 +12,7 @@ import {
     Link
 } from "react-router-dom";
 import { PlayerList } from './PlayerList';
-import { AmazonCoupAds } from './Ads';
+import { AdsPanel } from './Ads';
 export const SocketContext = React.createContext()
 
 const useStyles = makeStyles((theme) => ({
@@ -156,7 +156,7 @@ export default function Room({ history, match, location }) {
         return (
             <div>
                 <h2>Winner is {winner}!</h2>
-                <AmazonCoupAds/>
+                <AdsPanel/>
             </div>
         )
     }

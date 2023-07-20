@@ -2,6 +2,24 @@ body {
     padding-bottom: 120px;
 }
 
+.ads {
+    display: flex; 
+    flex-direction: row;
+    justify-content: center;
+}
+
+.ads-group {
+    display: flex; 
+    flex-direction: row;  
+    justify-content: center;
+}
+
+@media (max-width: 800px) {
+    .ads {
+      flex-direction: column;
+    }
+  }
+
 .roomCode {
     font-family: 'Source Code Pro', monospace;
 }
@@ -17,8 +35,10 @@ body {
     transition-duration: 0.3s;
 }
 
-.ads {
+.amazonads {
     position: relative;
+    padding: 0 5vw; 
+    /* horizontal padding is 5 percent of viewport width, vertical padding is 0 */
 }
 
 .link:hover {
