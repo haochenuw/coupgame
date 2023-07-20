@@ -173,6 +173,15 @@ export default function Room({ history, match, location }) {
         )
     }
 
+    function gameOverPanel() {
+        return (
+            <div>
+                <h2>Winner is {winner}!</h2>
+                <AdsPanel/>
+            </div>
+        )
+    }
+
     function canStartGame() {
         return isAllPlayersReady() && isPlayerNumberAllowed() && isHost
     }
@@ -225,8 +234,7 @@ export default function Room({ history, match, location }) {
                 roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayerList players={players} me={me} myName={nameState.name} />
             }
             {
-                roomStatus === 'GAMEOVER' && 
-                <EndGameModal open={true} name={"xuz"}/> 
+                roomStatus === 'GAMEOVER' && gameOverPanel()
             }
         </div>
     )
