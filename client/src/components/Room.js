@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import MainGame from "./game/MainGame"
 import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
 import { createTheme, withStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
-import { green, purple } from '@material-ui/core/colors';
 import TextField from "@material-ui/core/TextField";
 import { ColorButton, ActionButton, ErrorButton } from './ColorButton';
 import {
@@ -13,6 +12,11 @@ import {
 } from "react-router-dom";
 import { PlayerList } from './PlayerList';
 import { AdsPanel } from './Ads';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
+import {EndGameModal} from "./EndGameModal"
+
+
 export const SocketContext = React.createContext()
 
 const useStyles = makeStyles((theme) => ({
@@ -21,21 +25,14 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const theme = createTheme({
-    palette: {
-        primary: green,
-    },
-});
-// const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"
-
 let socket = null;
 
 const MAX_PLAYERS = 6;
 const MIN_PLAYERS = 2;
 
 export default function Room({ history, match, location }) {
+    const ref = useRef();
     const roomName = match.params.name;
-    const classes = useStyles();
     const [nameState, setNameState] = useStateWithLocalStorage(
         roomName, { name: '', isRegistered: false }
     );
@@ -152,15 +149,6 @@ export default function Room({ history, match, location }) {
         socket.emit('startGame')
     }
 
-    function gameOverPanel() {
-        return (
-            <div>
-                <h2>Winner is {winner}!</h2>
-                <AdsPanel/>
-            </div>
-        )
-    }
-
     function onSaveName(value) {
         if (value === "") {
             setNameError("name cannot be empty");
@@ -237,7 +225,8 @@ export default function Room({ history, match, location }) {
                 roomStatus !== 'STARTED' && roomStatus !== 'GAME_IN_PROGRESS' && <PlayerList players={players} me={me} myName={nameState.name} />
             }
             {
-                roomStatus === 'GAMEOVER' && gameOverPanel()
+                roomStatus === 'GAMEOVER' && 
+                <EndGameModal open={true} name={"xuz"}/> 
             }
         </div>
     )

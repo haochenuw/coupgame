@@ -35,9 +35,18 @@ body {
     transition-duration: 0.3s;
 }
 
+.closebtn {
+    display: inline;
+}
+
+.winnertext {
+    color: white; 
+    font-size: 24px; 
+}
+
 .amazonads {
     position: relative;
-    padding: 0 5vw; 
+    padding: 0 1vw; 
     /* horizontal padding is 5 percent of viewport width, vertical padding is 0 */
 }
 
