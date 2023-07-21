@@ -3,7 +3,7 @@ import MainGame from "./game/MainGame"
 import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
-import { createTheme, withStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import {makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
 import TextField from "@material-ui/core/TextField";
 import { ColorButton, ActionButton, ErrorButton } from './ColorButton';
@@ -18,12 +18,6 @@ import {EndGameModal} from "./EndGameModal"
 
 
 export const SocketContext = React.createContext()
-
-const useStyles = makeStyles((theme) => ({
-    margin: {
-        margin: theme.spacing(2),
-    },
-}));
 
 let socket = null;
 

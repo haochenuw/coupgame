@@ -320,6 +320,10 @@ export default function MainGame(props) {
         )
     }
 
+    function handleDebugButtonClick(){
+        console.log(JSON.stringify(localGameState, null, 2))
+    }
+
     function alreadyMadeDecisionOnChallengeOrBlock() {
         if (localGameState === null) {
             return false;
@@ -446,8 +450,10 @@ export default function MainGame(props) {
         <div>
             {hasError && <h2 className="error">There's an error</h2>}
             {playerStatePanel()}
+            {/* {gameStateDebugPanel()} */}
             {hasError && <h3 className="error">Not enough Tokens</h3>}
             {localGameState !== null && <EventLog logs={localGameState.logs} />}
+            <WarningButton onClick={handleDebugButtonClick}>debug</WarningButton>
             <div className="in-game-footer">
             {localGameState !== null && <ActionBanner roundState={roundState} logs={localGameState.logs}/>}
             {
