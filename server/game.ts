@@ -518,9 +518,9 @@ export function checkForWinner(gameState: GameState): string | null {
 
 // mask gamestate. 
 export function maskState(gameState: GameState, playerId: string): GameState{
-    let copyState = JSON.parse(JSON.stringify(gameState))
+    let maskedState = JSON.parse(JSON.stringify(gameState))
 
-    copyState.playerStates.forEach(function(state, index, arr)  {
+    maskedState.playerStates.forEach(function(state, index, arr)  {
         state = state as PlayerState; 
 
         if (state.socket_id !== playerId){
@@ -534,8 +534,8 @@ export function maskState(gameState: GameState, playerId: string): GameState{
         }
         arr[index] = state; 
     });
-    copyState.deckState = null; 
-    return copyState; 
+    maskedState.deckState = null; 
+    return maskedState; 
 }
 
 // Handle player life lost. 

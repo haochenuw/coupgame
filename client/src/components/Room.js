@@ -92,7 +92,7 @@ export default function Room({ history, match, location }) {
         });
 
         socket.on('startGameResponse', (initialStateFromServer) => {
-            console.log('got start game response');
+            console.log(`got start game response`, JSON.stringify(initialStateFromServer, null,2));
             setInitialState(initialStateFromServer);
             setRoomStatus("STARTED");
         });
