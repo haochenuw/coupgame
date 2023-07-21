@@ -159,7 +159,7 @@ const main = async () => {
                 if (newPlayerStates === null) {
                     logError("connection before game fails...");
                     // disconnect the client.
-                    // client.disconnect(true);
+                    client.disconnect(true);
                     return;
                 } else{
                     logInfo("connection success!");
@@ -308,7 +308,9 @@ const main = async () => {
 
     function sendMaskedGameStates(namespace: Namespace, gameState: GameState, name: String) {
         for (let [clientId, clientSocket] of Object.entries(namespace.sockets)) {
-            (clientSocket as Socket).emit(name, maskState(gameState, clientId));
+            let maskedStateForPlayer = maskState(gameState, clientId); 
+            console.log(`computed masked state for player ${clientId} : ${JSON.stringify(maskedStateForPlayer)}`);
+            (clientSocket as Socket).emit(name, maskedStateForPlayer);
         }
     }
 };
