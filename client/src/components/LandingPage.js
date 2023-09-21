@@ -13,7 +13,7 @@ import Room from "./Room";
 import RulesModal from "./RulesModal";
 import { ColorButton } from "./ColorButton"
 import { CardsDisplay } from './CardsDisplay';
-import { AdsPanel} from './Ads';
+import { AdsPanel } from './Ads';
 import './styles/styles.css';
 
 const footerStyle = {
@@ -40,7 +40,7 @@ function Home() {
     return (
         <div className="Home">
             <Heading />
-            <AdsPanel />
+            {/* <AdsPanel /> */}
             <Link to="/create"><ColorButton>Create Room</ColorButton></Link>
             <Link to="/join"><ColorButton>Join Room</ColorButton></Link>
 

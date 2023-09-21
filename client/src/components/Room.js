@@ -3,7 +3,7 @@ import MainGame from "./game/MainGame"
 import './styles/buttons.css';
 import './styles/styles.css';
 import io from "socket.io-client";
-import {makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useStateWithLocalStorage } from './hooks/useStateWithLocalStorage';
 import TextField from "@material-ui/core/TextField";
 import { ColorButton, ActionButton, ErrorButton } from './ColorButton';
@@ -14,7 +14,7 @@ import { PlayerList } from './PlayerList';
 import { AdsPanel } from './Ads';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import {EndGameModal} from "./EndGameModal"
+import { EndGameModal } from "./EndGameModal"
 
 
 export const SocketContext = React.createContext()
@@ -37,15 +37,15 @@ export default function Room({ history, match, location }) {
     const [winner, setWinner] = useState(null);
     const [roomStatus, setRoomStatus] = useState('NOT_READY_TO_START');
     const [initialState, setInitialState] = useState(null);
-    const [isHost, setIsHost] = useState(false) 
+    const [isHost, setIsHost] = useState(false)
 
     useEffect(() => {
         console.log(`Effect block gets executed`);
-        let shouldConnect = socket === null 
+        let shouldConnect = socket === null
         // && nameState.name != ''; 
-        shouldConnect |= nameState.name !== '' && nameState.isRegistered === false; 
-        
-        if (shouldConnect){
+        shouldConnect |= nameState.name !== '' && nameState.isRegistered === false;
+
+        if (shouldConnect) {
             console.log(`connecting to socket.io...`);
             socket = io(`/${roomName}`, {
                 query: {
@@ -56,61 +56,61 @@ export default function Room({ history, match, location }) {
             console.log(`reconnection not executed!, name = ${nameState.name}`)
             socket.emit('playerCheck')
         }
-    }, [nameState]); 
+    }, [nameState]);
 
     useEffect(() => {
-        if (socket !== null) { 
-        socket.on("connect", () => {
-            console.log("connected to socket!")
-        });
+        if (socket !== null) {
+            socket.on("connect", () => {
+                console.log("connected to socket!")
+            });
 
-        socket.on("nameRegisterSuccess", () => {
-            setNameState({...nameState, isRegistered: true})
-        })
+            socket.on("nameRegisterSuccess", () => {
+                setNameState({ ...nameState, isRegistered: true })
+            })
 
-        socket.on("roomFull", () => {
-            setRoomStatus("ROOM_FULL");
-        });
+            socket.on("roomFull", () => {
+                setRoomStatus("ROOM_FULL");
+            });
 
-        socket.on("gameInProgress", () => {
-            setRoomStatus("GAME_IN_PROGRESS");
-        });
+            socket.on("gameInProgress", () => {
+                setRoomStatus("GAME_IN_PROGRESS");
+            });
 
-        socket.on("reconnectInGame", (currentState) => {
-            console.log("reconnect in game"); 
-            console.log(`setting the state to ${JSON.stringify(currentState)}`); 
-            setInitialState(currentState);
-            setRoomStatus("STARTED");
-        }); 
+            socket.on("reconnectInGame", (currentState) => {
+                console.log("reconnect in game");
+                console.log(`setting the state to ${JSON.stringify(currentState)}`);
+                setInitialState(currentState);
+                setRoomStatus("STARTED");
+            });
 
-        socket.on("playersUpdate", (players) => {
-            console.log('got players update', players);
-            setPlayers(players);
-            if (players.length > 0){
-                setIsHost(players[0].socket_id === socket.id); 
-            }
-        });
+            socket.on("playersUpdate", (players) => {
+                console.log('got players update', players);
+                setPlayers(players);
+                if (players.length > 0) {
+                    setIsHost(players[0].socket_id === socket.id);
+                }
+            });
 
-        socket.on('startGameResponse', (initialStateFromServer) => {
-            console.log(`got start game response`, JSON.stringify(initialStateFromServer, null,2));
-            setInitialState(initialStateFromServer);
-            setRoomStatus("STARTED");
-        });
+            socket.on('startGameResponse', (initialStateFromServer) => {
+                console.log(`got start game response`, JSON.stringify(initialStateFromServer, null, 2));
+                setInitialState(initialStateFromServer);
+                setRoomStatus("STARTED");
+            });
 
-        socket.on("initialState", state => {
-            console.log('state', JSON.stringify(state));
-        });
+            socket.on("initialState", state => {
+                console.log('state', JSON.stringify(state));
+            });
 
-        socket.on("gameOver", winner => {
-            console.log('game over: winner is', winner);
-            console.log("players = ", players)
-            setWinner(winner);
-            setRoomStatus("GAMEOVER");
-        });
+            socket.on("gameOver", winner => {
+                console.log('game over: winner is', winner);
+                console.log("players = ", players)
+                setWinner(winner);
+                setRoomStatus("GAMEOVER");
+            });
 
-        socket.on('nameExists', name => {
-            setNameError(`name ${name} already in use`)
-        })
+            socket.on('nameExists', name => {
+                setNameError(`name ${name} already in use`)
+            })
         }
     });
 
@@ -171,7 +171,7 @@ export default function Room({ history, match, location }) {
         return (
             <div>
                 <h2>Winner is {winner}!</h2>
-                <AdsPanel/>
+                {/* <AdsPanel/> */}
             </div>
         )
     }
